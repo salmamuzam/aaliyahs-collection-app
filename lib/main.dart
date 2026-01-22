@@ -6,6 +6,7 @@ import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 // Fathima Salma Muzammil - CB009970 (COM2461 Batch)
 // MAD1 Assignment Task 2 (Code Submission)
@@ -31,26 +32,28 @@ class AaliyahApp extends StatelessWidget {
       ChangeNotifierProvider(create: (_) => AuthProvider()),
     ],
 
-    child: MaterialApp(
-      title: 'Aaliyah\'s Collection',
-      debugShowCheckedModeBanner: false,
+    child: ToastificationWrapper(
+      child: MaterialApp(
+        title: 'Aaliyah\'s Collection',
+        debugShowCheckedModeBanner: false,
 
-      // Light Theme
-      themeMode: ThemeMode.system,
-      theme: AaliyahAppTheme.lightTheme.copyWith(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          AaliyahAppTheme.lightTheme.textTheme,
+        // Light Theme
+        themeMode: ThemeMode.system,
+        theme: AaliyahAppTheme.lightTheme.copyWith(
+          textTheme: GoogleFonts.poppinsTextTheme(
+            AaliyahAppTheme.lightTheme.textTheme,
+          ),
         ),
-      ),
 
-      // Dark Theme
-      darkTheme: AaliyahAppTheme.darkTheme.copyWith(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          AaliyahAppTheme.darkTheme.textTheme,
+        // Dark Theme
+        darkTheme: AaliyahAppTheme.darkTheme.copyWith(
+          textTheme: GoogleFonts.poppinsTextTheme(
+            AaliyahAppTheme.darkTheme.textTheme,
+          ),
         ),
+        // The app starts from the welcome screen
+        home: WelcomeScreen(),
       ),
-      // The app starts from the welcome screen
-      home: WelcomeScreen(),
     ),
   );
 }

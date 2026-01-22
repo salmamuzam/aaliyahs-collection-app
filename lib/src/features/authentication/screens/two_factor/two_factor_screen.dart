@@ -7,7 +7,7 @@ import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:snackify/snackify.dart';
+import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class TwoFactorScreen extends StatefulWidget {
@@ -35,11 +35,13 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
 
   Future<void> _verifyCode(AuthProvider authProvider) async {
     if (_otpCode.isEmpty || _otpCode.length < 6) {
-      Snackify.show(
+      toastification.show(
         context: context,
-        type: SnackType.error,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
         title: const Text("Error"),
-        subtitle: const Text("Please enter the 6-digit code"),
+        description: const Text("Please enter the 6-digit code"),
+        autoCloseDuration: const Duration(seconds: 3),
       );
       return;
     }
@@ -50,7 +52,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       code: _otpCode,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (result['status'] == 'success') {
       Navigator.pushAndRemoveUntil(
@@ -59,11 +61,13 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
         (route) => false,
       );
     } else {
-      Snackify.show(
+      toastification.show(
         context: context,
-        type: SnackType.error,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
         title: const Text("Verification Error"),
-        subtitle: Text(result['message'] ?? "Invalid verification code"),
+        description: Text(result['message'] ?? "Invalid verification code"),
+        autoCloseDuration: const Duration(seconds: 3),
       );
     }
   }

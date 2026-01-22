@@ -4,7 +4,7 @@ import 'package:aaliyahs_collection_estore/src/features/authentication/screens/l
 import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:snackify/snackify.dart';
+import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 // Refactored Sign Up Form
@@ -130,21 +130,25 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                                 _usernameController.text.isEmpty ||
                                 _emailController.text.isEmpty ||
                                 _passwordController.text.isEmpty) {
-                              Snackify.show(
+                              toastification.show(
                                 context: context,
-                                type: SnackType.error,
+                                type: ToastificationType.error,
+                                style: ToastificationStyle.flat,
                                 title: const Text("Form Error"),
-                                subtitle: const Text("Please fill all fields"),
+                                description: const Text("Please fill all fields"),
+                                autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
                             }
 
                             if (_passwordController.text != _confirmPasswordController.text) {
-                              Snackify.show(
+                              toastification.show(
                                 context: context,
-                                type: SnackType.error,
+                                type: ToastificationType.error,
+                                style: ToastificationStyle.flat,
                                 title: const Text("Password Mismatch"),
-                                subtitle: const Text("Passwords do not match"),
+                                description: const Text("Passwords do not match"),
+                                autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
                             }
@@ -158,25 +162,29 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                               passwordConfirmation: _confirmPasswordController.text,
                             );
 
-                            if (!mounted) return;
+                            if (!context.mounted) return;
 
                             if (response.statusCode == 201) {
-                              Snackify.show(
+                              toastification.show(
                                 context: context,
-                                type: SnackType.success,
+                                type: ToastificationType.success,
+                                style: ToastificationStyle.flat,
                                 title: const Text("Success"),
-                                subtitle: const Text("Account created successfully!"),
+                                description: const Text("Account created successfully!"),
+                                autoCloseDuration: const Duration(seconds: 3),
                               );
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (context) => const LoginScreen()),
                               );
                             } else {
-                              Snackify.show(
+                              toastification.show(
                                 context: context,
-                                type: SnackType.error,
+                                type: ToastificationType.error,
+                                style: ToastificationStyle.flat,
                                 title: const Text("Registration Error"),
-                                subtitle: const Text("Registration failed. Try again."),
+                                description: const Text("Registration failed. Try again."),
+                                autoCloseDuration: const Duration(seconds: 3),
                               );
                             }
                           },
