@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aaliyahs_collection_estore/src/constants/api_strings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -47,7 +48,13 @@ class AuthService {
     var body = json.encode(data);
     var url = Uri.parse('$baseURL/login');
     
+    debugPrint("Attempting login at: $url");
+    debugPrint("Login Data: $data");
+
     http.Response response = await http.post(url, headers: headers, body: body);
+    debugPrint("Login Response Status: ${response.statusCode}");
+    debugPrint("Login Response Body: ${response.body}");
+
     var responseData = json.decode(response.body);
 
     if (response.statusCode == 200) {

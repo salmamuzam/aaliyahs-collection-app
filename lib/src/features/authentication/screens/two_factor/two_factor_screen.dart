@@ -38,9 +38,9 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       toastification.show(
         context: context,
         type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        title: const Text("Error"),
-        description: const Text("Please enter the 6-digit code"),
+        style: ToastificationStyle.fillColored,
+        title: const Text("Empty Field"),
+        description: const Text("please enter the authentication code."),
         autoCloseDuration: const Duration(seconds: 3),
       );
       return;
@@ -52,7 +52,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       code: _otpCode,
     );
 
-    if (!context.mounted) return;
+    if (!mounted) return;
 
     if (result['status'] == 'success') {
       Navigator.pushAndRemoveUntil(
@@ -64,9 +64,9 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       toastification.show(
         context: context,
         type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        title: const Text("Verification Error"),
-        description: Text(result['message'] ?? "Invalid verification code"),
+        style: ToastificationStyle.fillColored,
+        title: const Text("Invalid Code"),
+        description: const Text("please enter a valid authentication code."),
         autoCloseDuration: const Duration(seconds: 3),
       );
     }

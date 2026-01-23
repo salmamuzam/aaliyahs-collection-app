@@ -1,6 +1,8 @@
 import 'package:aaliyahs_collection_estore/src/features/core/models/category.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 
 // This is the categories that is displayed on the home page
 
@@ -18,53 +20,91 @@ class CategoryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = MediaQuery.platformBrightnessOf(context);
-    final isDarkMode = brightness == Brightness.dark;
-
-    final backgroundColor = isDarkMode
-        ? (isSelected ? aaliyahPrimaryColor : aaliyahSecondaryColor)
-        : (isSelected ? aaliyahSecondaryColor : aaliyahPrimaryColor);
-
-    final textColor = isDarkMode
-        ? (isSelected ? Colors.white : Colors.black)
-        : (isSelected ? Colors.black : Colors.white);
-
-    final borderColor = isDarkMode ? Colors.white : Colors.black;
-
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Premium color palette based on app's theme
+    final Color selectedBg = aaliyahSecondaryColor;
+    final Color unselectedBg = isDarkMode ? Colors.grey.shade800 : Colors.white;
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 1),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor, width: 1),
-          color: backgroundColor,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                height: 20,
-                width: 15,
-                margin: const EdgeInsets.only(right: 2),
-                child: Image.asset(category.iconURL, fit: BoxFit.contain),
-              ),
-              // Text
-              Text(
-                category.name,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+        width: 85, // Slightly wider for better spacing
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Circular Icon Container with premium styling
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: 68,
+              width: 68,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? selectedBg : unselectedBg,
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected 
+                      ? aaliyahSecondaryColor.withOpacity(0.4) 
+                      : Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+                border: Border.all(
+                  color: isSelected ? aaliyahPrimaryColor.withOpacity(0.2) : Colors.transparent,
+                  width: 1.5,
                 ),
               ),
-            ],
-          ),
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(0.0), // Remove padding to cover full
+                  child: category.iconURL.startsWith('http')
+                      ? CachedNetworkImage(
+                          imageUrl: category.iconURL,
+                          placeholder: (context, url) => FadeShimmer(
+                            height: 68,
+                            width: 68,
+                            radius: 34,
+                            highlightColor: isDarkMode
+                                ? const Color(0xff3a3e3f)
+                                : const Color(0xfff9f9f9),
+                            baseColor: isDarkMode
+                                ? const Color(0xff2d2f30)
+                                : const Color(0xffe6e6e6),
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.category_outlined, 
+                            size: 24,
+                            color: isSelected ? aaliyahPrimaryColor : Colors.grey,
+                          ),
+                          fit: BoxFit.cover, // Cover full circle
+                        )
+                      : Image.asset(
+                          category.iconURL,
+                          fit: BoxFit.cover, // Cover full circle
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Category Name with dynamic styling
+            Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 12,
+                    letterSpacing: 0.2,
+                    color: isSelected 
+                        ? (isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor) 
+                        : (isDarkMode ? Colors.white70 : Colors.black87),
+                  ),
+            ),
+          ],
         ),
       ),
     );

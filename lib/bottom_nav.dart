@@ -4,6 +4,9 @@ import 'package:aaliyahs_collection_estore/src/features/core/screens/home/home_s
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
+import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
 
 // This is my fixed bottom navigation bar
 
@@ -16,6 +19,15 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserProvider>(context, listen: false).fetchUserProfile();
+      Provider.of<ProductProvider>(context, listen: false).fetchBestSellingProducts();
+    });
+  }
   final screens = [
     // The screens
     HomeScreen(),

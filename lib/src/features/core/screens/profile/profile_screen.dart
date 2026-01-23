@@ -1,12 +1,16 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
+import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
+import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/signup/signup_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/validators/validator.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // This is the profile page
 // Validation works if customer needs to update profile information
@@ -25,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
@@ -32,11 +37,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-
-    _firstNameController.text = aaliyahProfileFname;
-    _lastNameController.text = aaliyahProfileLname;
-    _emailController.text = aaliyahProfileEmail;
-    _passwordController.text = aaliyahProfilePassword;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = Provider.of<UserProvider>(context, listen: false).user;
+      if (user != null) {
+        _firstNameController.text = user.firstName;
+        _lastNameController.text = user.lastName;
+        _emailController.text = user.email;
+      }
+    });
   }
 
   @override
@@ -65,41 +73,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Profile image
-              Stack(
-                children: [
-                  SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: const Image(
-                        image: AssetImage(aaliyahProfileImage),
-                        fit: BoxFit.cover,
+              Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  final user = userProvider.user;
+                  final hasProfileImg = user != null && user.profilePhotoUrl.isNotEmpty;
+
+                  return Stack(
+                    children: [
+                      SizedBox(
+                        width: 120,
+                        height: 120,
+                        child: hasProfileImg
+                            ? CachedNetworkImage(
+                                imageUrl: user.profilePhotoUrl,
+                                httpHeaders: userProvider.token != null
+                                    ? {'Authorization': 'Bearer ${userProvider.token}'}
+                                    : null,
+                                imageBuilder: (context, imageProvider) => Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+                                  ),
+                                ),
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                errorWidget: (context, url, error) => const Image(
+                                  image: AssetImage(aaliyahProfileImage),
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const Image(image: AssetImage(aaliyahProfileImage), fit: BoxFit.cover),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: isDarkMode
-                            ? aaliyahSecondaryColor
-                            : aaliyahPrimaryColor,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
+                          ),
+                          child: Icon(
+                            Icons.camera_alt,
+                            color: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
+                            size: 20,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.camera_alt,
-                        color: isDarkMode
-                            ? aaliyahPrimaryColor
-                            : aaliyahSecondaryColor,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 50),
 
@@ -139,6 +164,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: aaliyahFormHeight - 20),
 
                     TextFormField(
+                      controller: _currentPasswordController,
+                      obscureText: !_isPasswordVisible,
+                      decoration: const InputDecoration(
+                        label: Text("Current Password"),
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                      validator: AaliyahValidator.validatePassword,
+                    ),
+                    const SizedBox(height: aaliyahFormHeight - 20),
+
+                    TextFormField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
@@ -165,45 +201,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: aaliyahFormHeight),
 
-                    // Edit Profile Button
+                    // Change Password Button
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            final snackBar = SnackBar(
-                              content: Text(
-                                "Successfully updated!",
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(
-                                      color: isDarkMode
-                                          ? aaliyahPrimaryColor
-                                          : aaliyahLightColor,
+                      child: Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                          return ElevatedButton(
+                            onPressed: userProvider.isLoading
+                                ? null
+                                : () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      final result = await userProvider.changePassword(
+                                        currentPassword: _currentPasswordController.text,
+                                        password: _passwordController.text,
+                                        passwordConfirmation: _passwordController.text,
+                                      );
+
+                                      if (!context.mounted) return;
+
+                                      if (result['status'] == 'success') {
+                                        toastification.show(
+                                          context: context,
+                                          type: ToastificationType.success,
+                                          style: ToastificationStyle.fillColored,
+                                          title: const Text("Success"),
+                                          description: Text(result['message']),
+                                          autoCloseDuration: const Duration(seconds: 3),
+                                        );
+                                      } else {
+                                        toastification.show(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          style: ToastificationStyle.fillColored,
+                                          title: const Text("Error"),
+                                          description: Text(result['message']),
+                                          autoCloseDuration: const Duration(seconds: 3),
+                                        );
+                                      }
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
+                              side: BorderSide.none,
+                            ),
+                            child: userProvider.isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  )
+                                : Text(
+                                    "CHANGE PASSWORD",
+                                    style: TextStyle(
+                                      color: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
                                       fontWeight: FontWeight.bold,
                                     ),
-                              ),
-                              duration: const Duration(seconds: 1),
-                            );
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(snackBar);
-                          }
+                                  ),
+                          );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDarkMode
-                              ? aaliyahSecondaryColor
-                              : aaliyahPrimaryColor,
-                          side: BorderSide.none,
-                        ),
-                        child: Text(
-                          aaliyahEditProfileText.toUpperCase(),
-                          style: TextStyle(
-                            color: isDarkMode
-                                ? aaliyahPrimaryColor
-                                : aaliyahSecondaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(height: aaliyahFormHeight),
@@ -213,56 +268,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(right: 8.0),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SignupScreen(),
+                            child: Consumer<UserProvider>(
+                              builder: (context, userProvider, child) {
+                                return ElevatedButton(
+                                  onPressed: () => _showDeleteConfirmation(context, userProvider),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red.shade900,
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    aaliyahDelete.toUpperCase(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: aaliyahLightColor,
+                                    ),
                                   ),
                                 );
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red.shade900,
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                aaliyahDelete.toUpperCase(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: aaliyahLightColor,
-                                ),
-                              ),
                             ),
                           ),
                         ),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8.0),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginScreen(),
+                            child: Consumer2<AuthProvider, UserProvider>(
+                              builder: (context, authProvider, userProvider, child) {
+                                return ElevatedButton(
+                                  onPressed: () async {
+                                    await authProvider.logout();
+                                    userProvider.clearUser();
+                                    if (!context.mounted) return;
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                      (route) => false,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    aaliyahSignOut.toUpperCase(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
+                                    ),
                                   ),
                                 );
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isDarkMode
-                                    ? aaliyahSecondaryColor
-                                    : aaliyahPrimaryColor,
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                aaliyahSignOut.toUpperCase(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDarkMode
-                                      ? aaliyahPrimaryColor
-                                      : aaliyahSecondaryColor,
-                                ),
-                              ),
                             ),
                           ),
                         ),
@@ -276,6 +330,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, UserProvider userProvider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete Account"),
+          content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("CANCEL"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final result = await userProvider.deleteAccount();
+                if (!context.mounted) return;
+                Navigator.pop(context); // Close dialog
+
+                if (result['status'] == 'success') {
+                  // Logout from AuthProvider as well
+                  Provider.of<AuthProvider>(context, listen: false).logout();
+                  
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
+                } else {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.fillColored,
+                    title: const Text("Error"),
+                    description: Text(result['message']),
+                    autoCloseDuration: const Duration(seconds: 3),
+                  );
+                }
+              },
+              child: const Text("DELETE", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

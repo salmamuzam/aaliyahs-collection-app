@@ -133,9 +133,9 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
-                                title: const Text("Form Error"),
-                                description: const Text("Please fill all fields"),
+                                style: ToastificationStyle.fillColored,
+                                title: const Text("Empty Fields"),
+                                description: const Text("please fill all registration fields."),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -145,9 +145,9 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
+                                style: ToastificationStyle.fillColored,
                                 title: const Text("Password Mismatch"),
-                                description: const Text("Passwords do not match"),
+                                description: const Text("passwords do not match, please try again."),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -168,9 +168,9 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.success,
-                                style: ToastificationStyle.flat,
-                                title: const Text("Success"),
-                                description: const Text("Account created successfully!"),
+                                style: ToastificationStyle.fillColored,
+                                title: const Text("Registration Successful"),
+                                description: const Text("your account has been created successfully."),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               Navigator.pushReplacement(
@@ -181,9 +181,9 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
-                                title: const Text("Registration Error"),
-                                description: const Text("Registration failed. Try again."),
+                                style: ToastificationStyle.fillColored,
+                                title: const Text("Registration Failed"),
+                                description: const Text("something went wrong during registration, please try again."),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                             }

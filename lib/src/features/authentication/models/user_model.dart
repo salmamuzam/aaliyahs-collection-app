@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class UserModel {
   final int id;
   final String firstName;
@@ -18,13 +20,27 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    String photoUrl = json['profile_photo_url'] ?? '';
+    
+    // Fix for Network/Emulator: Replace localhost/127.0.0.1/10.0.2.2 with 192.168.1.11
+    photoUrl = photoUrl.replaceAll('localhost', '192.168.1.11');
+    photoUrl = photoUrl.replaceAll('127.0.0.1', '192.168.1.11');
+    photoUrl = photoUrl.replaceAll('10.0.2.2', '192.168.1.11');
+    
+    debugPrint("UserModel: Final Translated Photo URL: $photoUrl");
+
+    // If for some reason Laravel returns a relative path
+    if (photoUrl.startsWith('/storage')) {
+      photoUrl = 'http://192.168.1.11:8000$photoUrl';
+    }
+
     return UserModel(
       id: json['id'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      username: json['username'],
-      email: json['email'],
-      profilePhotoUrl: json['profile_photo_url'],
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      profilePhotoUrl: photoUrl,
       token: json['token'],
     );
   }

@@ -70,4 +70,9 @@ class AuthProvider extends ChangeNotifier {
       return {'status': 'error', 'message': e.toString()};
     }
   }
+
+  Future<void> logout() async {
+    await _authService.logout();
+    notifyListeners();
+  }
 }

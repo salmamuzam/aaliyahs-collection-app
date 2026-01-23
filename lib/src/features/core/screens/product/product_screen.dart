@@ -1,104 +1,54 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
-import 'package:aaliyahs_collection_estore/repository/category_repository.dart';
-import 'package:aaliyahs_collection_estore/repository/product_repository.dart';
-import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
-import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/category.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/product_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
+import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
 import 'package:flutter/material.dart';
-
-// This is the product screen. All the products are filtered by category
-// That means when you click on a category, let's say abaya, it will show abayas, so basically products specific for that category
+import 'package:provider/provider.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 
 class ProductScreen extends StatefulWidget {
-  final String? initialCategory;
+  final int? initialCategoryId;
+  final String? initialCategoryName;
 
-  const ProductScreen({super.key, this.initialCategory});
+  const ProductScreen({super.key, this.initialCategoryId, this.initialCategoryName});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
 }
 
 class _ProductScreenState extends State<ProductScreen> {
-  int isSelected = 0;
-  List<Product> filteredProducts = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-
-    final initialCategoryName = widget.initialCategory ?? categories[0].name;
-    _setInitialCategory(initialCategoryName);
-    _filterProducts(initialCategoryName);
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
   }
 
-  void _setInitialCategory(String categoryName) {
-    final index = categories.indexWhere(
-      (category) => category.name == categoryName,
-    );
-    if (index != -1) {
-      setState(() {
-        isSelected = index;
-      });
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final provider = Provider.of<ProductProvider>(context, listen: false);
+      if (!provider.isFetchingMore && provider.hasMore) {
+        provider.loadMoreShopProducts();
+      }
     }
   }
 
-  void _filterProducts(String categoryName) {
-    setState(() {
-      if (categoryName == "All") {
-        filteredProducts = products;
-      } else {
-        filteredProducts = getProductsByCategory(categoryName);
-      }
-    });
-  }
-
-  void _onCategoryTap(int index, String categoryName) {
-    setState(() {
-      isSelected = index;
-    });
-    _filterProducts(categoryName);
-  }
-
-  void _onProductTap(Product product) {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 450),
-        reverseTransitionDuration: const Duration(
-          // I made it a bit fast, so that response time is fast, because in reality humans do not like to wait long time when shopping
-          milliseconds: 350,
-        ),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return ProductDetailScreen(product: product);
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeOutCubic;
-
-          var slideTween = Tween<Offset>(
-            begin: begin,
-            end: end,
-          ).chain(CurveTween(curve: curve));
-
-          var fadeTween = Tween<double>(
-            begin: 0.0,
-            end: 1.0,
-          ).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(slideTween),
-            child: FadeTransition(
-              opacity: animation.drive(fadeTween),
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
+  void _loadInitialData() {
+    final provider = Provider.of<ProductProvider>(context, listen: false);
+    // Fetch products based on the passed category ID, or all if null
+    provider.fetchShopProducts(categoryId: widget.initialCategoryId);
   }
 
   @override
@@ -106,121 +56,142 @@ class _ProductScreenState extends State<ProductScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Navigator.push(
+          onPressed: () => Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const BottomNavBar()),
           ),
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
-          aaliyahProductText,
-          style: Theme.of(context).textTheme.headlineSmall,
+          widget.initialCategoryName ?? "Shop All",
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(onPressed: _loadInitialData, icon: const Icon(Icons.refresh))
+        ],
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                double buttonWidth =
-                    constraints.maxWidth / categories.length - 8;
-
-                return Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(categories.length, (index) {
-                    final Category category = categories[index];
-                    return SizedBox(
-                      width: buttonWidth,
-                      child: _buildProductCategory(
-                        index: index,
-                        name: category.name,
-                        onTap: () => _onCategoryTap(index, category.name),
-                      ),
-                    );
-                  }),
-                );
-              },
-            ),
-          ),
-
+          _categorySelector(),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: _productsGrid(context),
-            ),
+            child: _productsGrid(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProductCategory({
-    required int index,
-    required String name,
-    required VoidCallback onTap,
-  }) {
-    final isDarkMode =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final bool selected = isSelected == index;
+  Widget _categorySelector() {
+    return Consumer<ProductProvider>(
+      builder: (context, provider, child) {
+        final categories = provider.categories;
+        if (categories.isEmpty) return const SizedBox.shrink();
 
-    final Color backgroundColor = isDarkMode
-        ? (selected ? aaliyahLightColor : aaliyahSecondaryColor)
-        : (selected ? aaliyahDarkColor : aaliyahPrimaryColor);
+        return Container(
+          height: 50,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: categories.length + 1,
+            itemBuilder: (context, index) {
+              final isAll = index == 0;
+              final cat = isAll ? null : categories[index - 1];
+              final isSelected = isAll 
+                  ? provider.selectedCategoryId == null 
+                  : provider.selectedCategoryId == cat?.id;
 
-    final Color textColor = isDarkMode
-        ? (selected ? aaliyahDarkColor : aaliyahDarkColor)
-        : (selected ? aaliyahLightColor : aaliyahLightColor);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          name,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-      ),
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(isAll ? "All" : cat!.name),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      provider.fetchShopProducts(categoryId: isAll ? null : cat?.id);
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  Widget _productsGrid(BuildContext context) {
-    if (filteredProducts.isEmpty) {
-      return Center(
-        child: Text(
-          "No products found in this category",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      );
-    }
+  Widget _productsGrid() {
+    return Consumer<ProductProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.shopProducts.isEmpty) {
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.7,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+            ),
+            itemCount: 6,
+            itemBuilder: (context, index) => FadeShimmer(
+              height: 200,
+              width: 150,
+              radius: 15,
+              highlightColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xff3a3e3f)
+                  : const Color(0xfff9f9f9),
+              baseColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xff2d2f30)
+                  : const Color(0xffe6e6e6),
+            ),
+          );
+        }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = constraints.maxWidth < 600 ? 2 : 4;
+        if (provider.errorMessage.isNotEmpty && provider.shopProducts.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Error: ${provider.errorMessage}", style: const TextStyle(color: Colors.red)),
+                ElevatedButton(onPressed: _loadInitialData, child: const Text("Retry"))
+              ],
+            ),
+          );
+        }
+
+        final products = provider.shopProducts;
+
+        if (products.isEmpty) {
+          return const Center(
+            child: Text("No products found in this category", style: TextStyle(fontWeight: FontWeight.bold)),
+          );
+        }
 
         return GridView.builder(
-          physics: const BouncingScrollPhysics(),
-          shrinkWrap: false,
-          itemCount: filteredProducts.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.75,
-            mainAxisSpacing: 12,
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.7,
+            mainAxisSpacing: 16,
             crossAxisSpacing: 16,
           ),
+          itemCount: products.length + (provider.hasMore ? 2 : 0),
           itemBuilder: (context, index) {
-            final product = filteredProducts[index];
+            if (index >= products.length) {
+              return provider.isFetchingMore 
+                ? const Center(child: CircularProgressIndicator()) 
+                : const SizedBox.shrink();
+            }
+            final product = products[index];
             return ProductCard(
               product: product,
-              onPress: () => _onProductTap(product),
+              onPress: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
+                );
+              },
             );
           },
         );

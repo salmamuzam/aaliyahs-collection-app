@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 
 // This is the product card to display the images, and it's responsive
 
@@ -24,12 +26,42 @@ class ProductCard extends StatelessWidget {
         children: [
           AspectRatio(
             aspectRatio: 1,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFE3E3E3),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Image.asset(product.image, fit: BoxFit.contain),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: product.image.startsWith('http')
+                  ? CachedNetworkImage(
+                      imageUrl: product.image,
+                      placeholder: (context, url) => FadeShimmer(
+                        height: 200,
+                        width: 200,
+                        radius: 15,
+                        highlightColor: isDarkMode
+                            ? const Color(0xff3a3e3f)
+                            : const Color(0xfff9f9f9),
+                        baseColor: isDarkMode
+                            ? const Color(0xff2d2f30)
+                            : const Color(0xffe6e6e6),
+                      ),
+                      imageBuilder: (context, imageProvider) => Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter, // Prevent head cutting
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey.shade100,
+                        child:
+                            const Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                    )
+                  : Image.asset(
+                      product.image,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter, // Prevent head cutting
+                    ),
             ),
           ),
           const SizedBox(height: 8),
@@ -47,7 +79,7 @@ class ProductCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Rs. ${product.price}",
+                product.price.contains('Rs') ? product.price : "Rs. ${product.price}",
                 style: Theme.of(
                   context,
                 ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),

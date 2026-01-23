@@ -1,6 +1,8 @@
 import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
+import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
+import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
 import 'package:aaliyahs_collection_estore/src/features/authentication/screens/welcome/welcome_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,8 @@ class AaliyahApp extends StatelessWidget {
       ChangeNotifierProvider(create: (_) => CartProvider()),
       ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => ProductProvider()),
     ],
 
     child: ToastificationWrapper(

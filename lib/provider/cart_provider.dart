@@ -16,10 +16,10 @@ class CartProvider extends ChangeNotifier {
       _cart.add(
         Product(
           name: product.name,
-          category: product.category,
+          categoryName: product.categoryName,
           price: product.price,
           description: product.description,
-          image: product.image,
+          images: product.images,
           quantity: 1,
         ),
       );
@@ -57,7 +57,8 @@ class CartProvider extends ChangeNotifier {
   totalPrice() {
     double total1 = 0.0;
     for (Product element in _cart) {
-      total1 += element.price * element.quantity;
+      double priceValue = double.tryParse(element.price) ?? 0.0;
+      total1 += priceValue * element.quantity;
     }
     return total1;
   }

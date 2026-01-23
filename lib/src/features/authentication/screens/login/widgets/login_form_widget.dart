@@ -97,9 +97,9 @@ class _LoginFormState extends State<LoginForm> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
-                                title: const Text("Error"),
-                                description: const Text("Please enter your login details"),
+                                style: ToastificationStyle.fillColored,
+                                title: const Text("Empty Fields"),
+                                description: const Text("please enter your email or username and password."),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -133,10 +133,10 @@ class _LoginFormState extends State<LoginForm> {
                               toastification.show(
                                 context: context,
                                 type: ToastificationType.error,
-                                style: ToastificationStyle.flat,
-                                title: const Text("Login Failed"),
-                                description: Text(result['message'] ?? "Invalid credentials"),
-                                autoCloseDuration: const Duration(seconds: 3),
+                                style: ToastificationStyle.fillColored,
+                                title: Text(result['status'] == 'error' && result['message'] != null ? "Login Error" : "Invalid Credentials"),
+                                description: Text(result['message'] ?? "Please enter a valid username/email and password."),
+                                autoCloseDuration: const Duration(seconds: 4),
                               );
                             }
                           },
