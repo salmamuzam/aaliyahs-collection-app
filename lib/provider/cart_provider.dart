@@ -57,7 +57,8 @@ class CartProvider extends ChangeNotifier {
   totalPrice() {
     double total1 = 0.0;
     for (Product element in _cart) {
-      double priceValue = double.tryParse(element.price) ?? 0.0;
+      String cleanPrice = element.price.replaceAll(RegExp(r'[^0-9.]'), '');
+      double priceValue = double.tryParse(cleanPrice) ?? 0.0;
       total1 += priceValue * element.quantity;
     }
     return total1;

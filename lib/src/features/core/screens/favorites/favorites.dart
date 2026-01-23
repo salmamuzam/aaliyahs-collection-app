@@ -5,6 +5,12 @@ import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/widgets/error_info.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/product_detail_screen.dart';
+import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:flutter/material.dart';
 
 // This is the page to store products which has been favorited
@@ -17,6 +23,9 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
+  GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  late Function(GlobalKey) runAddToCartAnimation;
+
   @override
   Widget build(BuildContext context) {
     final provider = FavoriteProvider.of(context);
@@ -37,96 +46,59 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
-          aaliyahFavoriteText,
-          style: Theme.of(context).textTheme.headlineSmall,
+          "My Wishlist",
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          CartAppBarAction(cartKey: cartKey),
+          const SizedBox(width: 8),
+        ],
       ),
-      body: finalList.isEmpty
-          ? _buildEmptyFavorites(context, isDesktop)
-          : _buildFavoriteList(finalList, isDarkMode),
+      body: AddToCartAnimation(
+        cartKey: cartKey,
+        height: 30,
+        width: 30,
+        opacity: 0.85,
+        dragAnimation: const DragToCartAnimationOptions(
+          rotation: true,
+        ),
+        jumpAnimation: const JumpAnimationOptions(),
+        createAddToCartAnimation: (runAddToCartAnimation) {
+          this.runAddToCartAnimation = runAddToCartAnimation;
+        },
+        child: finalList.isEmpty
+            ? _buildEmptyFavorites(context, isDesktop)
+            : _buildFavoriteList(finalList, isDarkMode, provider),
+      ),
     );
   }
 
-  Widget _buildFavoriteList(List<Product> favorites, bool isDarkMode) {
-    return ListView.builder(
+  Widget _buildFavoriteList(List<Product> favorites, bool isDarkMode, FavoriteProvider provider) {
+    return GridView.builder(
       padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.65,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+      ),
       itemCount: favorites.length,
       itemBuilder: (context, index) {
-        final favoriteItem = favorites[index];
-        return Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
-                borderRadius: BorderRadius.circular(20),
+        final product = favorites[index];
+        return ProductCard(
+          product: product,
+          isWishlist: true,
+          onPress: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailScreen(product: product),
               ),
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    height: 85,
-                    width: 85,
-                    padding: const EdgeInsets.all(10),
-                    child: Image.asset(favoriteItem.image),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        favoriteItem.name,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: isDarkMode
-                              ? aaliyahDarkColor
-                              : aaliyahLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        favoriteItem.category,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDarkMode
-                              ? aaliyahDarkColor
-                              : aaliyahLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Rs. ${favoriteItem.price}",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDarkMode
-                              ? aaliyahDarkColor
-                              : aaliyahLightColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: IconButton(
-                onPressed: () {
-                  favorites.removeAt(index);
-                  setState(() {});
-                },
-                icon: Icon(
-                  Icons.delete,
-                  color: isDarkMode
-                      ? aaliyahPrimaryColor
-                      : aaliyahSecondaryColor,
-                  size: 22,
-                ),
-              ),
-            ),
-          ],
+            );
+          },
+          onAddToCart: (key) {
+            runAddToCartAnimation(key);
+          },
         );
       },
     );

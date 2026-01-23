@@ -26,12 +26,13 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _currentPasswordController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  // Removed password controllers as requested
 
+  bool _isEditing = false;
   bool _isPasswordVisible = false;
 
   @override
@@ -43,6 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _firstNameController.text = user.firstName;
         _lastNameController.text = user.lastName;
         _emailController.text = user.email;
+        _usernameController.text = user.username;
       }
     });
   }
@@ -135,6 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     TextFormField(
                       controller: _firstNameController,
+                      readOnly: !_isEditing,
                       decoration: const InputDecoration(
                         label: Text(aaliyahFirstName),
                         prefixIcon: Icon(Icons.person_2_outlined),
@@ -143,8 +146,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: aaliyahFormHeight - 20),
 
+                    // Username Field (Added)
+                    TextFormField(
+                      controller: _usernameController,
+                      readOnly: true, 
+                      decoration: const InputDecoration(
+                        label: Text(aaliyahUsername),
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
+                    ),
+                    const SizedBox(height: aaliyahFormHeight - 20),
+
                     TextFormField(
                       controller: _lastNameController,
+                      readOnly: !_isEditing,
                       decoration: const InputDecoration(
                         label: Text(aaliyahLastName),
                         prefixIcon: Icon(Icons.person_2_outlined),
@@ -155,6 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     TextFormField(
                       controller: _emailController,
+                      readOnly: !_isEditing,
                       decoration: const InputDecoration(
                         label: Text(aaliyahEmail),
                         prefixIcon: Icon(Icons.email_outlined),
@@ -163,33 +179,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: aaliyahFormHeight - 20),
 
-                    TextFormField(
-                      controller: _currentPasswordController,
-                      obscureText: !_isPasswordVisible,
-                      decoration: const InputDecoration(
-                        label: Text("Current Password"),
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
-                      validator: AaliyahValidator.validatePassword,
-                    ),
+
                     const SizedBox(height: aaliyahFormHeight - 20),
 
+                    // Password Field (Display only/masked)
                     TextFormField(
-                      controller: _passwordController,
+                      initialValue: "********", 
+                      readOnly: true,
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         label: const Text(aaliyahPassword),
-                        prefixIcon: const Icon(Icons.password_outlined),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: isDarkMode
-                                ? aaliyahSecondaryColor
-                                : aaliyahPrimaryColor,
-                            size: 20,
-                          ),
+                          icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
                           onPressed: () {
                             setState(() {
                               _isPasswordVisible = !_isPasswordVisible;
@@ -197,68 +199,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
                       ),
-                      validator: AaliyahValidator.validatePassword,
                     ),
+                    const SizedBox(height: aaliyahFormHeight - 20),
+
+
                     const SizedBox(height: aaliyahFormHeight),
 
-                    // Change Password Button
+                    // Edit Profile Button
                     SizedBox(
                       width: double.infinity,
-                      child: Consumer<UserProvider>(
-                        builder: (context, userProvider, child) {
-                          return ElevatedButton(
-                            onPressed: userProvider.isLoading
-                                ? null
-                                : () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      final result = await userProvider.changePassword(
-                                        currentPassword: _currentPasswordController.text,
-                                        password: _passwordController.text,
-                                        passwordConfirmation: _passwordController.text,
-                                      );
-
-                                      if (!context.mounted) return;
-
-                                      if (result['status'] == 'success') {
-                                        toastification.show(
-                                          context: context,
-                                          type: ToastificationType.success,
-                                          style: ToastificationStyle.fillColored,
-                                          title: const Text("Success"),
-                                          description: Text(result['message']),
-                                          autoCloseDuration: const Duration(seconds: 3),
-                                        );
-                                      } else {
-                                        toastification.show(
-                                          context: context,
-                                          type: ToastificationType.error,
-                                          style: ToastificationStyle.fillColored,
-                                          title: const Text("Error"),
-                                          description: Text(result['message']),
-                                          autoCloseDuration: const Duration(seconds: 3),
-                                        );
-                                      }
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
-                              side: BorderSide.none,
-                            ),
-                            child: userProvider.isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                  )
-                                : Text(
-                                    "CHANGE PASSWORD",
-                                    style: TextStyle(
-                                      color: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          );
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_isEditing) {
+                            if (_formKey.currentState!.validate()) {
+                              // Perform update logic here
+                              setState(() {
+                                _isEditing = false;
+                              });
+                              toastification.show(
+                                context: context,
+                                type: ToastificationType.success,
+                                style: ToastificationStyle.fillColored,
+                                title: const Text("Success"),
+                                description: const Text("Profile Updated Successfully!"),
+                                autoCloseDuration: const Duration(seconds: 3),
+                              );
+                            }
+                          } else {
+                            setState(() {
+                              _isEditing = true;
+                            });
+                          }
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor,
+                          side: BorderSide.none,
+                        ),
+                        child: Text(
+                          _isEditing ? "SAVE PROFILE" : "EDIT PROFILE",
+                          style: TextStyle(
+                            color: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: aaliyahFormHeight),

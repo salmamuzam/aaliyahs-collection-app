@@ -1,9 +1,10 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/models/category.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
+
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/product_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
 import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
+import 'package:add_to_cart_animation/add_to_cart_animation.dart';
+import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
@@ -20,6 +21,8 @@ class ProductScreen extends StatefulWidget {
 
 class _ProductScreenState extends State<ProductScreen> {
   final ScrollController _scrollController = ScrollController();
+  GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  late Function(GlobalKey) runAddToCartAnimation;
 
   @override
   void initState() {
@@ -63,20 +66,35 @@ class _ProductScreenState extends State<ProductScreen> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
-          widget.initialCategoryName ?? "Shop All",
+          widget.initialCategoryName ?? "Shop",
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(onPressed: _loadInitialData, icon: const Icon(Icons.refresh))
+          const FavoriteAppBarAction(),
+          CartAppBarAction(cartKey: cartKey),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Column(
-        children: [
-          _categorySelector(),
-          Expanded(
-            child: _productsGrid(),
-          ),
-        ],
+      body: AddToCartAnimation(
+        cartKey: cartKey,
+        height: 30,
+        width: 30,
+        opacity: 0.85,
+        dragAnimation: const DragToCartAnimationOptions(
+          rotation: true,
+        ),
+        jumpAnimation: const JumpAnimationOptions(),
+        createAddToCartAnimation: (runAddToCartAnimation) {
+          this.runAddToCartAnimation = runAddToCartAnimation;
+        },
+        child: Column(
+          children: [
+            _categorySelector(),
+            Expanded(
+              child: _productsGrid(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -92,7 +110,7 @@ class _ProductScreenState extends State<ProductScreen> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.only(left: 16, right: 8), // Adjusted for alignment
             itemCount: categories.length + 1,
             itemBuilder: (context, index) {
               final isAll = index == 0;
@@ -128,21 +146,52 @@ class _ProductScreenState extends State<ProductScreen> {
             padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.7,
+              childAspectRatio: 0.65,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
             ),
             itemCount: 6,
-            itemBuilder: (context, index) => FadeShimmer(
-              height: 200,
-              width: 150,
-              radius: 15,
-              highlightColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xff3a3e3f)
-                  : const Color(0xfff9f9f9),
-              baseColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xff2d2f30)
-                  : const Color(0xffe6e6e6),
+            itemBuilder: (context, index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: FadeShimmer(
+                    height: 200,
+                    width: double.infinity,
+                    radius: 15,
+                    highlightColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff3a3e3f)
+                        : const Color(0xfff9f9f9),
+                    baseColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff2d2f30)
+                        : const Color(0xffe6e6e6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FadeShimmer(
+                  height: 16,
+                  width: 120,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+                const SizedBox(height: 4),
+                FadeShimmer(
+                  height: 14,
+                  width: 80,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+              ],
             ),
           );
         }
@@ -162,8 +211,57 @@ class _ProductScreenState extends State<ProductScreen> {
         final products = provider.shopProducts;
 
         if (products.isEmpty) {
-          return const Center(
-            child: Text("No products found in this category", style: TextStyle(fontWeight: FontWeight.bold)),
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.65,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+            ),
+            itemCount: 6,
+            itemBuilder: (context, index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: FadeShimmer(
+                    height: 200,
+                    width: double.infinity,
+                    radius: 15,
+                    highlightColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff3a3e3f)
+                        : const Color(0xfff9f9f9),
+                    baseColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff2d2f30)
+                        : const Color(0xffe6e6e6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FadeShimmer(
+                  height: 16,
+                  width: 120,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+                const SizedBox(height: 4),
+                FadeShimmer(
+                  height: 14,
+                  width: 80,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+              ],
+            ),
           );
         }
 
@@ -191,6 +289,9 @@ class _ProductScreenState extends State<ProductScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
                 );
+              },
+              onAddToCart: (key) {
+                runAddToCartAnimation(key);
               },
             );
           },

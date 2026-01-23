@@ -76,7 +76,24 @@ class AuthService {
 
   // Logout
   Future<void> logout() async {
-    await _storage.delete(key: 'token');
+    try {
+      var url = Uri.parse('$baseURL/logout');
+      var token = await _storage.read(key: 'token');
+      if (token != null) {
+        await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint("Logout error: $e");
+    } finally {
+      await _storage.delete(key: 'token');
+    }
   }
 
   // Get Token

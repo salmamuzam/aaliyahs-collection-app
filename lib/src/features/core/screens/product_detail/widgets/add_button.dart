@@ -12,11 +12,14 @@ import 'package:flutter/material.dart';
 class AddButton extends StatefulWidget {
   final double width, height;
   final Product product;
+  final Function(GlobalKey)? onAddToCart;
+
   AddButton({
     super.key,
     required this.width,
     required this.height,
     required this.product,
+    this.onAddToCart,
   });
 
   @override
@@ -25,6 +28,8 @@ class AddButton extends StatefulWidget {
 }
 
 class _AddButtonState extends State<AddButton> {
+  final GlobalKey widgetKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.platformBrightnessOf(context);
@@ -32,6 +37,7 @@ class _AddButtonState extends State<AddButton> {
     final provider = CartProvider.of(context);
 
     return Container(
+      key: widgetKey,
       width: widget.width,
       height: widget.height,
       decoration: BoxDecoration(
@@ -41,6 +47,7 @@ class _AddButtonState extends State<AddButton> {
       child: GestureDetector(
         onTap: () {
           provider.toggleFavorite(widget.product);
+          widget.onAddToCart?.call(widgetKey);
 
           final snackBar = SnackBar(
             content: Text(

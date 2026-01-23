@@ -3,7 +3,7 @@ import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/category_button.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/profile_screen.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/models/category.dart';
+
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/product_detail_screen.dart';
@@ -12,6 +12,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
+import 'package:add_to_cart_animation/add_to_cart_animation.dart';
+import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 
@@ -25,6 +27,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  late Function(GlobalKey) runAddToCartAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +56,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _fetchData,
-        child: _buildUI(context),
+        child: AddToCartAnimation(
+          cartKey: cartKey,
+          height: 30,
+          width: 30,
+          opacity: 0.85,
+          dragAnimation: const DragToCartAnimationOptions(
+            rotation: true,
+          ),
+          jumpAnimation: const JumpAnimationOptions(),
+          createAddToCartAnimation: (runAddToCartAnimation) {
+            this.runAddToCartAnimation = runAddToCartAnimation;
+          },
+          child: _buildUI(context),
+        ),
       ),
     );
   }
@@ -70,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _title(context),
               const SizedBox(height: 16),
               Text(
-                "Categories",
+                "Explore",
                 style: Theme.of(context)
                     .textTheme
                     .headlineMedium
@@ -105,116 +123,93 @@ class _HomeScreenState extends State<HomeScreen> {
                 ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
           ),
         ),
-        Consumer<UserProvider>(
+
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const FavoriteAppBarAction(),
+            CartAppBarAction(cartKey: cartKey),
+            const SizedBox(width: 8),
+
+            Consumer<UserProvider>(
           builder: (context, userProvider, child) {
             final user = userProvider.user;
-            final token = userProvider.token;
+            final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-            return Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (user != null)
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Hello, ${user.firstName}",
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              user.email,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfileScreen()),
-                      );
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border:
-                            Border.all(color: Colors.grey.shade300, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 5,
-                            spreadRadius: 2,
-                          )
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: (user != null && user.profilePhotoUrl.isNotEmpty)
-                            ? CachedNetworkImage(
-                                imageUrl: user.profilePhotoUrl,
-                                httpHeaders: token != null
-                                    ? {'Authorization': 'Bearer $token'}
-                                    : null,
-                                placeholder: (context, url) => FadeShimmer(
-                                  height: 50,
-                                  width: 50,
-                                  radius: 25,
-                                  highlightColor: Theme.of(context).brightness == Brightness.dark
-                                      ? const Color(0xff3a3e3f)
-                                      : const Color(0xfff9f9f9),
-                                  baseColor: Theme.of(context).brightness == Brightness.dark
-                                      ? const Color(0xff2d2f30)
-                                      : const Color(0xffe6e6e6),
-                                ),
-                                errorWidget: (context, url, error) {
-                                  debugPrint("CachedNetworkImage Error: $error");
-                                  return Image.asset(aaliyahProfileImage,
-                                      fit: BoxFit.cover);
-                                },
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(aaliyahProfileImage,
-                                fit: BoxFit.cover),
-                      ),
-                    ),
-                  ),
-                ],
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+              child: Container(
+                height: 45,
+                width: 45,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey.shade200,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22.5),
+                  child: user?.profilePhotoUrl != null && user!.profilePhotoUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: user.profilePhotoUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => FadeShimmer(
+                            height: 45,
+                            width: 45,
+                            radius: 22.5,
+                            highlightColor: isDarkMode ? const Color(0xff3a3e3f) : const Color(0xfff9f9f9),
+                            baseColor: isDarkMode ? const Color(0xff2d2f30) : const Color(0xffe6e6e6),
+                          ),
+                          errorWidget: (context, url, error) => const Icon(Icons.person),
+                        )
+                      : const Icon(Icons.person),
+                ),
               ),
             );
+
           },
+        ),
+        ],
         ),
       ],
     );
   }
 
   Widget _title(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        children: [
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
+        return Text.rich(
           TextSpan(
-            text: aaliyahTextSpan,
-            style: Theme.of(context).textTheme.headlineMedium,
+            children: [
+              TextSpan(
+                text: "Hello, ",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              TextSpan(
+                text: user?.firstName ?? "Guest",
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(text: "\n"),
+              TextSpan(
+                text: aaliyahTextSpan2,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ],
           ),
-          TextSpan(
-            text: aaliyahTextSpan2,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -228,9 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero, // Start at same line as heading
               itemCount: 5,
               itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.only(right: 8), // Reduced gap
                 child: Column(
                   children: [
                     FadeShimmer(
@@ -247,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     FadeShimmer(
                       height: 12,
-                      width: 50,
+                      width: 60,
                       radius: 4,
                       highlightColor: Theme.of(context).brightness == Brightness.dark
                           ? const Color(0xff3a3e3f)
@@ -274,11 +270,12 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero, // Start at same line as heading
             itemCount: categoriesData.length,
             itemBuilder: (context, index) {
               final cat = categoriesData[index];
               return Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.only(right: 0), // Removed gap as requested (or minimized)
                 child: CategoryButton(
                   category: cat,
                   isSelected: productProvider.selectedCategoryId == cat.id,
@@ -370,20 +367,51 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: 4,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.65,
               mainAxisSpacing: 12,
               crossAxisSpacing: 16,
             ),
-            itemBuilder: (context, index) => FadeShimmer(
-              height: 200,
-              width: 150,
-              radius: 15,
-              highlightColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xff3a3e3f)
-                  : const Color(0xfff9f9f9),
-              baseColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xff2d2f30)
-                  : const Color(0xffe6e6e6),
+            itemBuilder: (context, index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: FadeShimmer(
+                    height: 200,
+                    width: double.infinity,
+                    radius: 15,
+                    highlightColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff3a3e3f)
+                        : const Color(0xfff9f9f9),
+                    baseColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff2d2f30)
+                        : const Color(0xffe6e6e6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FadeShimmer(
+                  height: 16,
+                  width: 120,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+                const SizedBox(height: 4),
+                FadeShimmer(
+                  height: 14,
+                  width: 80,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+              ],
             ),
           );
         }
@@ -408,13 +436,58 @@ class _HomeScreenState extends State<HomeScreen> {
         final bestSellers = productProvider.bestSellingProducts;
 
         if (bestSellers.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.0),
-              child: Text(
-                "No sales yet",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+          // If empty but not loading/error, we still show shimmer for aesthetic placeholder
+          return GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: 4,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.65,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 16,
+            ),
+            itemBuilder: (context, index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: FadeShimmer(
+                    height: 200,
+                    width: double.infinity,
+                    radius: 15,
+                    highlightColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff3a3e3f)
+                        : const Color(0xfff9f9f9),
+                    baseColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff2d2f30)
+                        : const Color(0xffe6e6e6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FadeShimmer(
+                  height: 16,
+                  width: 120,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+                const SizedBox(height: 4),
+                FadeShimmer(
+                  height: 14,
+                  width: 80,
+                  radius: 4,
+                  highlightColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff3a3e3f)
+                      : const Color(0xfff9f9f9),
+                  baseColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xff2d2f30)
+                      : const Color(0xffe6e6e6),
+                ),
+              ],
             ),
           );
         }
@@ -439,6 +512,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   product: product,
                   onPress: () {
                     _navigateToProductDetailWithMaterial3(context, product);
+                  },
+                  onAddToCart: (key) {
+                    runAddToCartAnimation(key);
                   },
                 );
               },

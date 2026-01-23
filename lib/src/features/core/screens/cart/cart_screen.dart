@@ -107,9 +107,11 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 32.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               Text(
                                 cartItems.name,
                                 style: Theme.of(context).textTheme.bodyLarge
@@ -154,6 +156,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                               ),
                             ],
+                          ),
                           ),
                         ),
                       ],

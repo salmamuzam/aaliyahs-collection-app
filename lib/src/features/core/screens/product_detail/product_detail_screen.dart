@@ -1,7 +1,10 @@
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
-import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
+
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/widgets/add_button.dart';
+
+import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
+import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:flutter/material.dart';
 
 // This is the main screen of the product detail screen
@@ -15,32 +18,39 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  late Function(GlobalKey) runAddToCartAnimation;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: false,
-      body: _buildUI(context),
-
+      body: AddToCartAnimation(
+        cartKey: cartKey,
+        height: 30,
+        width: 30,
+        opacity: 0.85,
+        dragAnimation: const DragToCartAnimationOptions(
+          rotation: true,
+        ),
+        jumpAnimation: const JumpAnimationOptions(),
+        createAddToCartAnimation: (runAddToCartAnimation) {
+          this.runAddToCartAnimation = runAddToCartAnimation;
+        },
+        child: _buildUI(context),
+      ),
       appBar: _appBar(),
     );
   }
 
   PreferredSizeWidget _appBar() {
-    final provider = FavoriteProvider.of(context);
+
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        IconButton(
-          onPressed: () {
-            provider.toggleFavorite(widget.product);
-          },
-          icon: Icon(
-            provider.isExist(widget.product)
-                ? Icons.favorite
-                : Icons.favorite_outline,
-            size: 25,
-          ),
-        ),
+        const FavoriteAppBarAction(), // Using common widget for badge
+        CartAppBarAction(cartKey: cartKey), // Using common widget for badge and animation
+        const SizedBox(width: 8),
       ],
     );
   }
@@ -154,6 +164,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         width: MediaQuery.sizeOf(context).width * 0.8,
         height: MediaQuery.sizeOf(context).height * 0.05,
         product: widget.product,
+        onAddToCart: (key) {
+          runAddToCartAnimation(key);
+        },
       ),
     );
   }

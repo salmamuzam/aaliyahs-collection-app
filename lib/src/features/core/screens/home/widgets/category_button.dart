@@ -46,14 +46,14 @@ class CategoryButton extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: isSelected 
-                      ? aaliyahSecondaryColor.withOpacity(0.4) 
-                      : Colors.black.withOpacity(0.05),
+                      ? aaliyahSecondaryColor.withValues(alpha: 0.4) 
+                      : Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
                 ],
                 border: Border.all(
-                  color: isSelected ? aaliyahPrimaryColor.withOpacity(0.2) : Colors.transparent,
+                  color: isSelected ? aaliyahPrimaryColor.withValues(alpha: 0.2) : Colors.transparent,
                   width: 1.5,
                 ),
               ),
