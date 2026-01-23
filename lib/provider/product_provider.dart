@@ -100,66 +100,67 @@ class ProductProvider extends ChangeNotifier {
     try {
       if (categoryId == null) {
         // --- CASE: Shop All ---
-        // Some backends crash on /shop without any filter. 
-        // We handle this by fetching each category separately and merging them.
         debugPrint("Attempting to fetch ALL products via individual categories...");
         
         List<Product> allProducts = [];
         for (var category in _categories) {
           int page = 1;
-          bool catHasMore = true;
+          bool hasMoreData = true;
           
-          while (catHasMore) {
+          while (hasMoreData) {
+            debugPrint(">>> AUTO-FETCH: Cat ${category.name}, Page $page");
             final result = await _productService.getShopProducts(categoryId: category.id, page: page);
+            
             if (result['status'] == 'success') {
               List<dynamic> data = result['data'];
-              final pageProducts = data.map((json) => Product.fromJson(json)).toList();
-              allProducts.addAll(pageProducts);
+              final List<Product> pageProducts = data.map((json) => Product.fromJson(json)).toList();
               
+              if (pageProducts.isEmpty) {
+                debugPrint(">>> End of data reached for category ${category.name} at page $page");
+                hasMoreData = false;
+                break;
+              }
+
+              allProducts.addAll(pageProducts);
               _shopProducts = List.from(allProducts); // Update UI
               notifyListeners();
-
-              if (result['meta'] != null) {
-                int lastPage = result['meta']['last_page'] ?? 1;
-                int currentPage = result['meta']['current_page'] ?? 1;
-                catHasMore = currentPage < lastPage;
-                if (catHasMore) page++;
-              } else {
-                catHasMore = false;
-              }
+              
+              page++; // Always try the next page
             } else {
               debugPrint("Failed to fetch category ${category.name}, skipping...");
-              catHasMore = false;
+              hasMoreData = false;
             }
           }
         }
-        _hasMore = false; // Finished fetching all categories
+        _hasMore = false; 
       } else {
         // --- CASE: Specific Category ---
-        while (_hasMore) {
-          debugPrint("Fetching $categoryId - Page: $_currentPage");
-          final result = await _productService.getShopProducts(categoryId: categoryId, page: _currentPage);
+        int page = 1;
+        bool hasMoreData = true;
+        while (hasMoreData) {
+          debugPrint(">>> AUTO-FETCH: Category $categoryId, Page $page");
+          final result = await _productService.getShopProducts(categoryId: categoryId, page: page);
           
           if (result['status'] == 'success') {
             List<dynamic> data = result['data'];
             final List<Product> pageProducts = data.map((json) => Product.fromJson(json)).toList();
+            
+            if (pageProducts.isEmpty) {
+              debugPrint(">>> End of data reached for category $categoryId at page $page");
+              hasMoreData = false;
+              break;
+            }
+
             _shopProducts.addAll(pageProducts);
             notifyListeners();
-            
-            if (result['meta'] != null) {
-              int lastPage = result['meta']['last_page'] ?? 1;
-              int currentPage = result['meta']['current_page'] ?? 1;
-              _hasMore = currentPage < lastPage;
-              if (_hasMore) _currentPage++;
-            } else {
-              _hasMore = false;
-            }
+            page++;
           } else {
             _errorMessage = result['message'];
-            _hasMore = false;
+            hasMoreData = false;
             notifyListeners();
           }
         }
+        _hasMore = false;
       }
     } catch (e) {
       _errorMessage = e.toString();

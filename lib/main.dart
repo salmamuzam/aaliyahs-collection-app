@@ -19,6 +19,7 @@ import 'package:toastification/toastification.dart';
 // Google font package can be seen in pubspec.yaml file
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const AaliyahApp());
 }
 
