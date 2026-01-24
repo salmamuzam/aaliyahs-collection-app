@@ -48,6 +48,29 @@ dependencies:
   path: ^1.9.1
   badges: ^3.1.2
   add_to_cart_animation: ^2.0.4
+  awesome_snackbar_content: ^0.1.8
+  quickalert: ^1.1.0
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
+  image_picker: ^1.2.1
+  light: ^4.1.0
+  screen_brightness: ^2.1.7
+  connectivity_plus: ^7.0.0
+  flutter_stripe: ^12.2.0
+  flutter_dotenv: ^6.0.0
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
+  google_sign_in: ^6.2.1
+  auth_buttons: ^3.0.3
+  flutter_local_notifications: ^19.5.0
+  timeago: ^3.7.1
+  readmore: ^3.0.0
+  intl: ^0.20.2
+  lottie: ^3.3.2
+  pinput: ^6.0.1
+  skeletonizer: ^2.1.2
+  animate_do: ^4.2.0
+  smooth_page_indicator: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +105,7 @@ flutter:
     - assets/images/cart/
     - assets/images/wishlist/
     - assets/images/profile/
+    - assets/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,12 +1,15 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
 import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
-import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
-import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/widgets/check_out.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/widgets/error_info.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
+import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 // Main Cart Screen
 
@@ -55,11 +58,17 @@ class _CartScreenState extends State<CartScreen> {
           aaliyahCartTitle,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
+        actions: const [
+          FavoriteAppBarAction(),
+          CartAppBarAction(),
+          SizedBox(width: 8),
+        ],
       ),
       body: provider.isCartEmpty
           ? _buildEmptyCart(context)
           : _buildCartWithItems(
               context,
+              provider,
               finalList,
               isDarkMode,
               productQuantity,
@@ -69,6 +78,7 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildCartWithItems(
     BuildContext context,
+    CartProvider provider,
     List<Product> finalList,
     bool isDarkMode,
     Widget Function(IconData, int) productQuantity,
@@ -77,150 +87,139 @@ class _CartScreenState extends State<CartScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 140),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+          child: ListView.separated(
+            padding: const EdgeInsets.all(20),
+            separatorBuilder: (context, index) => Divider(
+              color: Colors.grey.withValues(alpha: 0.1),
+              height: 32,
+            ),
             itemCount: finalList.length,
             itemBuilder: (context, index) {
               final cartItems = finalList[index];
-              return Stack(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? aaliyahSecondaryColor
-                          : aaliyahPrimaryColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: 120,
-                          width: 100,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Image.asset(cartItems.image),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 32.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                              Text(
-                                cartItems.name,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(
-                                      color: isDarkMode
-                                          ? aaliyahDarkColor
-                                          : aaliyahLightColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                cartItems.category,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: isDarkMode
-                                          ? aaliyahDarkColor
-                                          : aaliyahLightColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "Rs. ${cartItems.price}",
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: isDarkMode
-                                          ? aaliyahDarkColor
-                                          : aaliyahLightColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Total: Rs. ${cartItems.price * cartItems.quantity}",
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          ),
-                        ),
-                      ],
-                    ),
+              return Dismissible(
+                key: Key(cartItems.id.toString()),
+                direction: DismissDirection.endToStart,
+                onDismissed: (direction) {
+                  _deleteItem(context, index);
+                },
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: IconButton(
-                      onPressed: () {
-                        _deleteItem(context, index);
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                        color: isDarkMode
-                            ? aaliyahPrimaryColor
-                            : aaliyahSecondaryColor,
-                        size: 22,
+                  child: Icon(Icons.delete_outline, color: Colors.red.shade400),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Image Container
+                      Container(
+                        height: 80,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? Colors.grey.shade800 : const Color(0xFFE0F2F1), // Light teal bg like reference
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: cartItems.image.startsWith('http')
+                              ? CachedNetworkImage(
+                                  imageUrl: cartItems.image,
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) => FadeShimmer(
+                                    height: 80,
+                                    width: 80,
+                                    radius: 12,
+                                    highlightColor: isDarkMode ? const Color(0xff3a3e3f) : const Color(0xfff9f9f9),
+                                    baseColor: isDarkMode ? const Color(0xff2d2f30) : const Color(0xffe6e6e6),
+                                  ),
+                                  errorWidget: (context, url, error) => const Icon(Icons.error_outline),
+                                )
+                              : Image.asset(cartItems.image, fit: BoxFit.contain),
+                        ),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 30,
-                    right: 10,
-                    child: Container(
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: isDarkMode
-                            ? aaliyahPrimaryColor
-                            : aaliyahSecondaryColor,
-                        border: Border.all(color: Colors.blueGrey, width: 1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(width: 8),
-                          productQuantity(Icons.remove, index),
-                          const SizedBox(width: 8),
-                          Text(
-                            cartItems.quantity.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isDarkMode
-                                  ? aaliyahLightColor
-                                  : aaliyahDarkColor,
-                              fontSize: 16,
+                      const SizedBox(width: 16),
+                      // Details & Quantity
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              cartItems.name,
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          productQuantity(Icons.add, index),
-                          const SizedBox(width: 8),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              cartItems.category,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Quantity Row
+                            Row(
+                              children: [
+                                _buildQtyBtn(Icons.remove, () => provider.decrementQtn(index), false),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text(
+                                    "${cartItems.quantity}",
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                _buildQtyBtn(Icons.add, () => provider.incrementQtn(index), true),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          "Rs. ${(cartItems.priceDouble * cartItems.quantity).toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               );
             },
           ),
         ),
-
         Positioned(bottom: 0, left: 0, right: 0, child: const CheckOutBox()),
       ],
+    );
+  }
+
+  Widget _buildQtyBtn(IconData icon, VoidCallback onTap, bool isBlue) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 24,
+        width: 24,
+        decoration: BoxDecoration(
+          color: isBlue ? Colors.blue.shade400 : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: isBlue ? Colors.white : Colors.black,
+        ),
+      ),
     );
   }
 
@@ -256,7 +255,10 @@ class _CartScreenState extends State<CartScreen> {
               SizedBox(
                 width: isDesktop ? 300 : 250,
                 height: isDesktop ? 200 : 250,
-                child: Image.asset(emptyCartIllustration, fit: BoxFit.contain),
+                child: Lottie.network(
+                  'https://assets5.lottiefiles.com/packages/lf20_qhmsz7uw.json',
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(height: 40),
 
@@ -270,7 +272,7 @@ class _CartScreenState extends State<CartScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const BottomNavBar(),
+                      builder: (context) => const ProductScreen(),
                     ),
                   );
                 },

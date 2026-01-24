@@ -29,6 +29,17 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
@@ -88,8 +99,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                       },
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.remove_red_eye_sharp
-                            : Icons.visibility_off_outlined,
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
                     ),
                   ),
@@ -110,8 +121,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                       },
                       icon: Icon(
                         _obscureConfirmPassword
-                            ? Icons.remove_red_eye_sharp
-                            : Icons.visibility_off_outlined,
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
                     ),
                   ),
@@ -134,8 +145,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                                 context: context,
                                 type: ToastificationType.error,
                                 style: ToastificationStyle.fillColored,
-                                title: const Text("Empty Fields"),
-                                description: const Text("please fill all registration fields."),
+                                title: const Text(aaliyahSignUpEmptyTitle),
+                                description: const Text(aaliyahSignUpEmptySubTitle),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -146,8 +157,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                                 context: context,
                                 type: ToastificationType.error,
                                 style: ToastificationStyle.fillColored,
-                                title: const Text("Password Mismatch"),
-                                description: const Text("passwords do not match, please try again."),
+                                title: const Text(aaliyahPasswordMismatchTitle),
+                                description: const Text(aaliyahPasswordMismatchSubTitle),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -169,8 +180,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                                 context: context,
                                 type: ToastificationType.success,
                                 style: ToastificationStyle.fillColored,
-                                title: const Text("Registration Successful"),
-                                description: const Text("your account has been created successfully."),
+                                title: const Text(aaliyahRegistrationSuccessTitle),
+                                description: const Text(aaliyahRegistrationSuccessSubTitle),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               Navigator.pushReplacement(
@@ -182,8 +193,8 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                                 context: context,
                                 type: ToastificationType.error,
                                 style: ToastificationStyle.fillColored,
-                                title: const Text("Registration Failed"),
-                                description: const Text("something went wrong during registration, please try again."),
+                                title: const Text(aaliyahRegistrationFailedTitle),
+                                description: const Text(aaliyahRegistrationFailedSubTitle),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                             }

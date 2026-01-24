@@ -1,16 +1,23 @@
+
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
 import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/address_fields.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/delivery_preferences.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/custom_text_field.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/order_summary.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/payment_method.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/personal_info.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/widgets/section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
-// This is the main checkout screen
+import 'package:aaliyahs_collection_estore/services/order_service.dart';
+import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
+import 'package:aaliyahs_collection_estore/provider/notification_provider.dart';
+import 'package:aaliyahs_collection_estore/provider/address_provider.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
+import 'package:aaliyahs_collection_estore/services/notification_service.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/checkout/order_success_screen.dart';
+
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -21,50 +28,118 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  // Delivery Details Controllers
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _postalCodeController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _zipController = TextEditingController();
 
-  String? _selectedProvince;
-  TimeOfDay? _selectedTime;
-  bool _cashOnDelivery = true;
+  // Card Controllers (Visual Only for now, but wired up)
+  final TextEditingController _cardNameController = TextEditingController();
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _expiryController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
 
-  final List<String> _provinces = [
-    'Western Province',
-    'Central Province',
-    'Southern Province',
-    'Northern Province',
-    'Eastern Province',
-    'North Western Province',
-    'North Central Province',
-    'Uva Province',
-    'Sabaragamuwa Province',
-  ];
+  bool _cashOnDelivery = true; // Default to Card (false) or COD (true)? snippet has card checked. I'll default to Card (false) to match snippet, but current app default was COD. I'll stick to snippet default: Card.
+  // Actually snippet: id="card" checked.
+  // But I'll default to COD (true) for safety/ease, or check snippet. Snippet has card checked.
+  // I will default to false (Card) to match visual, but since strip logic is heavy, maybe COD is safer? 
+  // User asked "LIKE THIS". I will default to Card (false).
+
+  bool _isLocationLoading = false;
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _zipController.dispose();
+    _cardNameController.dispose();
+    _cardNumberController.dispose();
+    _expiryController.dispose();
+    _cvvController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cashOnDelivery = false; 
+  }
 
   @override
   Widget build(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
-    final isDarkMode = brightness == Brightness.dark;
-    final cartProvider = Provider.of<CartProvider>(context);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 600;
-
-    final colors = CheckoutColors(isDarkMode);
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final CartProvider cartProvider = Provider.of<CartProvider>(context);
+    final CheckoutColors colors = CheckoutColors(isDarkMode);
 
     return Scaffold(
-      appBar: _buildAppBar(context, colors),
-      backgroundColor: colors.backgroundColor,
+      backgroundColor: isDarkMode ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC), // Slate 900 or Slate 50
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: isDarkMode ? Colors.white : Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "Checkout",
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(isDesktop ? 32 : 16),
+        padding: EdgeInsets.all(Responsive.getPadding(context)),
+        child: Form(
+          key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              OrderSummarySection(cartProvider: cartProvider, colors: colors),
-              const SizedBox(height: 24),
-              _buildCheckoutForm(cartProvider, colors, isDesktop),
+              if (Responsive.isMobile(context)) ...[
+                OrderSummarySection(cartProvider: cartProvider, colors: colors),
+                const SizedBox(height: 32),
+                _buildDeliveryDetails(context, isDarkMode),
+              ] else ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                        flex: 3, child: _buildDeliveryDetails(context, isDarkMode)),
+                    const SizedBox(width: 32),
+                    Expanded(
+                        flex: 2,
+                        child: OrderSummarySection(
+                            cartProvider: cartProvider, colors: colors)),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 32),
+
+               // Payment Section
+               PaymentMethodSection(
+                 cashOnDelivery: _cashOnDelivery,
+                 colors: colors,
+                 onChanged: (val) {
+                   setState(() {
+                     if (val != null) _cashOnDelivery = val;
+                   });
+                 },
+                 cardNameController: _cardNameController,
+                 cardNumberController: _cardNumberController,
+                 expiryController: _expiryController,
+                 cvvController: _cvvController,
+               ),
+               const SizedBox(height: 32),
+
+               // Action Buttons
+               _buildActionButtons(context, cartProvider),
+               const SizedBox(height: 20),
             ],
           ),
         ),
@@ -72,221 +147,309 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context, CheckoutColors colors) {
-    return AppBar(
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: Icon(Icons.arrow_back, color: colors.textColor),
-      ),
-      title: Text(
-        "Checkout",
-        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-          color: colors.textColor,
-          fontWeight: FontWeight.bold,
+  Widget _buildDeliveryDetails(BuildContext context, bool isDarkMode) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                "Delivery Details",
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                  fontSize: 18,
+                ),
+              ),
+            ),
+             // Saved Address Button
+            TextButton(
+              onPressed: () => _showSavedAddressesPicker(context),
+              child: const Text("Saved", style: TextStyle(fontSize: 12)),
+            ),
+             // Location Button
+            TextButton.icon(
+              onPressed: _isLocationLoading ? null : _useCurrentLocation,
+              icon: _isLocationLoading 
+                ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.my_location, size: 16),
+              label: const Text("GPS", style: TextStyle(fontSize: 12)),
+            ),
+          ],
         ),
-      ),
-      backgroundColor: colors.backgroundColor,
-      elevation: 0,
-      iconTheme: IconThemeData(color: colors.textColor),
+        const SizedBox(height: 24),
+        
+        Row(
+          children: [
+            Expanded(child: CustomTextField(label: "First Name", placeholder: "Enter First Name", controller: _firstNameController)),
+            const SizedBox(width: 16),
+            Expanded(child: CustomTextField(label: "Last Name", placeholder: "Enter Last Name", controller: _lastNameController)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        CustomTextField(label: "Email", placeholder: "Enter Email", controller: _emailController, keyboardType: TextInputType.emailAddress),
+        const SizedBox(height: 16),
+        CustomTextField(label: "Phone No.", placeholder: "Enter Phone No.", controller: _phoneController, keyboardType: TextInputType.phone),
+        const SizedBox(height: 16),
+        CustomTextField(label: "Address Line", placeholder: "Enter Address Line", controller: _addressController),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(child: CustomTextField(label: "City", placeholder: "Enter City", controller: _cityController)),
+            const SizedBox(width: 16),
+            Expanded(child: CustomTextField(label: "State", placeholder: "Enter State", controller: _stateController)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        CustomTextField(label: "Zip Code", placeholder: "Enter Zip Code", controller: _zipController, keyboardType: TextInputType.number),
+      ],
     );
   }
 
-  Widget _buildCheckoutForm(
-    CartProvider cartProvider,
-    CheckoutColors colors,
-    bool isDesktop,
-  ) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildPersonalInfoSection(colors, isDesktop),
-          const SizedBox(height: 24),
-          _buildAddressInfoSection(colors, isDesktop),
-          const SizedBox(height: 24),
-          _buildDeliveryPreferencesSection(colors),
-          const SizedBox(height: 24),
-          _buildPaymentMethodSection(colors),
-          const SizedBox(height: 40),
-          _buildPlaceOrderButton(cartProvider, colors),
+  Widget _buildActionButtons(BuildContext context, CartProvider cartProvider) {
+    return Column(
+      children: [
+         SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+               if (_formKey.currentState!.validate()) {
+                  _placeOrder(context, cartProvider);
+               }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2563EB), // Blue-600
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              elevation: 0,
+            ),
+            child: const Text(
+              "Complete Purchase",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: 0.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => const BottomNavBar()),
+              );
+            },
+            style: OutlinedButton.styleFrom(
+              backgroundColor: const Color(0xFFE5E7EB), // Gray-200
+              foregroundColor: const Color(0xFF0F172A), // Slate-900
+              side: const BorderSide(color: Color(0xFFD1D5DB)), // Gray-300
+              padding: const EdgeInsets.symmetric(vertical: 16),
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+               elevation: 0,
+            ),
+            child: const Text(
+              "Continue Shopping",
+               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: 0.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- Logic Functionality ---
+
+  Future<void> _useCurrentLocation() async {
+    setState(() => _isLocationLoading = true);
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) throw 'Location services are disabled.';
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) throw 'Location permissions are denied';
+      }
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+           _showPermissionDialog();
+        }
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty && mounted) {
+        Placemark place = placemarks[0];
+        setState(() {
+          _addressController.text = "${place.street ?? ''}, ${place.subLocality ?? ''}".replaceAll(RegExp(r'^, |,$'), '');
+          if (_addressController.text.isEmpty) _addressController.text = place.thoroughfare ?? "";
+          
+          _cityController.text = place.locality ?? "";
+          _stateController.text = place.administrativeArea ?? "";
+          _zipController.text = place.postalCode ?? "";
+        });
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      if (mounted) setState(() => _isLocationLoading = false);
+    }
+  }
+
+  void _showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Location Permission Required"),
+        content: const Text("Location permissions are permanently denied. Please open settings to enable them."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Geolocator.openAppSettings();
+            }, 
+            child: const Text("Open Settings")
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPersonalInfoSection(CheckoutColors colors, bool isDesktop) {
-    return _buildFormSection(
-      title: "Personal Information",
-      colors: colors,
-      child: PersonalInfoFields(
-        firstNameController: _firstNameController,
-        lastNameController: _lastNameController,
-        colors: colors,
-        isDesktop: isDesktop,
-      ),
-    );
-  }
-
-  Widget _buildAddressInfoSection(CheckoutColors colors, bool isDesktop) {
-    return _buildFormSection(
-      title: "Address Information",
-      colors: colors,
-      child: AddressInfoFields(
-        addressController: _addressController,
-        cityController: _cityController,
-        postalCodeController: _postalCodeController,
-        selectedProvince: _selectedProvince,
-        provinces: _provinces,
-        colors: colors,
-        isDesktop: isDesktop,
-        onProvinceChanged: (value) => setState(() => _selectedProvince = value),
-      ),
-    );
-  }
-
-  Widget _buildDeliveryPreferencesSection(CheckoutColors colors) {
-    return _buildFormSection(
-      title: "Delivery Preferences",
-      colors: colors,
-      child: DeliveryPreferencesSection(
-        selectedTime: _selectedTime,
-        colors: colors,
-        onTimeSelected: () => _selectTime(context),
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethodSection(CheckoutColors colors) {
-    return _buildFormSection(
-      title: "Payment Method",
-      colors: colors,
-      child: PaymentMethodSection(
-        cashOnDelivery: _cashOnDelivery,
-        colors: colors,
-        onChanged: (value) => setState(() => _cashOnDelivery = value ?? true),
-      ),
-    );
-  }
-
-  Widget _buildFormSection({
-    required String title,
-    required CheckoutColors colors,
-    required Widget child,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionTitle(title: title, colors: colors),
-        const SizedBox(height: 16),
-        child,
-      ],
-    );
-  }
-
-  Widget _buildPlaceOrderButton(
-    CartProvider cartProvider,
-    CheckoutColors colors,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            _placeOrder(context, cartProvider);
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colors.primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 2,
-          shadowColor: colors.primaryColor.withValues(alpha: 0.3),
-        ),
-        child: Text(
-          "PLACE ORDER - Rs. ${cartProvider.totalPrice()}",
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      initialEntryMode: TimePickerEntryMode.dial,
-      builder: (BuildContext context, Widget? child) {
-        final brightness = MediaQuery.of(context).platformBrightness;
-        final isDarkMode = brightness == Brightness.dark;
-
-        return Theme(
-          data: ThemeData(
-            colorScheme: ColorScheme.light(
-              primary: aaliyahPrimaryColor,
-              onPrimary: Colors.white,
-              surface: isDarkMode ? aaliyahDarkColor : aaliyahLightColor,
-              onSurface: isDarkMode ? aaliyahLightColor : aaliyahDarkColor,
-            ),
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: isDarkMode
-                  ? aaliyahDarkColor
-                  : aaliyahLightColor,
-              hourMinuteTextColor: isDarkMode
-                  ? aaliyahLightColor
-                  : aaliyahDarkColor,
-              hourMinuteColor: aaliyahPrimaryColor.withValues(alpha: 0.1),
-              dayPeriodTextColor: isDarkMode
-                  ? aaliyahLightColor
-                  : aaliyahDarkColor,
-              dayPeriodColor: aaliyahSecondaryColor.withValues(alpha: 0.1),
-              dialBackgroundColor: isDarkMode
-                  ? Color(0xFF2A2A2A)
-                  : Color(0xFFF8F5F2),
-              dialHandColor: aaliyahPrimaryColor,
-              dialTextColor: isDarkMode ? aaliyahLightColor : aaliyahDarkColor,
-              entryModeIconColor: aaliyahPrimaryColor,
-              dayPeriodBorderSide: BorderSide(color: aaliyahSecondaryColor),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() => _selectedTime = picked);
-    }
-  }
-
   void _placeOrder(BuildContext context, CartProvider cartProvider) {
-    final snackBar = SnackBar(
-      content: Text(
-        "Order Placed Successfully! You will pay Rs. ${cartProvider.totalPrice()} on delivery.",
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      duration: const Duration(seconds: 3),
-      backgroundColor: aaliyahPrimaryColor,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    if (!_cashOnDelivery) {
+        // Stripe Payment Logic
+        // Note: We are using the Stripe Sheet for actual processing, ignoring the visual fields for now to ensure security/functionality.
+        _makePayment(cartProvider.totalPrice());
+        return;
+    }
+    // COD Logic
+    _storeOrder("Cash on Delivery", cartProvider.totalPrice());
+    NotificationService.showOrderNotification(
+      title: aaliyahOrderConfirmed,
+      body: "Your COD order for Rs. ${cartProvider.totalPrice()} has been placed.",
     );
+     if (mounted) {
+       Provider.of<NotificationProvider>(context, listen: false).addNotification(
+          aaliyahOrderConfirmed,
+          "Your COD order for Rs. ${cartProvider.totalPrice()} has been placed.",
+       );
+     }
+    _showSuccessAndNavigate(cartProvider, "Order Placed Successfully!");
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  Future<void> _makePayment(double amount) async {
+    await OrderService().processStripePayment(
+      amount: amount,
+      currency: 'LKR',
+      onSuccess: () async {
+        final cartProvider = Provider.of<CartProvider>(context, listen: false);
+        await _storeOrder("Stripe (Paid)", cartProvider.totalPrice());
+        
+        NotificationService.showOrderNotification(
+          title: aaliyahPaymentSuccess,
+          body: "Your order for Rs. ${cartProvider.totalPrice()} is confirmed.",
+        );
+
+        if (mounted) {
+          Provider.of<NotificationProvider>(context, listen: false).addNotification(
+            aaliyahPaymentSuccess,
+            "Your order for Rs. ${cartProvider.totalPrice()} is confirmed.",
+          );
+        }
+
+        if (!mounted) return;
+        _showSuccessAndNavigate(cartProvider, aaliyahPaymentSuccess);
+      },
+      onError: (err) {
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment Error: $err")));
+        }
+      }
+    );
+  }
+
+  Future<void> _storeOrder(String paymentMethod, double amount) async {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final orderData = {
+      'date': DateTime.now().toIso8601String(),
+      'amount': amount,
+      'payment_method': paymentMethod,
+      'status': 'Pending',
+      'customer': {
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'address': _addressController.text,
+        'city': _cityController.text,
+        'state': _stateController.text,
+        'postalCode': _zipController.text,
+      },
+      'items': cartProvider.cart.map((item) => {
+          'productId': item.id,
+          'title': item.name,
+          'quantity': item.quantity,
+          'price': item.price,
+          'image': item.image,
+          'category': item.categoryName,
+      }).toList(),
+    };
+    await OrderService().storeOrderInFirebase(orderData: orderData);
+  }
+
+  void _showSuccessAndNavigate(CartProvider cartProvider, String message) async {
+    final String amount = cartProvider.formattedTotalPrice;
     cartProvider.clearCart();
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderSuccessScreen(orderAmount: amount),
+      ),
+      (route) => false,
+    );
+  }
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!context.mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavBar()),
-        (route) => false,
-      );
-    });
+  void _showSavedAddressesPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Consumer<AddressProvider>(
+        builder: (context, provider, child) {
+          final addresses = provider.addresses;
+          if (addresses.isEmpty) {
+            return const SizedBox(
+              height: 200,
+              child: Center(child: Text("No saved addresses.")),
+            );
+          }
+          return ListView.builder(
+            itemCount: addresses.length,
+            itemBuilder: (context, index) {
+              final addr = addresses[index];
+              return ListTile(
+                title: Text(addr['label'] ?? "Address"),
+                subtitle: Text("${addr['address']}, ${addr['city']}"),
+                onTap: () {
+                  setState(() {
+                    _addressController.text = addr['address'] ?? "";
+                    _cityController.text = addr['city'] ?? "";
+                    _stateController.text = addr['state'] ?? "";
+                    _zipController.text = addr['zip'] ?? "";
+                    _phoneController.text = addr['phone'] ?? "";
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

@@ -28,6 +28,13 @@ class _LoginFormState extends State<LoginForm> {
   bool _obscurePassword = true;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
@@ -62,8 +69,8 @@ class _LoginFormState extends State<LoginForm> {
                       },
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.remove_red_eye_sharp
-                            : Icons.visibility_off_outlined,
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
                     ),
                   ),
@@ -82,7 +89,11 @@ class _LoginFormState extends State<LoginForm> {
                         ),
                       );
                     },
-                    style: TextButton.styleFrom(foregroundColor: aaliyahPrimaryColor),
+                    style: TextButton.styleFrom(
+                      foregroundColor: MediaQuery.of(context).platformBrightness == Brightness.dark 
+                          ? aaliyahSecondaryColor
+                          : aaliyahPrimaryColor,
+                    ),
                     child: Text(aaliyahForgetPassword),
                   ),
                 ),
@@ -98,8 +109,8 @@ class _LoginFormState extends State<LoginForm> {
                                 context: context,
                                 type: ToastificationType.error,
                                 style: ToastificationStyle.fillColored,
-                                title: const Text("Empty Fields"),
-                                description: const Text("please enter your email or username and password."),
+                                title: const Text(aaliyahEmptyFieldTitle),
+                                description: const Text(aaliyahEmptyFieldSubTitle),
                                 autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
@@ -134,8 +145,8 @@ class _LoginFormState extends State<LoginForm> {
                                 context: context,
                                 type: ToastificationType.error,
                                 style: ToastificationStyle.fillColored,
-                                title: Text(result['status'] == 'error' && result['message'] != null ? "Login Error" : "Invalid Credentials"),
-                                description: Text(result['message'] ?? "Please enter a valid username/email and password."),
+                                title: const Text(aaliyahInvalidCredTitle),
+                                description: const Text(aaliyahInvalidCredSubTitle),
                                 autoCloseDuration: const Duration(seconds: 4),
                               );
                             }

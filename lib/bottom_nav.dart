@@ -38,7 +38,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
   ];
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: screens[index],
+    body: IndexedStack(
+      index: index,
+      children: screens,
+    ),
     bottomNavigationBar: NavigationBarTheme(
       data: NavigationBarThemeData(
         labelTextStyle: WidgetStatePropertyAll(

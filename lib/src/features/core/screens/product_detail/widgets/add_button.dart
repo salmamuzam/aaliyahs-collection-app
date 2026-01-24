@@ -46,7 +46,7 @@ class _AddButtonState extends State<AddButton> {
       ),
       child: GestureDetector(
         onTap: () {
-          provider.toggleFavorite(widget.product);
+          provider.addToCart(widget.product);
           widget.onAddToCart?.call(widgetKey);
 
           final snackBar = SnackBar(

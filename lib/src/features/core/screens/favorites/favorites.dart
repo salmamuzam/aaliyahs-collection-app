@@ -1,11 +1,8 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
 import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
-import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
-import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/widgets/error_info.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
@@ -14,6 +11,8 @@ import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:flutter/material.dart';
 
 // This is the page to store products which has been favorited
+import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -50,6 +49,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         actions: [
+          const FavoriteAppBarAction(),
           CartAppBarAction(cartKey: cartKey),
           const SizedBox(width: 8),
         ],
@@ -76,8 +76,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Widget _buildFavoriteList(List<Product> favorites, bool isDarkMode, FavoriteProvider provider) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Responsive.getGridColumnCount(context),
         childAspectRatio: 0.65,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
@@ -136,7 +136,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const BottomNavBar(),
+                      builder: (context) => const ProductScreen(),
                     ),
                   );
                 },

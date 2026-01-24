@@ -1,9 +1,9 @@
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
-import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/authentication/screens/signup/signup_screen.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 import 'package:flutter/material.dart';
 
 // Main Welcome Screen
@@ -21,14 +21,14 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
       body: Container(
-        padding: EdgeInsets.all(aaliyahDefaultSize),
+        padding: EdgeInsets.all(Responsive.getPadding(context)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             // Welcome Image
             Image(
               image: AssetImage(aaliyahWelcomeScreenImage),
-              height: height * 0.6,
+              height: (height * 0.5).clamp(150, 400),
             ),
             // Welcome Title & Subtitle
             Column(

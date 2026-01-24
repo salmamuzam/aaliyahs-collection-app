@@ -21,41 +21,51 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'estore_favorites.db');
     return await openDatabase(
       path,
-      version: 2, // Incremented version
+      version: 3, // Incremented version for addresses
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute('DROP TABLE IF EXISTS favorites');
-          await db.execute('''
-            CREATE TABLE favorites (
-              local_id INTEGER PRIMARY KEY AUTOINCREMENT,
-              id INTEGER,
-              name TEXT UNIQUE,
-              description TEXT,
-              price TEXT,
-              images TEXT,
-              category_name TEXT,
-              category_id INTEGER,
-              quantity INTEGER
-            )
-          ''');
+          await _createFavoritesTable(db);
+        }
+        if (oldVersion < 3) {
+          await _createAddressesTable(db);
         }
       },
       onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE favorites (
-            local_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            id INTEGER,
-            name TEXT UNIQUE,
-            description TEXT,
-            price TEXT,
-            images TEXT,
-            category_name TEXT,
-            category_id INTEGER,
-            quantity INTEGER
-          )
-        ''');
+        await _createFavoritesTable(db);
+        await _createAddressesTable(db);
       },
     );
+  }
+
+  Future<void> _createFavoritesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE favorites (
+        local_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER,
+        name TEXT UNIQUE,
+        description TEXT,
+        price TEXT,
+        images TEXT,
+        category_name TEXT,
+        category_id INTEGER,
+        quantity INTEGER
+      )
+    ''');
+  }
+
+  Future<void> _createAddressesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE addresses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        label TEXT,
+        address TEXT,
+        city TEXT,
+        state TEXT,
+        zip TEXT,
+        phone TEXT
+      )
+    ''');
   }
 
   Future<void> addFavorite(Product product) async {
@@ -109,5 +119,21 @@ class DatabaseService {
         quantity: maps[i]['quantity'],
       );
     });
+  }
+
+  // Address Management
+  Future<void> addAddress(Map<String, dynamic> address) async {
+    final db = await database;
+    await db.insert('addresses', address, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<Map<String, dynamic>>> getAddresses() async {
+    final db = await database;
+    return await db.query('addresses');
+  }
+
+  Future<void> deleteAddress(int id) async {
+    final db = await database;
+    await db.delete('addresses', where: 'id = ?', whereArgs: [id]);
   }
 }

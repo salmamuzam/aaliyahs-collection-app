@@ -8,29 +8,51 @@ import 'package:flutter/material.dart';
 
 // Main Sign Up Screen
 
+import 'package:aaliyahs_collection_estore/src/common_widgets/keyboard_dismisser.dart';
+
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        // Scrollable
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(aaliyahDefaultSize),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FormHeaderWidget(
-                  image: aaliyahWelcomeScreenImage,
-                  title: aaliyahSignUpTitle,
-                  subTitle: aaliyahSignUpSubTitle,
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    return KeyboardDismisser(
+      child: SafeArea(
+        child: Scaffold(
+          body: Stack(
+            children: [
+               // Subtle Top Background Design
+              Positioned(
+                 top: -100,
+                 right: -50,
+                 child: Container(
+                   height: 250,
+                   width: 250,
+                   decoration: BoxDecoration(
+                     color: isDarkMode ? Colors.white.withValues(alpha: 0.05) : Colors.orange.withValues(alpha: 0.05),
+                     shape: BoxShape.circle,
+                   ),
+                 ),
+              ),
+              SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(aaliyahDefaultSize),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FormHeaderWidget(
+                        image: aaliyahWelcomeScreenImage,
+                        title: aaliyahSignUpTitle,
+                        subTitle: aaliyahSignUpSubTitle,
+                      ),
+                      SignUpFormWidget(),
+                      SignUpFooterWidget(),
+                    ],
+                  ),
                 ),
-                SignUpFormWidget(),
-                SignUpFooterWidget(),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:aaliyahs_collection_estore/bottom_nav.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product_detail/product_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
@@ -7,7 +8,9 @@ import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:aaliyahs_collection_estore/src/common_widgets/app_bar_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fade_shimmer/fade_shimmer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 
 class ProductScreen extends StatefulWidget {
   final int? initialCategoryId;
@@ -89,13 +92,60 @@ class _ProductScreenState extends State<ProductScreen> {
         },
         child: Column(
           children: [
-            _categorySelector(),
+            FadeInDown(child: _searchAndSortRow()),
+            FadeInDown(
+              delay: const Duration(milliseconds: 200),
+              child: _categorySelector(),
+            ),
             Expanded(
-              child: _productsGrid(),
+              child: FadeInUp(
+                delay: const Duration(milliseconds: 400),
+                child: _productsGrid(),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _searchAndSortRow() {
+    return Consumer<ProductProvider>(
+      builder: (context, provider, child) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (value) => provider.setSearchQuery(value),
+                  decoration: InputDecoration(
+                    hintText: "Search products...",
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.sort),
+                tooltip: "Sort",
+                onSelected: (value) => provider.setSortOption(value),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'Newest', child: Text('Newest')),
+                  const PopupMenuItem(value: 'Price: Low to High', child: Text('Price: Low to High')),
+                  const PopupMenuItem(value: 'Price: High to Low', child: Text('Price: High to Low')),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -142,56 +192,29 @@ class _ProductScreenState extends State<ProductScreen> {
     return Consumer<ProductProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading && provider.shopProducts.isEmpty) {
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.65,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: FadeShimmer(
-                    height: 200,
-                    width: double.infinity,
-                    radius: 15,
-                    highlightColor: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xff3a3e3f)
-                        : const Color(0xfff9f9f9),
-                    baseColor: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xff2d2f30)
-                        : const Color(0xffe6e6e6),
-                  ),
+          return Skeletonizer(
+            enabled: true,
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: Responsive.getGridColumnCount(context),
+                childAspectRatio: 0.65,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              itemCount: 6,
+              itemBuilder: (context, index) => ProductCard(
+                product: Product(
+                  id: 0,
+                  name: 'Product Name Here',
+                  price: '1000',
+                  description: 'Description goes here...',
+                  images: [''],
+                  categoryName: 'Category',
                 ),
-                const SizedBox(height: 8),
-                FadeShimmer(
-                  height: 16,
-                  width: 120,
-                  radius: 4,
-                  highlightColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff3a3e3f)
-                      : const Color(0xfff9f9f9),
-                  baseColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff2d2f30)
-                      : const Color(0xffe6e6e6),
-                ),
-                const SizedBox(height: 4),
-                FadeShimmer(
-                  height: 14,
-                  width: 80,
-                  radius: 4,
-                  highlightColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff3a3e3f)
-                      : const Color(0xfff9f9f9),
-                  baseColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff2d2f30)
-                      : const Color(0xffe6e6e6),
-                ),
-              ],
+                onPress: () {},
+                onAddToCart: (k) {},
+              ),
             ),
           );
         }
@@ -208,57 +231,20 @@ class _ProductScreenState extends State<ProductScreen> {
           );
         }
 
-        final products = provider.shopProducts;
+        final products = provider.filteredShopProducts;
 
         if (products.isEmpty) {
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.65,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: FadeShimmer(
-                    height: 200,
-                    width: double.infinity,
-                    radius: 15,
-                    highlightColor: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xff3a3e3f)
-                        : const Color(0xfff9f9f9),
-                    baseColor: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xff2d2f30)
-                        : const Color(0xffe6e6e6),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FadeShimmer(
-                  height: 16,
-                  width: 120,
-                  radius: 4,
-                  highlightColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff3a3e3f)
-                      : const Color(0xfff9f9f9),
-                  baseColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff2d2f30)
-                      : const Color(0xffe6e6e6),
-                ),
-                const SizedBox(height: 4),
-                FadeShimmer(
-                  height: 14,
-                  width: 80,
-                  radius: 4,
-                  highlightColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff3a3e3f)
-                      : const Color(0xfff9f9f9),
-                  baseColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xff2d2f30)
-                      : const Color(0xffe6e6e6),
+                Icon(Icons.search_off, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(
+                  provider.searchQuery.isNotEmpty 
+                    ? "No results for \"${provider.searchQuery}\"" 
+                    : "No products found.",
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),
@@ -268,8 +254,8 @@ class _ProductScreenState extends State<ProductScreen> {
         return GridView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: Responsive.getGridColumnCount(context),
             childAspectRatio: 0.65,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,

@@ -62,8 +62,16 @@ const String aaliyahFavoriteText = "Wishlist";
 
 const String aaliyahProfileText = "Profile";
 const String aaliyahEditProfileText = "Edit Profile";
+const String aaliyahMyAccount = "My Account";
+const String aaliyahNotifications = "Notifications";
+const String aaliyahSettings = "Settings";
+const String aaliyahHelpCenter = "Help Center";
 const String aaliyahSignOut = "Log Out";
 const String aaliyahDelete = "Delete";
+const String aaliyahAutoBrightness = "Auto Brightness (Sensor)";
+const String aaliyahAutoBrightnessSub = "Adjust screen brightness based on ambient light";
+const String aaliyahDeleteAccount = "Delete Account";
+const String aaliyahDeleteAccountConfirm = "Are you sure you want to permanently delete your account? This action cannot be undone.";
 
 // Profile Information
 
@@ -82,3 +90,24 @@ const String aaliyah2FATitle = "Verification Code";
 const String aaliyah2FASubTitle = "Enter the 6-digit code from your authenticator app";
 const String aaliyahVerify = "Verify";
 const String aaliyahResendCode = "Use a recovery code";
+
+// Checkout & Payment
+const String aaliyahOrderPlaced = "Order Placed Successfully!";
+const String aaliyahOrderConfirmed = "Order Confirmed! 🎉";
+const String aaliyahPaymentSuccess = "Payment Successful!";
+const String aaliyahPayNow = "PAY NOW";
+const String aaliyahPlaceOrder = "PLACE ORDER";
+
+// Error Messages
+const String aaliyahEmptyFieldTitle = "Empty Fields!";
+const String aaliyahEmptyFieldSubTitle = "Please enter your email or username and password!";
+const String aaliyahInvalidCredTitle = "Invalid Credentials!";
+const String aaliyahInvalidCredSubTitle = "Please enter a valid email or username and password!";
+const String aaliyahSignUpEmptyTitle = "Empty Fields!";
+const String aaliyahSignUpEmptySubTitle = "Please fill in all information to sign up!";
+const String aaliyahPasswordMismatchTitle = "Password Mismatch";
+const String aaliyahPasswordMismatchSubTitle = "Passwords do not match, please try again.";
+const String aaliyahRegistrationSuccessTitle = "Registration Successful";
+const String aaliyahRegistrationSuccessSubTitle = "Your account has been created successfully.";
+const String aaliyahRegistrationFailedTitle = "Registration Failed";
+const String aaliyahRegistrationFailedSubTitle = "Something went wrong during registration, please try again.";

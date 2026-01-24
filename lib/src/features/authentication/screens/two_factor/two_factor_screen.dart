@@ -5,10 +5,10 @@ import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:pinput/pinput.dart';
 
 class TwoFactorScreen extends StatefulWidget {
   final String login;
@@ -21,20 +21,17 @@ class TwoFactorScreen extends StatefulWidget {
 }
 
 class _TwoFactorScreenState extends State<TwoFactorScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController());
+  final TextEditingController _pinController = TextEditingController();
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
+    _pinController.dispose();
     super.dispose();
   }
 
-  String get _otpCode => _controllers.map((e) => e.text).join();
-
   Future<void> _verifyCode(AuthProvider authProvider) async {
-    if (_otpCode.isEmpty || _otpCode.length < 6) {
+    final String code = _pinController.text;
+    if (code.isEmpty || code.length < 6) {
       toastification.show(
         context: context,
         type: ToastificationType.error,
@@ -49,7 +46,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     final result = await authProvider.verifyTwoFactor(
       login: widget.login,
       password: widget.password,
-      code: _otpCode,
+      code: code,
     );
 
     if (!mounted) return;
@@ -74,6 +71,34 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Pinput theme
+    final defaultPinTheme = PinTheme(
+      width: 56,
+      height: 56,
+      textStyle: TextStyle(
+        fontSize: 22,
+        color: isDarkMode ? Colors.white : const Color.fromRGBO(30, 60, 87, 1),
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: isDarkMode ? Colors.grey.shade700 : const Color.fromRGBO(234, 239, 243, 1)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
+      border: Border.all(color: const Color(0xFFFF7643)),
+      borderRadius: BorderRadius.circular(8),
+    );
+
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration?.copyWith(
+        color: isDarkMode ? Colors.grey.shade900 : const Color.fromRGBO(243, 246, 249, 1),
+      ),
+    );
+
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         return SafeArea(
@@ -95,28 +120,30 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                       subTitle: aaliyah2FASubTitle,
                     ),
                     const SizedBox(height: aaliyahFormHeight),
-                    Form(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: List.generate(6, (index) => _otpBox(context, index)),
+                    Column(
+                      children: [
+                        Pinput(
+                          length: 6,
+                          controller: _pinController,
+                          defaultPinTheme: defaultPinTheme,
+                          focusedPinTheme: focusedPinTheme,
+                          submittedPinTheme: submittedPinTheme,
+                          onCompleted: (pin) => _verifyCode(authProvider),
+                        ),
+                        const SizedBox(height: aaliyahFormHeight),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: authProvider.isLoading ? null : () => _verifyCode(authProvider),
+                            child: authProvider.isLoading
+                                ? LoadingAnimationWidget.staggeredDotsWave(
+                                    color: Colors.white,
+                                    size: 30,
+                                  )
+                                : const Text(aaliyahVerify),
                           ),
-                          const SizedBox(height: aaliyahFormHeight),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: authProvider.isLoading ? null : () => _verifyCode(authProvider),
-                              child: authProvider.isLoading
-                                  ? LoadingAnimationWidget.staggeredDotsWave(
-                                      color: Colors.white,
-                                      size: 30,
-                                    )
-                                  : const Text(aaliyahVerify),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -125,34 +152,6 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _otpBox(BuildContext context, int index) {
-    return SizedBox(
-      height: 60,
-      width: 50,
-      child: TextFormField(
-        controller: _controllers[index],
-        onChanged: (value) {
-          if (value.length == 1 && index < 5) {
-            FocusScope.of(context).nextFocus();
-          } else if (value.isEmpty && index > 0) {
-            FocusScope.of(context).previousFocus();
-          }
-        },
-        style: Theme.of(context).textTheme.headlineMedium,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        inputFormatters: [
-          LengthLimitingTextInputFormatter(1),
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        decoration: const InputDecoration(
-          counterText: "",
-          border: OutlineInputBorder(),
-        ),
-      ),
     );
   }
 }

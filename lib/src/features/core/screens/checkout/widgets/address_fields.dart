@@ -13,6 +13,8 @@ class AddressInfoFields extends StatelessWidget {
   final CheckoutColors colors;
   final bool isDesktop;
   final Function(String?) onProvinceChanged;
+  final VoidCallback onUseLocation;
+  final bool isLocationLoading;
 
   const AddressInfoFields({
     super.key,
@@ -24,12 +26,27 @@ class AddressInfoFields extends StatelessWidget {
     required this.colors,
     required this.isDesktop,
     required this.onProvinceChanged,
+    required this.onUseLocation,
+    required this.isLocationLoading,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: isLocationLoading ? null : onUseLocation,
+            icon: isLocationLoading 
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) 
+                : const Icon(Icons.my_location),
+            label: const Text("Use Current Location"),
+            style: TextButton.styleFrom(
+              foregroundColor: colors.primaryColor,
+            ),
+          ),
+        ),
         TextFormField(
           controller: addressController,
           maxLines: 2,

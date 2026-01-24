@@ -1,4 +1,6 @@
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class Product {
   final int? id;
   final String name;
@@ -21,22 +23,35 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    String? apiBase = dotenv.env['API_BASE_URL'];
+    String targetHost = '10.0.2.2'; // Default Emulator
+    if (apiBase != null) {
+      try {
+        Uri uri = Uri.parse(apiBase);
+        targetHost = uri.host;
+      } catch (_) {}
+    }
+
     List<String> translatedImages = [];
     if (json['images'] != null && json['images'] is List) {
       for (var img in json['images']) {
         String url = img.toString();
-        // IP Translation for 192.168.1.11
-        url = url.replaceAll('localhost', '192.168.1.11');
-        url = url.replaceAll('127.0.0.1', '192.168.1.11');
-        url = url.replaceAll('10.0.2.2', '192.168.1.11');
+        // Dynamic Translation based on Config
+        url = url.replaceAll('localhost', targetHost);
+        url = url.replaceAll('127.0.0.1', targetHost);
+        if (targetHost != '10.0.2.2') {
+           // If we are on physical device, we might need to replace emulator IP too
+           url = url.replaceAll('10.0.2.2', targetHost); 
+        }
         translatedImages.add(url);
       }
     } else if (json['image'] != null) {
-      // Handle cases where 'image' (singular) might be passed (e.g. from old repo)
       String url = json['image'].toString();
-      url = url.replaceAll('localhost', '192.168.1.11');
-      url = url.replaceAll('127.0.0.1', '192.168.1.11');
-      url = url.replaceAll('10.0.2.2', '192.168.1.11');
+      url = url.replaceAll('localhost', targetHost);
+      url = url.replaceAll('127.0.0.1', targetHost);
+      if (targetHost != '10.0.2.2') {
+          url = url.replaceAll('10.0.2.2', targetHost); 
+      }
       translatedImages.add(url);
     }
 
@@ -59,6 +74,12 @@ class Product {
   // To maintain compatibility with existing code
   String get image => images.isNotEmpty ? images[0] : '';
   String get category => categoryName;
+
+  /// Returns the price as a double, cleaning any non-numeric characters.
+  double get priceDouble {
+    final String cleanPrice = price.replaceAll(RegExp(r'[^0-9.]'), '');
+    return double.tryParse(cleanPrice) ?? 0.0;
+  }
 
   @override
   bool operator ==(Object other) =>

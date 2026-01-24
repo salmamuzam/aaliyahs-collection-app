@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "867637966430",
+    "firebase_url": "https://modest-fashion-app-default-rtdb.firebaseio.com",
+    "project_id": "modest-fashion-app",
+    "storage_bucket": "modest-fashion-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867637966430:android:f24f04f08fbdf92d35e6cf",
+        "android_client_info": {
+          "package_name": "com.example.aaliyahs_collection_estore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "867637966430-vm1uq6b226il59st5psdj7uekbd4fe0n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aaliyahs_collection_estore",
+            "certificate_hash": "24a5212169ec16e417bd3b2f038576da1b14d0cf"
+          }
+        },
+        {
+          "client_id": "867637966430-6l39kiagqf3bdav0ffcfcuvu6qr0n6in.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbJeyPHwQXkDE6H4TdcOz5fw6n1YH-IkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "867637966430-6l39kiagqf3bdav0ffcfcuvu6qr0n6in.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "867637966430-q8o19o3onvj73g0mp439vu8pouhujdh3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aaliyahsCollectionEstore"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
