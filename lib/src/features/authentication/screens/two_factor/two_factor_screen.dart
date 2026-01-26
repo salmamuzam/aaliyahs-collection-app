@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 
 class TwoFactorScreen extends StatefulWidget {
   final String login;
@@ -30,14 +31,15 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
   }
 
   Future<void> _verifyCode(AuthProvider authProvider) async {
+    if (authProvider.isLoading) return;
     final String code = _pinController.text;
     if (code.isEmpty || code.length < 6) {
       toastification.show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
-        title: const Text("Empty Field"),
-        description: const Text("please enter the authentication code."),
+        title: const Text("Empty Fields"),
+        description: const Text("Please enter your authentication code!"),
         autoCloseDuration: const Duration(seconds: 3),
       );
       return;
@@ -62,8 +64,8 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
-        title: const Text("Invalid Code"),
-        description: const Text("please enter a valid authentication code."),
+        title: const Text("Invalid Code!"),
+        description: const Text("Please enter a valid authentication code!"),
         autoCloseDuration: const Duration(seconds: 3),
       );
     }
@@ -79,17 +81,18 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       height: 56,
       textStyle: TextStyle(
         fontSize: 22,
-        color: isDarkMode ? Colors.white : const Color.fromRGBO(30, 60, 87, 1),
+        color: isDarkMode ? Colors.white : Colors.black,
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: isDarkMode ? Colors.grey.shade700 : const Color.fromRGBO(234, 239, 243, 1)),
+        border: Border.all(color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
+        color: isDarkMode ? Colors.grey.shade900 : const Color.fromRGBO(243, 246, 249, 1),
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: const Color(0xFFFF7643)),
+      border: Border.all(color: isDarkMode ? Colors.white : aaliyahPrimaryColor),
       borderRadius: BorderRadius.circular(8),
     );
 
@@ -103,17 +106,20 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       builder: (context, authProvider, child) {
         return SafeArea(
           child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ),
             body: SingleChildScrollView(
               child: Container(
-                padding: const EdgeInsets.all(aaliyahDefaultSize),
+                padding: const EdgeInsets.symmetric(horizontal: aaliyahDefaultSize),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back_ios, size: 20),
-                    ),
-                    const SizedBox(height: aaliyahDefaultSize),
                     const FormHeaderWidget(
                       image: aaliyahWelcomeScreenImage,
                       title: aaliyah2FATitle,
@@ -134,13 +140,13 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: authProvider.isLoading ? null : () => _verifyCode(authProvider),
+                            onPressed: () => _verifyCode(authProvider),
                             child: authProvider.isLoading
                                 ? LoadingAnimationWidget.staggeredDotsWave(
                                     color: Colors.white,
                                     size: 30,
                                   )
-                                : const Text(aaliyahVerify),
+                                : Text(aaliyahVerify.toUpperCase(), style: const TextStyle(color: Colors.white)),
                           ),
                         ),
                       ],

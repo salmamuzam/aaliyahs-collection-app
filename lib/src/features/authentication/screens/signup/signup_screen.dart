@@ -45,6 +45,8 @@ class SignupScreen extends StatelessWidget {
                         image: aaliyahWelcomeScreenImage,
                         title: aaliyahSignUpTitle,
                         subTitle: aaliyahSignUpSubTitle,
+                        heightBetween: 10,
+                        imageHeight: 0.12, // Reduced from default (usually 0.2 or higher)
                       ),
                       SignUpFormWidget(),
                       SignUpFooterWidget(),

@@ -41,6 +41,10 @@ class LoginFooterWidget extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const SignupScreen()),
               );
             },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null,
+              side: Theme.of(context).brightness == Brightness.dark ? const BorderSide(color: Color(0xFFE5EDEF)) : null,
+            ),
             child: Text(
               aaliyahSignup.toUpperCase(),
               style: const TextStyle(fontWeight: FontWeight.bold),

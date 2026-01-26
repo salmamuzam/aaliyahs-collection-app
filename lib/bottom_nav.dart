@@ -1,4 +1,5 @@
 import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/cart_screen.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/favorites/favorites.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/home_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
@@ -42,12 +43,23 @@ class _BottomNavBarState extends State<BottomNavBar> {
       index: index,
       children: screens,
     ),
-    bottomNavigationBar: NavigationBarTheme(
-      data: NavigationBarThemeData(
-        labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      child: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          indicatorColor: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.white.withValues(alpha: 0.2) 
+              : aaliyahPrimaryColor.withValues(alpha: 0.2),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+               return IconThemeData(
+                 color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+               );
+            }
+            return null; // Defer to default
+          }),
+          labelTextStyle: const WidgetStatePropertyAll(
+            TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
         ),
-      ),
       child: NavigationBar(
         height: 60,
         selectedIndex: index,

@@ -47,20 +47,26 @@ class _LoginFormState extends State<LoginForm> {
               children: [
                 TextFormField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person_outline),
+                    prefixIcon: Icon(Icons.person_outline, color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null),
                     labelText: aaliyahLoginLabel,
                     hintText: aaliyahLoginLabel,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    focusedBorder: Theme.of(context).brightness == Brightness.dark
+                        ? const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5EDEF), width: 2.0))
+                        : null,
                   ),
                   controller: _emailController,
                 ),
                 const SizedBox(height: aaliyahFormHeight),
                 TextFormField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.password_outlined),
+                    prefixIcon: Icon(Icons.password_outlined, color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null),
                     labelText: aaliyahPassword,
                     hintText: aaliyahPassword,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    focusedBorder: Theme.of(context).brightness == Brightness.dark
+                        ? const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5EDEF), width: 2.0))
+                        : null,
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
@@ -71,6 +77,7 @@ class _LoginFormState extends State<LoginForm> {
                         _obscurePassword
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null,
                       ),
                     ),
                   ),
@@ -90,8 +97,8 @@ class _LoginFormState extends State<LoginForm> {
                       );
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: MediaQuery.of(context).platformBrightness == Brightness.dark 
-                          ? aaliyahSecondaryColor
+                      foregroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFFE5EDEF)
                           : aaliyahPrimaryColor,
                     ),
                     child: Text(aaliyahForgetPassword),
@@ -101,56 +108,56 @@ class _LoginFormState extends State<LoginForm> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () async {
-                            if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahEmptyFieldTitle),
-                                description: const Text(aaliyahEmptyFieldSubTitle),
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              return;
-                            }
+                    onPressed: () async {
+                      if (authProvider.isLoading) return;
+                      
+                      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                        toastification.show(
+                          context: context,
+                          type: ToastificationType.error,
+                          style: ToastificationStyle.fillColored,
+                          title: const Text(aaliyahEmptyFieldTitle),
+                          description: const Text(aaliyahEmptyFieldSubTitle),
+                          autoCloseDuration: const Duration(seconds: 3),
+                        );
+                        return;
+                      }
 
-                            final result = await authProvider.login(
-                              _emailController.text,
-                              _passwordController.text,
-                            );
+                      final result = await authProvider.login(
+                        _emailController.text,
+                        _passwordController.text,
+                      );
 
-                            if (!context.mounted) return;
+                      if (!context.mounted) return;
 
-                            if (result['status'] == 'success') {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const BottomNavBar(),
-                                ),
-                              );
-                            } else if (result['status'] == '2fa_required') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TwoFactorScreen(
-                                    login: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahInvalidCredTitle),
-                                description: const Text(aaliyahInvalidCredSubTitle),
-                                autoCloseDuration: const Duration(seconds: 4),
-                              );
-                            }
-                          },
+                      if (result['status'] == 'success') {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BottomNavBar(),
+                          ),
+                        );
+                      } else if (result['status'] == '2fa_required') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TwoFactorScreen(
+                              login: _emailController.text,
+                              password: _passwordController.text,
+                            ),
+                          ),
+                        );
+                      } else {
+                        toastification.show(
+                          context: context,
+                          type: ToastificationType.error,
+                          style: ToastificationStyle.fillColored,
+                          title: const Text(aaliyahInvalidCredTitle),
+                          description: const Text(aaliyahInvalidCredSubTitle),
+                          autoCloseDuration: const Duration(seconds: 4),
+                        );
+                      }
+                    },
                     child: authProvider.isLoading
                         ? LoadingAnimationWidget.staggeredDotsWave(
                             color: Colors.white,
@@ -158,7 +165,7 @@ class _LoginFormState extends State<LoginForm> {
                           )
                         : Text(
                             aaliyahLogin.toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                   ),
                 ),

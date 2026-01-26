@@ -50,24 +50,32 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  decoration: const InputDecoration(
-                    label: Text(aaliyahFirstName),
-                    prefixIcon: Icon(Icons.person_outline_rounded),
-                    border: OutlineInputBorder(),
-                  ),
-                  controller: _firstNameController,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          label: Text(aaliyahFirstName),
+                          prefixIcon: Icon(Icons.person_outline_rounded),
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: _firstNameController,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          label: Text(aaliyahLastName),
+                          prefixIcon: Icon(Icons.person_outline_rounded),
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: _lastNameController,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: aaliyahFormHeight - 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    label: Text(aaliyahLastName),
-                    prefixIcon: Icon(Icons.person_outline_rounded),
-                    border: OutlineInputBorder(),
-                  ),
-                  controller: _lastNameController,
-                ),
-                const SizedBox(height: aaliyahFormHeight - 20),
+                const SizedBox(height: 15),
                 TextFormField(
                   decoration: const InputDecoration(
                     label: Text(aaliyahUsername),
@@ -76,7 +84,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                   ),
                   controller: _usernameController,
                 ),
-                const SizedBox(height: aaliyahFormHeight - 20),
+                const SizedBox(height: 15),
                 TextFormField(
                   decoration: const InputDecoration(
                     label: Text(aaliyahEmail),
@@ -85,7 +93,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                   ),
                   controller: _emailController,
                 ),
-                const SizedBox(height: aaliyahFormHeight - 20),
+                const SizedBox(height: 15),
                 TextFormField(
                   decoration: InputDecoration(
                     label: const Text(aaliyahPassword),
@@ -107,7 +115,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                 ),
-                const SizedBox(height: aaliyahFormHeight - 20),
+                const SizedBox(height: 15),
                 TextFormField(
                   decoration: InputDecoration(
                     label: const Text(aaliyahConfirmPassword),
@@ -133,11 +141,11 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () async {
-                            if (_firstNameController.text.isEmpty ||
-                                _lastNameController.text.isEmpty ||
+                    onPressed: () async {
+                      if (authProvider.isLoading) return;
+
+                      if (_firstNameController.text.isEmpty ||
+                          _lastNameController.text.isEmpty ||
                                 _usernameController.text.isEmpty ||
                                 _emailController.text.isEmpty ||
                                 _passwordController.text.isEmpty) {
@@ -201,7 +209,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                           },
                     child: authProvider.isLoading
                         ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 30)
-                        : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ),
               ],

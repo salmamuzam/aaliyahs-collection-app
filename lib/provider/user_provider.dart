@@ -71,6 +71,28 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// Updates user profile details.
+  Future<bool> updateProfile({
+    required String firstName,
+    required String lastName,
+  }) async {
+    _setLoading(true);
+    try {
+      final result = await _userService.updateProfile(firstName: firstName, lastName: lastName);
+      if (result['status'] == 'success') {
+        // Refresh profile to update local state
+        await fetchUserProfile();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Update Profile Error: $e");
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   /// Updates the user's password.
   Future<Map<String, dynamic>> changePassword({
     required String currentPassword,

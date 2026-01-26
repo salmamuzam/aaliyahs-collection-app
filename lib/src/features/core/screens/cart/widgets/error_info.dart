@@ -63,14 +63,10 @@ class ErrorInfo extends StatelessWidget {
                       isDesktop ? 200 : double.infinity,
                       isDesktop ? 56 : 48,
                     ),
-                    backgroundColor: isDarkMode
-                        ? aaliyahPrimaryColor
-                        : aaliyahSecondaryColor,
-                    foregroundColor: isDarkMode
-                        ? aaliyahLightColor
-                        : aaliyahDarkColor,
+                    backgroundColor: aaliyahPrimaryColor,
+                    foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderRadius: BorderRadius.zero,
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

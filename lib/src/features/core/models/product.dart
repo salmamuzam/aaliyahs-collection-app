@@ -1,5 +1,6 @@
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:aaliyahs_collection_estore/src/constants/api_strings.dart';
+import 'package:aaliyahs_collection_estore/utils/formatters/text_formatter.dart';
 
 class Product {
   final int? id;
@@ -23,36 +24,35 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    String? apiBase = dotenv.env['API_BASE_URL'];
-    String targetHost = '10.0.2.2'; // Default Emulator
-    if (apiBase != null) {
-      try {
-        Uri uri = Uri.parse(apiBase);
-        targetHost = uri.host;
-      } catch (_) {}
+    List<String> validImages = [];
+    
+    // Helper to process a single URL
+    String processUrl(String url) {
+       if (url.isEmpty) return '';
+       
+       // 1. Handle complete URLs pointing to localhost/emulator IPs
+       if (url.startsWith('http')) {
+           if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2')) {
+              final Uri uri = Uri.parse(url);
+              return "$rootBaseURL${uri.path}";
+           }
+           return url;
+       }
+
+       // 2. Handle relative paths (e.g. /storage/... or storage/...)
+       if (url.startsWith('/')) {
+           return "$rootBaseURL$url";
+       } else {
+           return "$rootBaseURL/$url";
+       }
     }
 
-    List<String> translatedImages = [];
     if (json['images'] != null && json['images'] is List) {
       for (var img in json['images']) {
-        String url = img.toString();
-        // Dynamic Translation based on Config
-        url = url.replaceAll('localhost', targetHost);
-        url = url.replaceAll('127.0.0.1', targetHost);
-        if (targetHost != '10.0.2.2') {
-           // If we are on physical device, we might need to replace emulator IP too
-           url = url.replaceAll('10.0.2.2', targetHost); 
-        }
-        translatedImages.add(url);
+        validImages.add(processUrl(img.toString()));
       }
     } else if (json['image'] != null) {
-      String url = json['image'].toString();
-      url = url.replaceAll('localhost', targetHost);
-      url = url.replaceAll('127.0.0.1', targetHost);
-      if (targetHost != '10.0.2.2') {
-          url = url.replaceAll('10.0.2.2', targetHost); 
-      }
-      translatedImages.add(url);
+      validImages.add(processUrl(json['image'].toString()));
     }
 
     return Product(
@@ -60,7 +60,7 @@ class Product {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       price: json['price']?.toString() ?? '0',
-      images: translatedImages,
+      images: validImages,
       categoryId: json['category'] != null && json['category'] is Map 
           ? json['category']['id'] 
           : null,
@@ -73,7 +73,8 @@ class Product {
 
   // To maintain compatibility with existing code
   String get image => images.isNotEmpty ? images[0] : '';
-  String get category => categoryName;
+  String get category => TFormatter.toSentenceCase(categoryName);
+  String get displayName => TFormatter.toSentenceCase(name);
 
   /// Returns the price as a double, cleaning any non-numeric characters.
   double get priceDouble {

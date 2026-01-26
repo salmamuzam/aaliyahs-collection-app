@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 // Bottom Checkout Section in Cart Screen
 
 class CheckOutBox extends StatelessWidget {
-  const CheckOutBox({super.key});
+  final bool isDarkMode;
+  const CheckOutBox({super.key, required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class CheckOutBox extends StatelessWidget {
     return Container(
       width: screenWidth,
       decoration: BoxDecoration(
-        color: isDarkMode ? aaliyahSecondaryColor : Colors.white,
+        color: isDarkMode ? aaliyahDarkColor : aaliyahLightColor,
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(30),
           topLeft: Radius.circular(30),
@@ -38,13 +39,7 @@ class CheckOutBox extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildSummaryRow(context, "Total", provider.formattedTotalPrice, isBold: true),
-          const SizedBox(height: 12),
-          // Assuming fixed delivery for now or calculated elsewhere, showing static based on image
-          _buildSummaryRow(context, "Delivery charge", "Rs. 250.00", isBold: false), 
-          const SizedBox(height: 12),
-          const Divider(),
-          const SizedBox(height: 12),
-           _buildSummaryRow(context, "Sub Total", "Rs. ${(provider.totalPrice() + 250).toStringAsFixed(2)}", isBold: true),
+          const SizedBox(height: 24),
           const SizedBox(height: 24),
           
           SizedBox(
@@ -57,8 +52,8 @@ class CheckOutBox extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00ACC1), // Cyan/Teal color from reference
-                foregroundColor: Colors.white,
+                backgroundColor: aaliyahPrimaryColor, 
+                foregroundColor: aaliyahLightColor,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -87,7 +82,7 @@ class CheckOutBox extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: isBold ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.grey,
+            color: isBold ? (isDarkMode ? aaliyahLightColor : aaliyahDarkColor) : Colors.grey,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontSize: 15,
           ),
@@ -95,7 +90,7 @@ class CheckOutBox extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: isBold ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.grey,
+            color: isBold ? (isDarkMode ? aaliyahLightColor : aaliyahDarkColor) : Colors.grey,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
              fontSize: 15,
           ),

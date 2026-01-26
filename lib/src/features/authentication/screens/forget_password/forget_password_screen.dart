@@ -11,17 +11,20 @@ class ForgetPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(aaliyahDefaultSize),
+            padding: const EdgeInsets.symmetric(horizontal: aaliyahDefaultSize),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_ios, size: 20),
-                ),
-                const SizedBox(height: aaliyahDefaultSize),
                 const FormHeaderWidget(
                   image: aaliyahWelcomeScreenImage,
                   title: aaliyahForgetPasswordTitle,
@@ -32,11 +35,14 @@ class ForgetPasswordScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: const InputDecoration(
-                          label: Text(aaliyahEmail),
+                        decoration: InputDecoration(
+                          label: const Text(aaliyahEmail),
                           hintText: aaliyahEmail,
-                          prefixIcon: Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null),
+                          border: const OutlineInputBorder(),
+                          focusedBorder: Theme.of(context).brightness == Brightness.dark 
+                              ? const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5EDEF), width: 2.0))
+                              : null,
                         ),
                       ),
                       const SizedBox(height: aaliyahFormHeight),
@@ -49,7 +55,7 @@ class ForgetPasswordScreen extends StatelessWidget {
                             );
                             Navigator.pop(context);
                           },
-                          child: const Text(aaliyahResetPassword),
+                          child: const Text("RESET PASSWORD", style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 // List of all colors
 
-const aaliyahPrimaryColor = Color(0xFF023239);
-const aaliyahSecondaryColor = Color(0xFFEEC9AF);
+const aaliyahPrimaryColor = Color(0xFF004D61);
+const aaliyahSecondaryColor = Color(0xFF822659);
 
-const aaliyahLightColor = Color(0xFFF5F5F5);
-const aaliyahDarkColor = Color(0xFF121212);
+const aaliyahLightColor = Color(0xFFF0F0F0);
+const aaliyahDarkColor = Color(0xFF1A1A1A);
 
 // This is a class I created to store colors for the Checkout Screen
 class CheckoutColors {

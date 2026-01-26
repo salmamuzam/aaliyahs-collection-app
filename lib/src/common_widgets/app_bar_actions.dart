@@ -1,5 +1,6 @@
-import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/cart_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/favorites/favorites.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/cart_screen.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
@@ -23,8 +24,35 @@ class CartAppBarAction extends StatelessWidget {
     // Let's use AddToCartIcon if key is present (assuming it supports custom badge)
     // OR just attach the key to a Container wrapping the Badge.
 
-    return Consumer<CartProvider>(
-      builder: (context, provider, child) {
+    return Selector<CartProvider, int>(
+      selector: (_, provider) => provider.cart.length,
+      builder: (context, count, child) {
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        final iconColor = color ?? (isDarkMode ? aaliyahLightColor : aaliyahDarkColor);
+        
+        Widget baseIcon = Icon(
+          Icons.shopping_cart_outlined,
+          color: iconColor,
+        );
+
+        // Helper to conditionally wrap the icon with a badge
+        Widget wrapWithBadge(Widget target) {
+          if (count > 0) {
+            return badges.Badge(
+              badgeContent: Text(
+                count.toString(),
+                style: const TextStyle(color: aaliyahLightColor, fontSize: 10),
+              ),
+              showBadge: true,
+              badgeAnimation: const badges.BadgeAnimation.scale(),
+              child: target,
+            );
+          }
+          return target;
+        }
+
+        final iconWithMaybeBadge = wrapWithBadge(baseIcon);
+
         return Padding(
           padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
           child: GestureDetector(
@@ -37,32 +65,9 @@ class CartAppBarAction extends StatelessWidget {
             child: cartKey != null
                 ? AddToCartIcon(
                     key: cartKey!,
-                    icon: badges.Badge(
-                      badgeContent: Text(
-                        provider.cart.length.toString(),
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
-                      ),
-                      showBadge: provider.cart.isNotEmpty,
-                      badgeAnimation: const badges.BadgeAnimation.scale(),
-                      child: Icon(
-                        Icons.shopping_bag_outlined,
-                        color: color ?? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                      ),
-                    ),
-
+                    icon: iconWithMaybeBadge,
                   )
-                : badges.Badge(
-                    badgeContent: Text(
-                      provider.cart.length.toString(),
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                    showBadge: provider.cart.isNotEmpty,
-                    badgeAnimation: const badges.BadgeAnimation.scale(),
-                    child: Icon(
-                      Icons.shopping_bag_outlined,
-                      color: color ?? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                    ),
-                  ),
+                : iconWithMaybeBadge,
           ),
         );
       },
@@ -93,13 +98,13 @@ class FavoriteAppBarAction extends StatelessWidget {
             child: badges.Badge(
               badgeContent: Text(
                 count.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+                style: const TextStyle(color: aaliyahLightColor, fontSize: 10),
               ),
               showBadge: count > 0,
               badgeAnimation: const badges.BadgeAnimation.scale(),
               child: Icon(
-                Icons.favorite_border,
-                color: color ?? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                Icons.favorite_outline_outlined,
+                color: color ?? (Theme.of(context).brightness == Brightness.dark ? aaliyahLightColor : aaliyahDarkColor),
               ),
             ),
           ),

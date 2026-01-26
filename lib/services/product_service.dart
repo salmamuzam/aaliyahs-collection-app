@@ -4,10 +4,32 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class ProductService {
+  // Get Home Data (Categories, Featured, Latest)
+  Future<Map<String, dynamic>> getHomeData() async {
+    var url = Uri.parse('$baseURL/home');
+
+    try {
+      debugPrint(">>> API REQUEST HOME: $url");
+      http.Response response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        return {"status": "success", "data": responseData['data']};
+      } else {
+        return {
+          "status": "error", 
+          "message": "Failed to fetch home data",
+          "statusCode": response.statusCode
+        };
+      }
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
   // Get Best Selling Products
   Future<Map<String, dynamic>> getBestSellingProducts({String? token}) async {
-    // Note: The user provided URL http://10.0.2.2:8000/api/v1/products/best-selling
-    // We use baseURL which is http://192.168.1.11:8000/api/v1
+    // Updated to use correct endpoint
     var url = Uri.parse('$baseURL/products/best-selling');
 
     try {
@@ -56,15 +78,25 @@ class ProductService {
     }
   }
 
-  // Get Shop Products (Optionally filtered by Category ID)
-  Future<Map<String, dynamic>> getShopProducts({int? categoryId, int page = 1}) async {
+  // Get Shop Products (Optionally filtered by Category ID and Sorted)
+  Future<Map<String, dynamic>> getShopProducts({int? categoryId, int page = 1, String? sort}) async {
     // Construct URL with query parameters
-    // Most Laravel APIs use selected_categories[] for array inputs
     String urlString = '$baseURL/shop?page=$page';
     if (categoryId != null) {
       urlString += '&selected_categories[]=$categoryId';
     }
     
+    // Add sorting
+    // Mapping internal sort option to API params
+    if (sort != null) {
+       if (sort == 'Price: Low to High') {
+         urlString += '&sort=price_asc';
+       } else if (sort == 'Price: High to Low') {
+         urlString += '&sort=price_desc';
+       }
+       // Newest is default or handled otherwise, usually 'latest' or null
+    }
+
     var url = Uri.parse(urlString);
 
     try {
@@ -72,7 +104,6 @@ class ProductService {
       http.Response response = await http.get(url, headers: headers);
 
       debugPrint(">>> API RESPONSE STATUS: ${response.statusCode}");
-      // debugPrint(">>> API RESPONSE BODY: ${response.body}");
       
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -82,9 +113,6 @@ class ProductService {
         
         // Detailed Meta Extraction for debugging pagination
         var meta = responseData is Map ? responseData['meta'] : null;
-        if (meta != null) {
-           debugPrint(">>> PAGINATION META: $meta");
-        }
         
         return {
           "status": "success", 

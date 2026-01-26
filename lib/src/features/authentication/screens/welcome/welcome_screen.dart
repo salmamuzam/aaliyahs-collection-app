@@ -19,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
     final isDarkMode = brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? aaliyahPrimaryColor : aaliyahSecondaryColor,
+      backgroundColor: isDarkMode ? aaliyahPrimaryColor : Colors.white,
       body: Container(
         padding: EdgeInsets.all(Responsive.getPadding(context)),
         child: Column(
@@ -30,26 +30,28 @@ class WelcomeScreen extends StatelessWidget {
               image: AssetImage(aaliyahWelcomeScreenImage),
               height: (height * 0.5).clamp(150, 400),
             ),
-            // Welcome Title & Subtitle
             Column(
               children: [
                 Text(
                   aaliyahWelcomeTitle,
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(height: 20), // Padding between title and subtitle
                 Text(
-                  aaliyahWelcomeSubTitle,
+                  aaliyahWelcomeSubTitle.replaceFirst(", ", ",\n"),
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
               ],
             ),
 
-            // Two Buttons in a Row
-            Row(
+            // Buttons stacked vertically
+            Column(
               children: [
-                // Login and Signup Buttons
-                Expanded(
+                SizedBox(
+                  width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.pushReplacement(
@@ -59,14 +61,22 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       );
                     },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      side: BorderSide(color: isDarkMode ? Colors.white : aaliyahPrimaryColor),
+                    ),
                     child: Text(
                       aaliyahLogin.toUpperCase(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : aaliyahPrimaryColor,
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
-                Expanded(
+                const SizedBox(height: 15),
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushReplacement(
@@ -76,9 +86,15 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDarkMode ? Colors.white : aaliyahPrimaryColor,
+                      foregroundColor: isDarkMode ? aaliyahPrimaryColor : Colors.white, // White text in light mode
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      elevation: 0,
+                    ),
                     child: Text(
                       aaliyahSignup.toUpperCase(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

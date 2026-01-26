@@ -43,6 +43,44 @@ class UserService {
     }
   }
 
+  // Update Profile
+  Future<Map<String, dynamic>> updateProfile({
+    required String firstName,
+    required String lastName,
+  }) async {
+    var url = Uri.parse('$baseURL/user/update-profile');
+    String? token = await _getToken();
+
+    if (token == null) {
+      return {"status": "error", "message": "No token found"};
+    }
+
+    Map<String, String> authHeaders = Map.from(headers);
+    authHeaders['Authorization'] = 'Bearer $token';
+
+    Map data = {
+      "first_name": firstName,
+      "last_name": lastName,
+    };
+
+    try {
+      http.Response response = await http.put( // Or POST depending on API
+        url,
+        headers: authHeaders,
+        body: json.encode(data),
+      );
+      var responseData = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        return {"status": "success", "data": responseData['data'], "message": responseData['message']};
+      } else {
+        return {"status": "error", "message": responseData['message'] ?? "Failed to update profile"};
+      }
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
   // Change Password
   Future<Map<String, dynamic>> changePassword({
     required String currentPassword,

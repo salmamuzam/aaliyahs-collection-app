@@ -9,9 +9,17 @@ class FormHeaderWidget extends StatelessWidget {
     required this.image,
     required this.title,
     required this.subTitle,
+    this.imageHeight = 0.2,
+    this.heightBetween,
+    this.textAlign,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
   });
 
   final String image, title, subTitle;
+  final double imageHeight;
+  final double? heightBetween;
+  final TextAlign? textAlign;
+  final CrossAxisAlignment crossAxisAlignment;
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +27,12 @@ class FormHeaderWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image(image: AssetImage(image), height: (size.height * 0.2).clamp(100, 200)),
-        const SizedBox(height: aaliyahFormHeight - 20),
+        Image(image: AssetImage(image), height: (size.height * imageHeight).clamp(50, 200)),
+        SizedBox(height: heightBetween ?? (aaliyahFormHeight - 20)),
         Text(title, style: Theme.of(context).textTheme.headlineLarge),
-        const SizedBox(height: aaliyahFormHeight - 20),
-        Text(subTitle, style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: aaliyahFormHeight - 20),
+        const SizedBox(height: 5),
+        Text(subTitle, style: Theme.of(context).textTheme.bodyLarge, textAlign: textAlign),
+        const SizedBox(height: 10),
       ],
     );
   }

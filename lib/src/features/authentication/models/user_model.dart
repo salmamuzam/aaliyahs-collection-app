@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:aaliyahs_collection_estore/src/constants/api_strings.dart';
 
 class UserModel {
   final int id;
@@ -19,20 +19,16 @@ class UserModel {
     this.token,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    String photoUrl = json['profile_photo_url'] ?? '';
-    
-    // Fix for Network/Emulator: Replace localhost/127.0.0.1/10.0.2.2 with 192.168.1.11
-    photoUrl = photoUrl.replaceAll('localhost', '192.168.1.11');
-    photoUrl = photoUrl.replaceAll('127.0.0.1', '192.168.1.11');
-    photoUrl = photoUrl.replaceAll('10.0.2.2', '192.168.1.11');
-    
-    debugPrint("UserModel: Final Translated Photo URL: $photoUrl");
+  String get name => '$firstName $lastName'.trim();
 
-    // If for some reason Laravel returns a relative path
-    if (photoUrl.startsWith('/storage')) {
-      photoUrl = 'http://192.168.1.11:8000$photoUrl';
-    }
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Extensive fallback for profile image fields
+    String photoUrl = json['profile_photo_url'] ?? 
+                      json['profile_photo_path'] ?? 
+                      json['image'] ?? 
+                      json['photo'] ?? 
+                      json['avatar'] ?? 
+                      '';
 
     return UserModel(
       id: json['id'],
@@ -40,9 +36,30 @@ class UserModel {
       lastName: json['last_name'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      profilePhotoUrl: photoUrl,
+      profilePhotoUrl: _processImageUrl(photoUrl),
       token: json['token'],
     );
+  }
+
+  static String _processImageUrl(String url) {
+    if (url.isEmpty) return '';
+    
+    // 1. Handle complete URLs pointing to localhost/emulator IPs
+    if (url.startsWith('http')) {
+        if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2')) {
+           final Uri uri = Uri.parse(url);
+           return "$rootBaseURL${uri.path}";
+        }
+        return url;
+    }
+
+    // 2. Handle relative paths (e.g. /storage/... or storage/...)
+    if (url.startsWith('/')) {
+        return "$rootBaseURL$url";
+    } else {
+        // Prepend splash if missing
+        return "$rootBaseURL/$url";
+    }
   }
 
   Map<String, dynamic> toJson() {

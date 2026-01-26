@@ -3,6 +3,7 @@ import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +17,7 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/order_history_screen.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/addresses_screen.dart';
-import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
+import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/my_account_screen.dart';
 
 // This is the profile page
 // Validation works if customer needs to update profile information
@@ -147,173 +147,190 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
+      backgroundColor: isDarkMode ? aaliyahDarkColor : Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const BottomNavBar()),
           ),
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: isDarkMode ? Colors.white : Colors.black),
         ),
         title: Text(
           "My Profile",
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        centerTitle: false,
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 800),
-            padding: EdgeInsets.all(Responsive.getPadding(context)),
-            child: Column(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // Profile Section
+              _buildProfileHeader(context, isDarkMode),
+              const SizedBox(height: 30),
+              
+              // Edit Profile Button
+              _buildEditProfileButton(context, isDarkMode),
+              const SizedBox(height: 40),
+
+              // Menu Items
+              _buildProfileMenuItem(
+                context,
+                title: "My Orders",
+                icon: Icons.shopping_bag_outlined,
+                iconColor: aaliyahPrimaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              _buildProfileMenuItem(
+                context,
+                title: "Settings",
+                icon: Icons.settings_outlined,
+                iconColor: aaliyahPrimaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () {
+                  showModalBottomSheet(context: context, builder: (ctx) => _buildSettingsSheet(ctx));
+                },
+              ),
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 20),
+
+              _buildProfileMenuItem(
+                context,
+                title: "Logout",
+                icon: Icons.logout,
+                iconColor: Colors.red,
+                isDarkMode: isDarkMode,
+                isLogout: true,
+                onTap: () => _handleLogout(context),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(BuildContext context, bool isDarkMode) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
+        final name = user?.name ?? "Coding with T";
+        final email = user?.email ?? "superadmin@codingwitht.com";
+        final hasProfileImg = user != null && user.profilePhotoUrl.isNotEmpty;
+
+        return Column(
+          children: [
+            Stack(
               children: [
-                // Profile Image
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, child) {
-                    final user = userProvider.user;
-                    final hasProfileImg = user != null && user.profilePhotoUrl.isNotEmpty;
-
-                    return Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundColor: Colors.grey.shade200,
-                            backgroundImage: _imageFile != null
-                                ? FileImage(_imageFile!)
-                                : (hasProfileImg
-                                    ? CachedNetworkImageProvider(
-                                        user.profilePhotoUrl,
-                                        headers: userProvider.token != null 
-                                          ? {'Authorization': 'Bearer ${userProvider.token}'} 
-                                          : null
-                                      )
-                                    : const AssetImage(aaliyahProfileImage) as ImageProvider),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => _showPicker(context),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(color: Colors.black12, blurRadius: 4),
-                                ],
-                              ),
-                              child: const Icon(Icons.camera_alt_outlined, color: Colors.black54, size: 20),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: isDarkMode ? Colors.grey.shade800 : Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(60),
+                    child: _imageFile != null
+                        ? Image.file(_imageFile!, fit: BoxFit.cover)
+                        : (hasProfileImg
+                            ? CachedNetworkImage(
+                                imageUrl: user.profilePhotoUrl,
+                                fit: BoxFit.cover,
+                                httpHeaders: userProvider.token != null 
+                                  ? {'Authorization': 'Bearer ${userProvider.token}'} 
+                                  : null,
+                              )
+                            : Image.asset(aaliyahProfileImage, fit: BoxFit.cover)),
+                  ),
                 ),
-                const SizedBox(height: 48),
-
-                // Menu Items
-                _buildProfileMenuItem(
-                  context,
-                  title: aaliyahMyAccount,
-                  icon: Icons.person_outline,
-                  onTap: () {},
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: aaliyahNotifications,
-                  icon: Icons.notifications_none_outlined,
-                  onTap: () {},
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: "My Orders",
-                  icon: Icons.shopping_bag_outlined,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: "My Addresses",
-                  icon: Icons.location_on_outlined,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AddressesScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: aaliyahSettings,
-                  icon: Icons.settings_outlined,
-                  onTap: () {
-                    showModalBottomSheet(context: context, builder: (ctx) => _buildSettingsSheet(ctx));
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: aaliyahHelpCenter,
-                  icon: Icons.help_outline,
-                  onTap: () {},
-                ),
-                const SizedBox(height: 16),
-                _buildProfileMenuItem(
-                  context,
-                  title: aaliyahSignOut,
-                  icon: Icons.logout,
-                  onTap: () {
-                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-                    QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.confirm,
-                      text: 'Are you sure you want to logout?',
-                      confirmBtnText: 'Yes',
-                      cancelBtnText: 'No',
-                      confirmBtnColor: Colors.red,
-                      onConfirmBtnTap: () async {
-                        Navigator.pop(context);
-                        await authProvider.logout();
-                        userProvider.clearUser();
-                        if (!context.mounted) return;
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          (route) => false,
-                        );
-                      },
-                    );
-                  },
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: () => _showPicker(context),
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: const BoxDecoration(
+                        color: aaliyahPrimaryColor, // Using primary maroon
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.edit, color: Colors.white, size: 18),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 15),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              email,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEditProfileButton(BuildContext context, bool isDarkMode) {
+    return SizedBox(
+      width: 200,
+      height: 45,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyAccountScreen()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: aaliyahPrimaryColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22.5)),
+          elevation: 0,
+        ),
+        child: const Text(
+          "Edit Profile",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -322,34 +339,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileMenuItem(BuildContext context, {
     required String title,
     required IconData icon,
+    required Color iconColor,
+    required bool isDarkMode,
     required VoidCallback onTap,
+    bool isLogout = false,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFF5F6F9),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: const Color(0xFFFF7643), size: 22),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isDarkMode ? Colors.white : const Color(0xFF757575),
-                ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isLogout ? Colors.red.withValues(alpha: 0.1) : iconColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: isLogout ? Colors.red : iconColor, size: 20),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isLogout ? Colors.red : (isDarkMode ? Colors.white : Colors.grey.shade700),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
-        ),
+          ),
+          if (!isLogout)
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
+            ),
+        ],
       ),
+    );
+  }
+
+  void _handleLogout(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.confirm,
+      text: 'Are you sure you want to logout?',
+      confirmBtnText: 'Yes',
+      cancelBtnText: 'No',
+      confirmBtnColor: Colors.red,
+      onConfirmBtnTap: () async {
+        Navigator.pop(context);
+        await authProvider.logout();
+        userProvider.clearUser();
+        if (!context.mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+      },
     );
   }
 
@@ -449,47 +504,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context, UserProvider userProvider) {
-    showDialog(
+    QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(aaliyahDeleteAccount),
-          content: Text(aaliyahDeleteAccountConfirm),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("CANCEL"),
-            ),
-            TextButton(
-              onPressed: () async {
-                final result = await userProvider.deleteAccount();
-                if (!context.mounted) return;
-                Navigator.pop(context); // Close dialog
+      type: QuickAlertType.confirm,
+      title: 'Delete Account',
+      text: 'Are you sure you want to permanently delete your account?',
+      confirmBtnText: 'Yes, Delete',
+      cancelBtnText: 'Cancel',
+      confirmBtnColor: Colors.red,
+      onConfirmBtnTap: () async {
+        Navigator.pop(context);
+        final result = await userProvider.deleteAccount();
+        if (!context.mounted) return;
 
-                if (result['status'] == 'success') {
-                  // Logout from AuthProvider as well
-                  Provider.of<AuthProvider>(context, listen: false).logout();
-                  
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    (route) => false,
-                  );
-                } else {
-                  toastification.show(
-                    context: context,
-                    type: ToastificationType.error, 
-                    style: ToastificationStyle.fillColored,
-                    title: const Text("Error"),
-                    description: Text(result['message']),
-                    autoCloseDuration: const Duration(seconds: 3),
-                  );
-                }
-              },
-              child: const Text("DELETE", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
+        if (result['status'] == 'success') {
+          Provider.of<AuthProvider>(context, listen: false).logout();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        } else {
+          toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.fillColored,
+            title: const Text("Error"),
+            description: Text(result['message']),
+            autoCloseDuration: const Duration(seconds: 3),
+          );
+        }
       },
     );
   }

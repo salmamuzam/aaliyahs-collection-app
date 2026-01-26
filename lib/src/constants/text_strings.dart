@@ -7,7 +7,7 @@ const String aaliyahSignup = "Signup";
 
 // Welcome Screen Text
 
-const String aaliyahWelcomeTitle = "Aaliyah Collection";
+const String aaliyahWelcomeTitle = "Aaliyah's Collection";
 const String aaliyahWelcomeSubTitle =
     "Welcome to Aaliyah's Collection, Let's Shop!";
 
@@ -34,7 +34,7 @@ const String aaliyahConfirmPassword = "Confirm Password";
 
 const String aaliyahTextSpan = "Discover\n";
 const String aaliyahTextSpan2 = "Get the best clothes here";
-const String aaliyahBestSellingTitle = "Best Selling Products";
+const String aaliyahBestSellingTitle = "Best Sellers";
 
 // Add to Bag Button
 

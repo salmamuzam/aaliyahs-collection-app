@@ -24,7 +24,7 @@ class CategoryButton extends StatelessWidget {
     
     // Premium color palette based on app's theme
     final Color selectedBg = aaliyahSecondaryColor;
-    final Color unselectedBg = isDarkMode ? Colors.grey.shade800 : Colors.white;
+    final Color unselectedBg = isDarkMode ? Colors.grey.shade800 : aaliyahLightColor;
     
     return Semantics(
       button: true,
@@ -64,38 +64,47 @@ class CategoryButton extends StatelessWidget {
                 child: ClipOval(
                   child: Padding(
                     padding: const EdgeInsets.all(0.0), // Remove padding to cover full
-                    child: category.iconURL.startsWith('http')
-                        ? CachedNetworkImage(
-                            imageUrl: category.iconURL,
-                            placeholder: (context, url) => FadeShimmer(
-                              height: 68,
-                              width: 68,
-                              radius: 34,
-                              highlightColor: isDarkMode
-                                  ? const Color(0xff3a3e3f)
-                                  : const Color(0xfff9f9f9),
-                              baseColor: isDarkMode
-                                  ? const Color(0xff2d2f30)
-                                  : const Color(0xffe6e6e6),
-                            ),
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.category_outlined, 
+                    child: category.iconURL.isEmpty
+                        ? Container(
+                            color: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
+                            child: Icon(
+                              Icons.category_outlined,
                               size: 24,
                               color: isSelected ? aaliyahPrimaryColor : Colors.grey,
                             ),
-                            fit: BoxFit.cover, // Cover full circle
                           )
-                        : Image.asset(
-                            category.iconURL,
-                            fit: BoxFit.cover, // Cover full circle
-                          ),
+                        : category.iconURL.startsWith('http')
+                            ? CachedNetworkImage(
+                                imageUrl: category.iconURL,
+                                placeholder: (context, url) => FadeShimmer(
+                                  height: 68,
+                                  width: 68,
+                                  radius: 34,
+                                  highlightColor: isDarkMode
+                                      ? const Color(0xff3a3e3f)
+                                      : const Color(0xfff9f9f9),
+                                  baseColor: isDarkMode
+                                      ? const Color(0xff2d2f30)
+                                      : const Color(0xffe6e6e6),
+                                ),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.category_outlined, 
+                                  size: 24,
+                                  color: isSelected ? aaliyahPrimaryColor : Colors.grey,
+                                ),
+                                fit: BoxFit.cover, // Cover full circle
+                              )
+                            : Image.asset(
+                                category.iconURL,
+                                fit: BoxFit.cover, // Cover full circle
+                              ),
                   ),
                 ),
               ),
               const SizedBox(height: 10),
               // Category Name with dynamic styling
               Text(
-                category.name,
+                category.displayName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
@@ -103,9 +112,9 @@ class CategoryButton extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                       fontSize: 12,
                       letterSpacing: 0.2,
-                      color: isSelected 
-                          ? (isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor) 
-                          : (isDarkMode ? Colors.white70 : Colors.black87),
+                        color: isSelected 
+                           ? (isDarkMode ? aaliyahSecondaryColor : aaliyahPrimaryColor) 
+                           : (isDarkMode ? aaliyahLightColor.withValues(alpha: 0.7) : aaliyahDarkColor.withValues(alpha: 0.87)),
                     ),
               ),
             ],

@@ -10,13 +10,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 
 class ProductScreen extends StatefulWidget {
   final int? initialCategoryId;
   final String? initialCategoryName;
+  final bool isBestSelling;
 
-  const ProductScreen({super.key, this.initialCategoryId, this.initialCategoryName});
+  const ProductScreen({
+    super.key, 
+    this.initialCategoryId, 
+    this.initialCategoryName,
+    this.isBestSelling = false,
+  });
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -53,8 +60,11 @@ class _ProductScreenState extends State<ProductScreen> {
 
   void _loadInitialData() {
     final provider = Provider.of<ProductProvider>(context, listen: false);
-    // Fetch products based on the passed category ID, or all if null
-    provider.fetchShopProducts(categoryId: widget.initialCategoryId);
+    if (widget.isBestSelling) {
+      provider.fetchAllBestSellingProducts();
+    } else {
+      provider.fetchShopProducts(categoryId: widget.initialCategoryId);
+    }
   }
 
   @override
@@ -69,7 +79,9 @@ class _ProductScreenState extends State<ProductScreen> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
-          widget.initialCategoryName ?? "Shop",
+          widget.initialCategoryName != null && widget.initialCategoryName!.isNotEmpty
+              ? "${widget.initialCategoryName![0].toUpperCase()}${widget.initialCategoryName!.substring(1).toLowerCase()}"
+              : "Shop",
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -121,12 +133,13 @@ class _ProductScreenState extends State<ProductScreen> {
                   onChanged: (value) => provider.setSearchQuery(value),
                   decoration: InputDecoration(
                     hintText: "Search products...",
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
+                    fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade200,
                     contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   ),
                 ),
@@ -154,34 +167,50 @@ class _ProductScreenState extends State<ProductScreen> {
       builder: (context, provider, child) {
         final categories = provider.categories;
         if (categories.isEmpty) return const SizedBox.shrink();
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-        return Container(
-          height: 50,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 16, right: 8), // Adjusted for alignment
-            itemCount: categories.length + 1,
-            itemBuilder: (context, index) {
-              final isAll = index == 0;
-              final cat = isAll ? null : categories[index - 1];
-              final isSelected = isAll 
-                  ? provider.selectedCategoryId == null 
-                  : provider.selectedCategoryId == cat?.id;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero,
+              itemCount: categories.length + 1,
+              itemBuilder: (context, index) {
+                final isAll = index == 0;
+                final cat = isAll ? null : categories[index - 1];
+                final isSelected = isAll 
+                    ? provider.selectedCategoryId == null 
+                    : provider.selectedCategoryId == cat?.id;
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: Text(isAll ? "All" : cat!.name),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) {
-                      provider.fetchShopProducts(categoryId: isAll ? null : cat?.id);
-                    }
-                  },
-                ),
-              );
-            },
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(isAll ? "All" : cat!.displayName),
+                    selected: isSelected,
+                    showCheckmark: true,
+                    selectedColor: aaliyahSecondaryColor,
+                    checkmarkColor: Colors.white,
+                    backgroundColor: isDarkMode ? Colors.grey.shade900 : Colors.white,
+                    side: BorderSide(
+                      color: isSelected ? Colors.transparent : (isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
+                      width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : (isDarkMode ? Colors.white70 : Colors.black87),
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    ),
+                    onSelected: (selected) {
+                      if (selected) {
+                        provider.fetchShopProducts(categoryId: isAll ? null : cat?.id);
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
           ),
         );
       },

@@ -1,7 +1,7 @@
 import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:fade_shimmer/fade_shimmer.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 
 class OrderSummarySection extends StatelessWidget {
@@ -69,14 +69,22 @@ class OrderSummarySection extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: item.image.startsWith('http')
-                  ? CachedNetworkImage(
-                      imageUrl: item.image,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                    )
-                  : Image.asset(item.image, fit: BoxFit.contain),
+                child: item.image.isEmpty
+                  ? const Icon(Icons.image_not_supported_outlined, color: Colors.grey)
+                  : item.image.startsWith('http')
+                    ? CachedNetworkImage(
+                        imageUrl: item.image,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => FadeShimmer(
+                          height: 96,
+                          width: 96,
+                          radius: 4,
+                          highlightColor: isDarkMode ? const Color(0xff3a3e3f) : const Color(0xfff9f9f9),
+                          baseColor: isDarkMode ? const Color(0xff2d2f30) : const Color(0xffe6e6e6),
+                        ),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                      )
+                    : Image.asset(item.image, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(width: 16),
@@ -95,7 +103,7 @@ class OrderSummarySection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              item.name,
+                              item.displayName,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -175,40 +183,8 @@ class OrderSummarySection extends StatelessWidget {
   }
 
   Widget _buildPriceBreakdown(BuildContext context, bool isDarkMode) {
-    double subtotal = cartProvider.totalPrice();
-    double shipping = 250.0; // Fixed shipping
-    double tax = 0.0; // No tax for now, or calculate if needed
-    double total = subtotal + shipping + tax;
-
-    final labelStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF64748B)); // Slate 500
-    final valueStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDarkMode ? Colors.white : const Color(0xFF0F172A)); // Slate 900
-
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Subtotal", style: labelStyle),
-            Text("Rs. $subtotal", style: valueStyle),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Shipping", style: labelStyle),
-            Text("Rs. $shipping", style: valueStyle),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Tax", style: labelStyle),
-            Text("Rs. $tax", style: valueStyle),
-          ],
-        ),
-        Divider(color: Colors.grey.shade300, height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -221,11 +197,11 @@ class OrderSummarySection extends StatelessWidget {
               ),
             ),
             Text(
-              "Rs. $total", 
+              cartProvider.formattedTotalPrice, 
               style: TextStyle(
                  fontSize: 16, 
-                 fontWeight: FontWeight.bold, // Semibold in snippet, but bold is better for total
-                 color: isDarkMode ? Colors.white : const Color(0xFF0F172A) // Can make it blue? No, snippet uses slate 900
+                 fontWeight: FontWeight.bold, 
+                 color: isDarkMode ? Colors.white : const Color(0xFF0F172A)
               ),
             ),
           ],

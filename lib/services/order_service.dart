@@ -71,25 +71,31 @@ class OrderService {
   }
 
   /// Store Order in Firebase Realtime Database
-  Future<void> storeOrderInFirebase({
+  Future<String?> storeOrderInFirebase({
     required Map<String, dynamic> orderData,
   }) async {
     try {
       final dbUrl = dotenv.env['FIREBASE_DB_URL'];
       if (dbUrl == null) {
         debugPrint("Firebase DB URL not found in .env");
-        return;
+        return null;
       }
       final url = "${dbUrl}orders.json";
       
-      await http.post(
+      final response = await http.post(
         Uri.parse(url),
         body: json.encode(orderData),
       );
-      debugPrint("Order stored in Firebase");
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint("Order stored in Firebase: ${data['name']}");
+        return data['name'];
+      }
+      return null;
     } catch (e) {
       debugPrint("Failed to store order in Firebase: $e");
-      // Rethrow if you want UI to handle it, but typically we fail silently/loggingly for data sync
+      return null;
     }
   }
 

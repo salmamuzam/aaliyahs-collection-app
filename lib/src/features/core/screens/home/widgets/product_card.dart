@@ -5,6 +5,7 @@ import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 // This is the product card to display the images, and it's responsive
@@ -35,11 +36,11 @@ class ProductCard extends StatelessWidget {
       onTap: onPress,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : aaliyahLightColor,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.black.withValues(alpha: 0.05)),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -57,37 +58,41 @@ class ProductCard extends StatelessWidget {
                     aspectRatio: 1,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: product.image.startsWith('http')
-                          ? CachedNetworkImage(
-                              imageUrl: product.image,
-                              memCacheHeight: 600,
-                              placeholder: (context, url) => FadeShimmer(
-                                height: 200,
-                                width: 200,
-                                radius: 10,
-                                highlightColor: const Color(0xfff9f9f9),
-                                baseColor: const Color(0xffe6e6e6),
-                              ),
-                              imageBuilder: (context, imageProvider) => Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: imageProvider,
-                                    fit: BoxFit.cover,
-                                    alignment: Alignment.topCenter,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey.shade100,
-                                child:
-                                    const Icon(Icons.error_outline, color: Colors.red),
-                              ),
+                      child: product.image.isEmpty
+                          ? Container(
+                              color: Colors.grey.shade100,
+                              child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
                             )
-                          : Image.asset(
-                              product.image,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                            ),
+                          : product.image.startsWith('http')
+                              ? CachedNetworkImage(
+                                  imageUrl: product.image,
+                                  memCacheHeight: 600,
+                                  placeholder: (context, url) => FadeShimmer(
+                                    height: 200,
+                                    width: 200,
+                                    radius: 10,
+                                    highlightColor: const Color(0xfff9f9f9),
+                                    baseColor: const Color(0xffe6e6e6),
+                                  ),
+                                  imageBuilder: (context, imageProvider) => Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover,
+                                        alignment: Alignment.topCenter,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Container(
+                                    color: Colors.grey.shade100,
+                                    child: const Icon(Icons.error_outline, color: Colors.red),
+                                  ),
+                                )
+                              : Image.asset(
+                                  product.image,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.topCenter,
+                                ),
                     ),
                   ),
                   Positioned(
@@ -95,14 +100,32 @@ class ProductCard extends StatelessWidget {
                     right: 8,
                     child: GestureDetector(
                       onTap: () {
+                        // Toggle favorite status
+                        final isAlreadyLoved = provider.isExists(product);
                         provider.toggleFavorite(product);
+                        
+                        // Show Snackbar Feedback
+                        final snackBar = SnackBar(
+                          elevation: 0,
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.transparent,
+                          duration: const Duration(seconds: 2),
+                          content: AwesomeSnackbarContent(
+                            title: isAlreadyLoved ? 'Removed from Wishlist!' : 'Added to Wishlist!',
+                            message: isAlreadyLoved 
+                               ? '${product.displayName} has been removed from your wishlist.' 
+                               : '${product.displayName} has been added to your wishlist.',
+                            contentType: isAlreadyLoved ? ContentType.warning : ContentType.success,
+                          ),
+                        );
+                        ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(snackBar);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                         color: Theme.of(context).brightness == Brightness.dark ? aaliyahDarkColor.withValues(alpha: 0.8) : aaliyahLightColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
@@ -111,8 +134,10 @@ class ProductCard extends StatelessWidget {
                           ],
                         ),
                         child: Icon(
-                          isWishlist ? Icons.delete_outline : (provider.isExists(product) ? Icons.favorite : Icons.favorite_border),
-                          color: isWishlist ? Colors.red : (provider.isExists(product) ? Colors.red : Colors.black),
+                          isWishlist ? Icons.delete_outline : (provider.isExists(product) ? Icons.favorite : Icons.favorite_outline_outlined),
+                           color: isWishlist 
+                               ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.red) 
+                               : (provider.isExists(product) ? Colors.red : (Theme.of(context).brightness == Brightness.dark ? aaliyahLightColor : aaliyahDarkColor)),
                           size: 18,
                         ),
                       ),
@@ -123,10 +148,9 @@ class ProductCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              product.name,
+              product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // Force black
                   ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -137,10 +161,10 @@ class ProductCard extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    product.price.contains('Rs') ? product.price : "Rs. ${product.price}",
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    "LKR ${product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black, // Force black
+                          color: Colors.red,
                         ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -159,7 +183,7 @@ class ProductCard extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       content: AwesomeSnackbarContent(
                         title: 'Added to Cart!',
-                        message: '${product.name} has been added to your cart.',
+                        message: '${product.displayName} has been added to your cart.',
                         contentType: ContentType.success,
                       ),
                     );
@@ -168,8 +192,8 @@ class ProductCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(6),
                     child: Icon(
-                      Icons.shopping_bag_outlined,
-                      color: Colors.black, // Force black
+                      Icons.shopping_cart_outlined,
+                      color: Theme.of(context).brightness == Brightness.dark ? aaliyahLightColor : aaliyahDarkColor,
                       size: 22,
                     ),
                   ),

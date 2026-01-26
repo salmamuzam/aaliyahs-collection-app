@@ -1,8 +1,11 @@
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/utils/formatters/text_formatter.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/category_button.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/product/product_screen.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/profile/profile_screen.dart';
+
 
 import 'package:aaliyahs_collection_estore/src/features/core/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/product_card.dart';
@@ -13,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:aaliyahs_collection_estore/provider/user_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/product_provider.dart';
 import 'package:aaliyahs_collection_estore/provider/notification_provider.dart';
+
 import 'package:aaliyahs_collection_estore/src/features/core/screens/home/widgets/notification_screen.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
@@ -124,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 delay: const Duration(milliseconds: 800),
                 child: _productsGrid(context),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -154,8 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.grey.shade200,
-                      border: Border.all(color: Colors.white, width: 2),
+                      color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
+                      border: Border.all(color: isDarkMode ? aaliyahDarkColor : aaliyahLightColor, width: 2),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(25),
@@ -174,8 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Hi, ${user?.firstName ?? 'Guest'} ${user?.lastName ?? ''}",
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                      "Hi, ${TFormatter.toSentenceCase(user?.firstName ?? 'Guest')} ${TFormatter.toSentenceCase(user?.lastName ?? '')}",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       "Welcome",
@@ -185,47 +192,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            Consumer<NotificationProvider>(
-              builder: (context, provider, child) {
-                return Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.notifications_outlined,
-                        size: 28,
-                        color: isDarkMode ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    if (provider.unreadCount > 0)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${provider.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+            Row(
+              mainAxisSize: MainAxisSize.min, // Use min size to keep icons tight
+              children: [
+                Consumer<NotificationProvider>(
+                  builder: (context, provider, child) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.notifications_outlined,
+                            size: 28,
+                            color: isDarkMode ? aaliyahLightColor : aaliyahDarkColor,
                           ),
                         ),
-                      ),
-                  ],
-                );
-              },
-            ),
+                        if (provider.unreadCount > 0)
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '${provider.unreadCount}',
+                                style: const TextStyle(
+                                  color: aaliyahLightColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            )
           ],
         );
       },
@@ -353,22 +365,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Container(
                   width: MediaQuery.of(context).size.width,
                   margin: const EdgeInsets.symmetric(horizontal: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark ? aaliyahDarkColor.withValues(alpha: 0.5) : aaliyahLightColor,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.black.withValues(alpha: 0.05)),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.asset(
+                        image,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.asset(
-                      image,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
                     ),
                   ),
                 );
@@ -381,12 +396,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDotsIndicator() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: AnimatedSmoothIndicator(
         activeIndex: _currentCarouselIndex,
         count: 3,
         effect: ScrollingDotsEffect(
-          activeDotColor: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+          activeDotColor: (isDarkMode ? aaliyahLightColor : aaliyahDarkColor),
           dotColor: Colors.grey.shade300,
           dotHeight: 8,
           dotWidth: 8,
@@ -538,9 +554,17 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
              Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ProductScreen()),
+              MaterialPageRoute(
+                builder: (context) => const ProductScreen(
+                  isBestSelling: true, 
+                  initialCategoryName: "Best Sellers",
+                ),
+              ),
             );
           },
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+          ),
           child: const Text("See All"),
         ),
       ],
