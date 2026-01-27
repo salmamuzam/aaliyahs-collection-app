@@ -1,16 +1,16 @@
-import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
-import 'package:aaliyahs_collection_estore/bottom_nav.dart';
-import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
-import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/forget_password/forget_password_screen.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/two_factor/two_factor_screen.dart';
-import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-// Refactored Login Form
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
+import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/providers/auth_provider.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/forget_password/forget_password_screen.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/two_factor/two_factor_screen.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/widgets/auth_text_field.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/screens/dashboard/navigation_menu.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -21,159 +21,128 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _obscurePassword = true;
+  // Optimization: Use ValueNotifier to avoid full widget rebuild on visibility toggle
+  final ValueNotifier<bool> _obscurePasswordNotifier = ValueNotifier<bool>(true);
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _obscurePasswordNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return Form(
-          key: _formKey,
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: aaliyahFormHeight - 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person_outline, color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null),
-                    labelText: aaliyahLoginLabel,
-                    hintText: aaliyahLoginLabel,
-                    border: const OutlineInputBorder(),
-                    focusedBorder: Theme.of(context).brightness == Brightness.dark
-                        ? const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5EDEF), width: 2.0))
-                        : null,
-                  ),
-                  controller: _emailController,
-                ),
-                const SizedBox(height: aaliyahFormHeight),
-                TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.password_outlined, color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null),
-                    labelText: aaliyahPassword,
-                    hintText: aaliyahPassword,
-                    border: const OutlineInputBorder(),
-                    focusedBorder: Theme.of(context).brightness == Brightness.dark
-                        ? const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5EDEF), width: 2.0))
-                        : null,
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null,
-                      ),
-                    ),
-                  ),
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                ),
-                const SizedBox(height: aaliyahFormHeight - 20),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgetPasswordScreen(),
-                        ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFFE5EDEF)
-                          : aaliyahPrimaryColor,
-                    ),
-                    child: Text(aaliyahForgetPassword),
-                  ),
-                ),
-                const SizedBox(height: aaliyahFormHeight - 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (authProvider.isLoading) return;
-                      
-                      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-                        toastification.show(
-                          context: context,
-                          type: ToastificationType.error,
-                          style: ToastificationStyle.fillColored,
-                          title: const Text(aaliyahEmptyFieldTitle),
-                          description: const Text(aaliyahEmptyFieldSubTitle),
-                          autoCloseDuration: const Duration(seconds: 3),
-                        );
-                        return;
-                      }
+    final authProvider = Provider.of<AuthProvider>(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-                      final result = await authProvider.login(
-                        _emailController.text,
-                        _passwordController.text,
-                      );
-
-                      if (!context.mounted) return;
-
-                      if (result['status'] == 'success') {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BottomNavBar(),
-                          ),
-                        );
-                      } else if (result['status'] == '2fa_required') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TwoFactorScreen(
-                              login: _emailController.text,
-                              password: _passwordController.text,
-                            ),
-                          ),
-                        );
-                      } else {
-                        toastification.show(
-                          context: context,
-                          type: ToastificationType.error,
-                          style: ToastificationStyle.fillColored,
-                          title: const Text(aaliyahInvalidCredTitle),
-                          description: const Text(aaliyahInvalidCredSubTitle),
-                          autoCloseDuration: const Duration(seconds: 4),
-                        );
-                      }
-                    },
-                    child: authProvider.isLoading
-                        ? LoadingAnimationWidget.staggeredDotsWave(
-                            color: Colors.white,
-                            size: 30,
-                          )
-                        : Text(
-                            aaliyahLogin.toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                  ),
-                ),
-              ],
+    return Form(
+      key: _formKey,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: TUIConstants.relativeHeight(context, 0.02)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AuthTextField(
+              controller: _emailController,
+              label: aaliyahLoginLabel,
+              prefixIcon: Icons.person_outline,
             ),
-          ),
-        );
-      },
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
+            
+            // Optimization: ValueListenableBuilder for granular UI updates
+            ValueListenableBuilder<bool>(
+              valueListenable: _obscurePasswordNotifier,
+              builder: (context, obscure, child) {
+                return AuthTextField(
+                  controller: _passwordController,
+                  label: aaliyahPassword,
+                  prefixIcon: Icons.password_outlined,
+                  obscureText: obscure,
+                  suffixIcon: IconButton(
+                    onPressed: () => _obscurePasswordNotifier.value = !obscure,
+                    icon: Icon(
+                      obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: isDarkMode ? const Color(0xFFE5EDEF) : null,
+                    ),
+                  ),
+                );
+              },
+            ),
+            
+            _buildForgetPasswordButton(context, isDarkMode),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
+            _buildLoginButton(authProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForgetPasswordButton(BuildContext context, bool isDarkMode) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()),
+        ),
+        style: TextButton.styleFrom(
+          foregroundColor: isDarkMode ? const Color(0xFFE5EDEF) : aaliyahPrimaryColor,
+        ),
+        child: Text(aaliyahForgetPassword),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(AuthProvider authProvider) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => _handleLogin(authProvider),
+        child: authProvider.isLoading
+            ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 30)
+            : Text(aaliyahLogin.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+    );
+  }
+
+  Future<void> _handleLogin(AuthProvider authProvider) async {
+    if (authProvider.isLoading) return;
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showErrorToast(aaliyahEmptyFieldTitle, aaliyahEmptyFieldSubTitle);
+      return;
+    }
+
+    final result = await authProvider.login(_emailController.text, _passwordController.text);
+    if (!mounted) return;
+
+    if (result['status'] == 'success') {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NavigationMenu()));
+    } else if (result['status'] == '2fa_required') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TwoFactorScreen(login: _emailController.text, password: _passwordController.text),
+        ),
+      );
+    } else {
+      _showErrorToast(aaliyahInvalidCredTitle, aaliyahInvalidCredSubTitle);
+    }
+  }
+
+  void _showErrorToast(String title, String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.fillColored,
+      title: Text(title),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 4),
     );
   }
 }

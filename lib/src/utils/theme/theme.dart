@@ -1,0 +1,41 @@
+import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/src/utils/theme/widget_themes/elevated_button_theme.dart';
+import 'package:aaliyahs_collection_estore/src/utils/theme/widget_themes/outlined_button_theme.dart';
+import 'package:aaliyahs_collection_estore/src/utils/theme/widget_themes/text_field_theme.dart';
+import 'package:aaliyahs_collection_estore/src/utils/theme/widget_themes/text_theme.dart';
+import 'package:flutter/material.dart';
+
+class AaliyahAppTheme {
+  // This is a private constructor, I'm using to avoid creating instances
+  AaliyahAppTheme._();
+
+  static ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
+    primaryColor: aaliyahPrimaryColor,
+    scaffoldBackgroundColor: aaliyahLightColor,
+    textTheme: AaliyahTextTheme.lightTextTheme,
+    outlinedButtonTheme: AaliyahOutlinedButtonTheme.lightOutlinedButtonTheme,
+    elevatedButtonTheme: AaliyahElevatedButtonTheme.lightElevatedButtonTheme,
+    inputDecorationTheme: AaliyahTextFormFieldTheme.lightInputDecorationTheme,
+    colorScheme: const ColorScheme.light(
+      primary: aaliyahPrimaryColor,
+      secondary: aaliyahSecondaryColor,
+      surface: aaliyahLightColor,
+    ),
+  );
+
+  static ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: aaliyahPrimaryColor,
+    scaffoldBackgroundColor: aaliyahDarkColor,
+    textTheme: AaliyahTextTheme.darkTextTheme,
+    outlinedButtonTheme: AaliyahOutlinedButtonTheme.darkOutlinedButtonTheme,
+    elevatedButtonTheme: AaliyahElevatedButtonTheme.darkElevatedButtonTheme,
+    inputDecorationTheme: AaliyahTextFormFieldTheme.darkInputDecorationTheme,
+    colorScheme: const ColorScheme.dark(
+      primary: aaliyahPrimaryColor,
+      secondary: aaliyahSecondaryColor,
+      surface: aaliyahDarkColor,
+    ),
+  );
+}

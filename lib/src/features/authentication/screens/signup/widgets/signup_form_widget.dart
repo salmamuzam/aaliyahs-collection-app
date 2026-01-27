@@ -1,13 +1,13 @@
-import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
-import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
-import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-// Refactored Sign Up Form
+import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
+import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/widgets/auth_text_field.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/providers/auth_provider.dart';
 
 class SignUpFormWidget extends StatefulWidget {
   const SignUpFormWidget({super.key});
@@ -41,182 +41,145 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: aaliyahFormHeight - 10),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          label: Text(aaliyahFirstName),
-                          prefixIcon: Icon(Icons.person_outline_rounded),
-                          border: OutlineInputBorder(),
-                        ),
-                        controller: _firstNameController,
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          label: Text(aaliyahLastName),
-                          prefixIcon: Icon(Icons.person_outline_rounded),
-                          border: OutlineInputBorder(),
-                        ),
-                        controller: _lastNameController,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    label: Text(aaliyahUsername),
-                    prefixIcon: Icon(Icons.alternate_email_rounded),
-                    border: OutlineInputBorder(),
-                  ),
-                  controller: _usernameController,
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    label: Text(aaliyahEmail),
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  controller: _emailController,
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: InputDecoration(
-                    label: const Text(aaliyahPassword),
-                    prefixIcon: const Icon(Icons.password_outlined),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                      ),
-                    ),
-                  ),
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: InputDecoration(
-                    label: const Text(aaliyahConfirmPassword),
-                    prefixIcon: const Icon(Icons.password_outlined),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                      ),
-                    ),
-                  ),
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                ),
-                const SizedBox(height: aaliyahFormHeight - 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (authProvider.isLoading) return;
+    final authProvider = Provider.of<AuthProvider>(context);
 
-                      if (_firstNameController.text.isEmpty ||
-                          _lastNameController.text.isEmpty ||
-                                _usernameController.text.isEmpty ||
-                                _emailController.text.isEmpty ||
-                                _passwordController.text.isEmpty) {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahSignUpEmptyTitle),
-                                description: const Text(aaliyahSignUpEmptySubTitle),
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              return;
-                            }
-
-                            if (_passwordController.text != _confirmPasswordController.text) {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahPasswordMismatchTitle),
-                                description: const Text(aaliyahPasswordMismatchSubTitle),
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              return;
-                            }
-
-                            final response = await authProvider.register(
-                              firstName: _firstNameController.text,
-                              lastName: _lastNameController.text,
-                              username: _usernameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              passwordConfirmation: _confirmPasswordController.text,
-                            );
-
-                            if (!context.mounted) return;
-
-                            if (response.statusCode == 201) {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.success,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahRegistrationSuccessTitle),
-                                description: const Text(aaliyahRegistrationSuccessSubTitle),
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                              );
-                            } else {
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                title: const Text(aaliyahRegistrationFailedTitle),
-                                description: const Text(aaliyahRegistrationFailedSubTitle),
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                            }
-                          },
-                    child: authProvider.isLoading
-                        ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 30)
-                        : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  ),
-                ),
-              ],
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: TUIConstants.relativeHeight(context, 0.02)),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildNameRow(),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
+            AuthTextField(
+              controller: _usernameController,
+              label: aaliyahUsername,
+              prefixIcon: Icons.alternate_email_rounded,
             ),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
+            AuthTextField(
+              controller: _emailController,
+              label: aaliyahEmail,
+              prefixIcon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
+            _buildPasswordField(),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
+            _buildConfirmPasswordField(),
+            SizedBox(height: TUIConstants.relativeHeight(context, 0.03)),
+            _buildSignUpButton(authProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNameRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: AuthTextField(
+            controller: _firstNameController,
+            label: aaliyahFirstName,
+            prefixIcon: Icons.person_outline_rounded,
           ),
-        );
-      },
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: AuthTextField(
+            controller: _lastNameController,
+            label: aaliyahLastName,
+            prefixIcon: Icons.person_outline_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return AuthTextField(
+      controller: _passwordController,
+      label: aaliyahPassword,
+      prefixIcon: Icons.password_outlined,
+      obscureText: _obscurePassword,
+      suffixIcon: IconButton(
+        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+      ),
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return AuthTextField(
+      controller: _confirmPasswordController,
+      label: aaliyahConfirmPassword,
+      prefixIcon: Icons.password_outlined,
+      obscureText: _obscureConfirmPassword,
+      suffixIcon: IconButton(
+        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+        icon: Icon(_obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton(AuthProvider authProvider) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => _handleSignUp(authProvider),
+        child: authProvider.isLoading
+            ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 30)
+            : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+    );
+  }
+
+  Future<void> _handleSignUp(AuthProvider authProvider) async {
+    if (authProvider.isLoading) return;
+
+    if (_firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty ||
+        _usernameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      _showToast(aaliyahSignUpEmptyTitle, aaliyahSignUpEmptySubTitle, ToastificationType.error);
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showToast(aaliyahPasswordMismatchTitle, aaliyahPasswordMismatchSubTitle, ToastificationType.error);
+      return;
+    }
+
+    final result = await authProvider.register(
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      username: _usernameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      passwordConfirmation: _confirmPasswordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (result['status'] == 'success') {
+      _showToast(aaliyahRegistrationSuccessTitle, aaliyahRegistrationSuccessSubTitle, ToastificationType.success);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    } else {
+      _showToast(aaliyahRegistrationFailedTitle, result['message'] ?? aaliyahRegistrationFailedSubTitle, ToastificationType.error);
+    }
+  }
+
+  void _showToast(String title, String message, ToastificationType type) {
+    toastification.show(
+      context: context,
+      type: type,
+      style: ToastificationStyle.fillColored,
+      title: Text(title),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 3),
     );
   }
 }

@@ -1,25 +1,24 @@
-import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
-import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/signup/signup_screen.dart';
-
 import 'package:flutter/material.dart';
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
-import 'package:aaliyahs_collection_estore/bottom_nav.dart';
 import 'package:toastification/toastification.dart';
 
-// Refactored Login Footer
+import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
+import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/providers/auth_provider.dart';
+
 class LoginFooterWidget extends StatelessWidget {
   const LoginFooterWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Text("OR"),
-        const SizedBox(height: aaliyahFormHeight - 20),
+        SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
         SizedBox(
           width: double.infinity,
           child: GoogleAuthButton(
@@ -31,19 +30,14 @@ class LoginFooterWidget extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: aaliyahFormHeight - 20),
+        SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SignupScreen()),
-              );
-            },
+            onPressed: () => Navigator.pushNamed(context, '/signup'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : null,
-              side: Theme.of(context).brightness == Brightness.dark ? const BorderSide(color: Color(0xFFE5EDEF)) : null,
+              foregroundColor: isDarkMode ? const Color(0xFFE5EDEF) : null,
+              side: isDarkMode ? const BorderSide(color: Color(0xFFE5EDEF)) : null,
             ),
             child: Text(
               aaliyahSignup.toUpperCase(),
@@ -57,18 +51,11 @@ class LoginFooterWidget extends StatelessWidget {
 
   Future<void> _handleGoogleSignIn(BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    // Show loading? The auth provider handles internal loading state but UI blocking needed?
-    // GoogleSignin provides its own UI mostly.
-    
     final result = await authProvider.signInWithGoogle();
     
     if (!context.mounted) return;
 
     if (result['status'] == 'success') {
-      // Create a temporary User in UserProvider if needed or just navigate
-      // Since we don't sync with Laravel, fetched profile will be empty/error.
-      
       toastification.show(
         context: context,
         type: ToastificationType.success,
@@ -77,14 +64,9 @@ class LoginFooterWidget extends StatelessWidget {
         description: Text("Signed in as ${result['name']}"),
         autoCloseDuration: const Duration(seconds: 3),
       );
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavBar()),
-        (route) => false,
-      );
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     } else if (result['status'] == 'cancelled') {
-       // User cancelled
+        // User cancelled
     } else {
        toastification.show(
         context: context,
@@ -96,5 +78,4 @@ class LoginFooterWidget extends StatelessWidget {
       );
     }
   }
-
 }

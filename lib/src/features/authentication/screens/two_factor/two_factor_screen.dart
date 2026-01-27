@@ -1,9 +1,9 @@
-import 'package:aaliyahs_collection_estore/bottom_nav.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/screens/dashboard/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/src/common_widgets/form/form_header_widget.dart';
 import 'package:aaliyahs_collection_estore/src/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/provider/auth_provider.dart';
+import 'package:aaliyahs_collection_estore/src/features/authentication/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
@@ -56,7 +56,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     if (result['status'] == 'success') {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const BottomNavBar()),
+        MaterialPageRoute(builder: (context) => const NavigationMenu()),
         (route) => false,
       );
     } else {

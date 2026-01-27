@@ -1,11 +1,11 @@
-import 'package:aaliyahs_collection_estore/src/features/core/screens/favorites/favorites.dart';
-import 'package:aaliyahs_collection_estore/src/features/core/screens/cart/cart_screen.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/screens/favorites/favorites.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/screens/cart/cart_screen.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/provider/cart_provider.dart';
-import 'package:aaliyahs_collection_estore/provider/favorite_provider.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/providers/cart_provider.dart';
+import 'package:aaliyahs_collection_estore/src/features/shop/providers/favorite_provider.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 class CartAppBarAction extends StatelessWidget {

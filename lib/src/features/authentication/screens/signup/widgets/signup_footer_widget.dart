@@ -1,9 +1,6 @@
-import 'package:aaliyahs_collection_estore/src/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
-
-// Refactored Sign Up Footer
+import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
 
 class SignUpFooterWidget extends StatelessWidget {
   const SignUpFooterWidget({super.key});
@@ -13,19 +10,16 @@ class SignUpFooterWidget extends StatelessWidget {
     return Column(
       children: [
         const Text("OR"),
-        SizedBox(height: aaliyahFormHeight - 20),
+        SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
+              Navigator.pushReplacementNamed(context, '/login');
             },
             child: Text(
               aaliyahLogin.toUpperCase(),
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ),
