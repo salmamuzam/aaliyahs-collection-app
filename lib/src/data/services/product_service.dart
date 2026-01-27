@@ -73,4 +73,13 @@ class ProductService {
       fromJson: (json) => ListResponse<Product>.fromMap(json, (pJson) => Product.fromJson(pJson)),
     );
   }
+
+  // Get Single Product Details
+  Future<ApiResponse<Product>> getProductDetails(int id) async {
+    return await _apiClient.request<Product>(
+      path: '${ApiEndpoints.shop}/$id',
+      method: MethodType.get,
+      fromJson: (json) => Product.fromJson(json['data'] ?? json),
+    );
+  }
 }

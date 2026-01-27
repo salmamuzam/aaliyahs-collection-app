@@ -13,8 +13,11 @@ class OrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final List items = order['items'] ?? [];
-    final double total = double.tryParse(order['amount'].toString()) ?? 0.0;
-    final DateTime orderDate = DateTime.parse(order['date']);
+    final double total = _parsePrice(order['amount']);
+    
+    final DateTime orderDate = order['timestamp'] != null 
+        ? DateTime.fromMillisecondsSinceEpoch(order['timestamp']) 
+        : (order['date'] != null ? DateTime.parse(order['date']) : DateTime.now());
 
     return Scaffold(
       backgroundColor: isDarkMode ? aaliyahDarkColor : Colors.white,
@@ -71,28 +74,35 @@ class OrderDetailScreen extends StatelessWidget {
 
   Widget _buildOrderHeader(String orderId, DateTime date) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: aaliyahPrimaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
         border: Border.all(color: aaliyahPrimaryColor.withValues(alpha: 0.2)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeaderColumn("Order ID", "#CWT${orderId.padLeft(4, '0')}"),
-          _buildHeaderColumn("Placed On", DateFormat('dd MMM yyyy, hh:mm a').format(date), alignRight: true),
+          _buildHeaderColumn("Order ID", orderId),
+          const SizedBox(height: 12),
+          _buildHeaderColumn("Placed On", DateFormat('dd MMM yyyy, hh:mm a').format(date)),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderColumn(String label, String value, {bool alignRight = false}) {
+  Widget _buildHeaderColumn(String label, String value) {
     return Column(
-      crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        Text(
+          value, 
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
@@ -102,13 +112,14 @@ class OrderDetailScreen extends StatelessWidget {
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item, bool isDarkMode) {
-    final double price = double.tryParse(item['price'].toString()) ?? 0.0;
+    final double price = _parsePrice(item['price']);
     final int quantity = int.tryParse(item['quantity'].toString()) ?? 0;
     final double totalItemPrice = price * quantity;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildItemImage(item['image'].toString(), isDarkMode),
           const SizedBox(width: 16),
@@ -120,8 +131,8 @@ class OrderDetailScreen extends StatelessWidget {
 
   Widget _buildItemImage(String imageUrl, bool isDarkMode) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 70,
+      height: 70,
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
@@ -136,26 +147,27 @@ class OrderDetailScreen extends StatelessWidget {
   }
 
   Widget _buildItemDetails(Map<String, dynamic> item, double price, int quantity, double totalPrice, bool isDarkMode) {
+    final String title = item['title'] ?? item['name'] ?? "Product";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           item['category'] ?? "Category",
-          style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+          style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
-          item['title'] ?? item['name'] ?? "Product Name",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          _toTitleCase(title),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Rs. ${price.toStringAsFixed(0)} x $quantity", style: TextStyle(color: Colors.grey.shade600)),
-            Text("Rs. ${totalPrice.toStringAsFixed(0)}", style: const TextStyle(fontWeight: FontWeight.bold, color: aaliyahPrimaryColor)),
+            Text("LKR ${price.toStringAsFixed(0)} * $quantity", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+            Text("LKR ${totalPrice.toStringAsFixed(0)}", style: const TextStyle(fontWeight: FontWeight.bold, color: aaliyahPrimaryColor, fontSize: 14)),
           ],
         ),
       ],
@@ -166,9 +178,9 @@ class OrderDetailScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text("Total Amount", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+        const Text("Total Amount", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
         Text(
-          "Rs. ${total.toStringAsFixed(2)}",
+          "LKR ${total.toStringAsFixed(2)}",
           style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: aaliyahPrimaryColor),
         ),
       ],
@@ -177,19 +189,31 @@ class OrderDetailScreen extends StatelessWidget {
 
   Widget _buildPaymentMethod(String? method, bool isDarkMode) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: _boxDecoration(isDarkMode),
       child: Row(
         children: [
-          Icon(Icons.payment, color: isDarkMode ? Colors.white70 : Colors.black54),
-          const SizedBox(width: 16),
-          Text(method ?? "N/A", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Icon(Icons.payment_outlined, color: aaliyahPrimaryColor, size: 20),
+          const SizedBox(width: 12),
+          Text(method ?? "N/A", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         ],
       ),
     );
   }
 
   Widget _buildShippingAddress(Map<String, dynamic> customer, bool isDarkMode) {
+    final String firstName = customer['firstName'] ?? "Customer";
+    final String lastName = customer['lastName'] ?? "";
+    final String email = customer['email'] ?? "N/A";
+    final String address = customer['address'] ?? "N/A";
+    final String city = customer['city'] ?? "";
+    final String state = customer['state'] ?? customer['province'] ?? "";
+    final String postalCode = customer['postalCode'] ?? "";
+    final String country = customer['country'] ?? "";
+    
+    final String name = "$firstName $lastName".trim();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -197,14 +221,61 @@ class OrderDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(customer['firstName'] ?? "Customer", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.phone_outlined, customer['phone'] ?? "N/A"),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.location_on_outlined, "${customer['address']}, ${customer['city']}"),
+          Row(
+            children: [
+              const Icon(Icons.person_outline, size: 18, color: aaliyahPrimaryColor),
+              const SizedBox(width: 10),
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.email_outlined, size: 18, color: aaliyahPrimaryColor),
+              const SizedBox(width: 10),
+              Expanded(child: Text(email, style: TextStyle(color: Colors.grey.shade700, fontSize: 13))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.location_on_outlined, size: 18, color: aaliyahPrimaryColor),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(address, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    Text("$city, $state", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                    if (postalCode.isNotEmpty || country.isNotEmpty)
+                      Text("$postalCode $country".trim(), style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  String _toTitleCase(String text) {
+    if (text.isEmpty) return text;
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  double _parsePrice(dynamic value) {
+    if (value == null) return 0.0;
+    String priceStr = value.toString().replaceAll(',', '');
+    // Remove characters that are not digits or decimal point
+    priceStr = priceStr.replaceAll(RegExp(r'[^0-9.]'), '');
+    return double.tryParse(priceStr) ?? 0.0;
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -212,7 +283,7 @@ class OrderDetailScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 8),
-        Expanded(child: Text(text, style: TextStyle(color: Colors.grey.shade600, fontSize: 14))),
+        Expanded(child: Text(text, style: TextStyle(color: Colors.grey.shade600, fontSize: 13))),
       ],
     );
   }

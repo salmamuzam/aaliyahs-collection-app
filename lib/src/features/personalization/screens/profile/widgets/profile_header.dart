@@ -96,7 +96,7 @@ class ProfileHeader extends StatelessWidget {
                 color: aaliyahPrimaryColor,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.edit, color: Colors.white, size: 18),
+              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
             ),
           ),
         ),

@@ -8,6 +8,7 @@ class UserModel {
   final String email;
   final String profilePhotoUrl;
   final String? token;
+  final String? createdAt;
 
   UserModel({
     required this.id,
@@ -17,6 +18,7 @@ class UserModel {
     required this.email,
     required this.profilePhotoUrl,
     this.token,
+    this.createdAt,
   });
 
   String get name => '$firstName $lastName'.trim();
@@ -38,6 +40,7 @@ class UserModel {
       email: json['email'] ?? '',
       profilePhotoUrl: _processImageUrl(photoUrl),
       token: json['token'],
+      createdAt: json['created_at'],
     );
   }
 
@@ -71,6 +74,7 @@ class UserModel {
       'email': email,
       'profile_photo_url': profilePhotoUrl,
       'token': token,
+      'created_at': createdAt,
     };
   }
 }

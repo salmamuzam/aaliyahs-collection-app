@@ -5,6 +5,7 @@ import 'package:aaliyahs_collection_estore/src/features/shop/providers/cart_prov
 import 'package:aaliyahs_collection_estore/src/features/shop/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class ProductDetailBottomAction extends StatefulWidget {
   final Product product;
@@ -110,13 +111,17 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
   }
 
   void _showSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text("Added to Cart"),
-        backgroundColor: aaliyahPrimaryColor,
+        elevation: 0,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 1),
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Added to Cart!',
+          message: '${widget.product.displayName} has been added to your cart.',
+          contentType: ContentType.success,
+        ),
       ),
     );
   }

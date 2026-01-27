@@ -11,6 +11,8 @@ import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/ui_constants.dart';
 import 'package:aaliyahs_collection_estore/src/features/personalization/screens/profile/widgets/edit_profile_image_picker.dart';
 
+import 'package:aaliyahs_collection_estore/src/features/authentication/screens/login/widgets/auth_text_field.dart';
+
 class MyAccountScreen extends StatefulWidget {
   const MyAccountScreen({super.key});
 
@@ -72,8 +74,10 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
               ),
               const SizedBox(height: 48),
               _buildFields(isDarkMode),
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
               _buildActionButton(),
+              const SizedBox(height: 16),
+              _buildDeleteButton(userProvider),
               const SizedBox(height: 32),
               _buildFooter(userProvider),
             ],
@@ -102,81 +106,73 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   Widget _buildFields(bool isDarkMode) {
     return Column(
       children: [
-        _buildEditField("First Name", _firstNameController, Icons.person_outline, isDarkMode),
+        AuthTextField(controller: _firstNameController, label: "First Name", prefixIcon: Icons.person_outline),
         const SizedBox(height: 20),
-        _buildEditField("Last Name", _lastNameController, Icons.person_outline, isDarkMode),
+        AuthTextField(controller: _lastNameController, label: "Last Name", prefixIcon: Icons.person_outline),
         const SizedBox(height: 20),
-        _buildEditField("Username", _usernameController, Icons.alternate_email, isDarkMode),
+        AuthTextField(controller: _usernameController, label: "Username", prefixIcon: Icons.alternate_email),
         const SizedBox(height: 20),
-        _buildEditField("E-Mail", _emailController, Icons.email_outlined, isDarkMode),
+        AuthTextField(controller: _emailController, label: "E-Mail", prefixIcon: Icons.email_outlined),
       ],
-    );
-  }
-
-  Widget _buildEditField(String label, TextEditingController controller, IconData icon, bool isDarkMode) {
-    return TextFormField(
-      controller: controller,
-      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black, fontSize: 15),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: aaliyahPrimaryColor, fontSize: 14),
-        prefixIcon: Icon(icon, color: aaliyahPrimaryColor, size: 20),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: aaliyahPrimaryColor, width: 2),
-        ),
-      ),
     );
   }
 
   Widget _buildActionButton() {
     return SizedBox(
       width: double.infinity,
-      height: 55,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleUpdateProfile,
         style: ElevatedButton.styleFrom(
           backgroundColor: aaliyahPrimaryColor,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          padding: const EdgeInsets.symmetric(vertical: 18),
           elevation: 0,
         ),
         child: _isLoading 
           ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
-          : const Text("Update Profile", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          : const Text("UPDATE PROFILE", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ),
     );
   }
 
   Widget _buildFooter(UserProvider userProvider) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Joined: 31 October 2022",
-          style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
-        ),
-        _buildDeleteButton(userProvider),
-      ],
+    return Center(
+      child: Text(
+        "Joined: ${_formatDate(userProvider.user?.createdAt)}",
+        style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
+      ),
     );
   }
 
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'Unknown';
+    try {
+      final DateTime date = DateTime.parse(dateStr);
+      // Manual formatting since intl might not be installed or configured
+      // Format: 31 October 2022
+      const List<String> months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return "${date.day} ${months[date.month - 1]} ${date.year}";
+    } catch (e) {
+      // Return original if parsing fails (fallback)
+      return dateStr;
+    }
+  }
+
   Widget _buildDeleteButton(UserProvider userProvider) {
-    return TextButton(
-      onPressed: () => _showDeleteConfirmation(userProvider),
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.red,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => _showDeleteConfirmation(userProvider),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        child: const Text("DELETE ACCOUNT", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      child: const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
     );
   }
 

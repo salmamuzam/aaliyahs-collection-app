@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBestSellersHeaderSection() {
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
       sliver: SliverToBoxAdapter(
         child: FadeInUp(
           delay: const Duration(milliseconds: 600),

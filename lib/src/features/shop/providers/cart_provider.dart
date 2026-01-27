@@ -91,7 +91,7 @@ class CartProvider extends ChangeNotifier {
   String get formattedTotalPrice {
     final NumberFormat formatter = NumberFormat.currency(
       locale: 'en_LK',
-      symbol: 'Rs. ',
+      symbol: 'LKR ',
       decimalDigits: 2,
     );
     return formatter.format(totalPrice());

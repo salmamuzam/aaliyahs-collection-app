@@ -113,24 +113,26 @@ class OrderService {
   /// Fetch orders from Firebase Realtime Database.
   /// Optimization: Server-side filtering using 'orderBy' and 'equalTo' to reduce bandwidth.
   Future<List<Map<String, dynamic>>> getOrders(String email) async {
+    final String cleanEmail = email.toLowerCase().trim();
     try {
       final dbUrl = dotenv.env['FIREBASE_DB_URL'];
       if (dbUrl == null) return [];
       
-      // OPTIMIZATION: Use server-side filtering via REST API
-      // Note: Requires ".indexOn": ["customer/email"] in Firebase Rules
       final String url = "${dbUrl}orders.json";
       final response = await _dio.get(
         url,
         queryParameters: {
           'orderBy': '"customer/email"',
-          'equalTo': '"$email"',
+          'equalTo': '"$cleanEmail"',
         },
       );
       
       if (response.statusCode == 200) {
         final Map<String, dynamic>? data = response.data;
-        if (data == null) return [];
+        if (data == null || data.isEmpty) {
+           // If optimized search with lowercase returns nothing, try legacy as a last resort
+           return _getOrdersLegacy(cleanEmail);
+        }
 
         List<Map<String, dynamic>> orders = [];
         data.forEach((key, value) {
@@ -139,15 +141,13 @@ class OrderService {
           orders.add(order);
         });
         
-        // Final descending sort by timestamp in-memory
         orders.sort((a, b) => (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0));
         return orders;
       }
-      return [];
+      return _getOrdersLegacy(cleanEmail);
     } catch (e) {
       debugPrint("Error fetching orders: $e");
-      // Fallback to client-side filtering if index is missing (legacy support)
-      return _getOrdersLegacy(email);
+      return _getOrdersLegacy(cleanEmail);
     }
   }
 
@@ -161,7 +161,9 @@ class OrderService {
         final Map<String, dynamic> data = response.data;
         List<Map<String, dynamic>> orders = [];
         data.forEach((key, value) {
-          if (value['customer'] != null && value['customer']['email'] == email) {
+          if (value['customer'] != null && 
+              value['customer']['email'] != null && 
+              value['customer']['email'].toString().toLowerCase() == email.toLowerCase()) {
             Map<String, dynamic> order = Map<String, dynamic>.from(value);
             order['id'] = key;
             orders.add(order);

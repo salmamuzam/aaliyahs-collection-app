@@ -11,6 +11,7 @@ import 'package:aaliyahs_collection_estore/src/features/shop/providers/notificat
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/src/data/services/order_service.dart';
+import 'package:aaliyahs_collection_estore/src/features/personalization/providers/user_provider.dart';
 import 'package:aaliyahs_collection_estore/src/features/shop/screens/dashboard/navigation_menu.dart';
 
 // Checkout Feature Widgets
@@ -33,6 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController(text: "Sri Lanka");
+  final _formKey = GlobalKey<FormState>();
 
   int _currentStep = 0;
   int _selectedPaymentIndex = 0;
@@ -56,18 +58,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       backgroundColor: isDarkMode ? aaliyahDarkColor : Colors.white,
       appBar: _buildAppBar(isDarkMode),
-      body: Column(
-        children: [
-          CheckoutProgressBar(currentStep: _currentStep),
-          Expanded(
-            child: _buildStepContent(cartProvider),
-          ),
-          CheckoutBottomButton(
-            currentStep: _currentStep,
-            selectedPaymentIndex: _selectedPaymentIndex,
-            onPressed: () => _handleNextAction(cartProvider),
-          ),
-        ],
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            CheckoutProgressBar(currentStep: _currentStep),
+            Expanded(
+              child: _buildStepContent(cartProvider),
+            ),
+            CheckoutBottomButton(
+              currentStep: _currentStep,
+              selectedPaymentIndex: _selectedPaymentIndex,
+              onPressed: () => _handleNextAction(cartProvider),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -125,7 +130,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void _handleNextAction(CartProvider cartProvider) {
-    if (_currentStep < 2) {
+    if (_currentStep == 0) {
+      if (_formKey.currentState!.validate()) {
+        setState(() => _currentStep++);
+      }
+    } else if (_currentStep < 2) {
       setState(() => _currentStep++);
     } else {
       _placeOrder(cartProvider);
@@ -222,6 +231,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<String?> _storeOrder(String paymentMethod, double amount) async {
     final CartProvider cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final user = Provider.of<UserProvider>(context, listen: false).user;
+
     final Map<String, dynamic> orderData = {
       'date': DateTime.now().toIso8601String(),
       'timestamp': DateTime.now().millisecondsSinceEpoch,
@@ -229,10 +240,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'payment_method': paymentMethod,
       'status': 'Pending',
       'customer': {
-        'email': FirebaseAuth.instance.currentUser?.email ?? 'anonymous',
+        'firstName': user?.firstName ?? 'Customer',
+        'lastName': user?.lastName ?? '',
+        'email': (user?.email ?? 'anonymous').toLowerCase(),
         'address': _streetController.text,
         'city': _cityController.text,
         'state': _provinceController.text,
+        'postalCode': _postalCodeController.text,
         'country': _countryController.text,
       },
       'items': cartProvider.cart.map((item) => {

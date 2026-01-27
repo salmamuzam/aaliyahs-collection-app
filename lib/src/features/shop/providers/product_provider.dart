@@ -118,8 +118,8 @@ class ProductProvider extends ChangeNotifier {
 
       if (_categories.isEmpty) await _fetchCategoriesFallback();
       if (_bestSellingProducts.isEmpty && _categories.isNotEmpty) await _fetchBestSellingFallback();
-
-      _enrichBestSellersDetails();
+      
+      await _enrichBestSellersDetails();
       
     } catch (e) {
       _errorMessage = e.toString();
@@ -352,26 +352,45 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
-  void _enrichBestSellersDetails() {
+  Future<void> _enrichBestSellersDetails() async {
+    // 1. Enrich from loaded latest/featured (Fast)
     if (_bestSellingProducts.isNotEmpty && (_latestProducts.isNotEmpty || _featuredProducts.isNotEmpty)) {
       final Map<int, Product> fullProductMap = {};
       for (var product in _latestProducts) {
-        if (product.id != null) {
-          fullProductMap[product.id!] = product;
-        }
+        if (product.id != null) fullProductMap[product.id!] = product;
       }
       for (var product in _featuredProducts) {
-        if (product.id != null) {
-          fullProductMap[product.id!] = product;
-        }
+        if (product.id != null) fullProductMap[product.id!] = product;
       }
       for (int i = 0; i < _bestSellingProducts.length; i++) {
         final bestProduct = _bestSellingProducts[i];
-        if ((bestProduct.description == 'Best Seller' || bestProduct.description.isEmpty) && 
+        if ((bestProduct.description == 'Best Seller' || bestProduct.images.length <= 1) && 
             fullProductMap.containsKey(bestProduct.id)) {
           _bestSellingProducts[i] = fullProductMap[bestProduct.id]!;
         }
       }
+    }
+
+    // 2. Fetch missing details from API (Slower but necessary)
+    List<Future<void>> futures = [];
+    for (int i = 0; i < _bestSellingProducts.length; i++) {
+       final p = _bestSellingProducts[i];
+       if ((p.description == 'Best Seller' || p.images.length <= 1) && p.id != null) {
+          futures.add(() async {
+             try {
+               final response = await _productService.getProductDetails(p.id!);
+               if (response.success && response.data != null) {
+                  _bestSellingProducts[i] = response.data!;
+               }
+             } catch (e) {
+                debugPrint("Failed to enrich product ${p.id}: $e");
+             }
+          }());
+       }
+    }
+    if (futures.isNotEmpty) {
+       await Future.wait(futures);
+       notifyListeners(); // Notify again after enrichment
     }
   }
 

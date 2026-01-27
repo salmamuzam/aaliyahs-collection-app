@@ -31,7 +31,7 @@ class ProductInfoSection extends StatelessWidget {
 
   Widget _buildItemTitle(bool isDarkMode) {
     return Text(
-      product.displayName,
+      _toTitleCase(product.displayName),
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w900,
@@ -74,8 +74,17 @@ class ProductInfoSection extends StatelessWidget {
         color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
         height: 1.6,
       ),
+      textAlign: TextAlign.justify,
       moreStyle: const TextStyle(color: aaliyahPrimaryColor, fontWeight: FontWeight.bold),
       lessStyle: const TextStyle(color: aaliyahPrimaryColor, fontWeight: FontWeight.bold),
     );
+  }
+
+  String _toTitleCase(String text) {
+    if (text.isEmpty) return text;
+    return text.toLowerCase().split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
   }
 }

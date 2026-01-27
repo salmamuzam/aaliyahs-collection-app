@@ -10,33 +10,20 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const int shippingLagDays = 3;
-    const int orderIdPadding = 4;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    final String status = order['status'] ?? "Processing";
+    final String paymentMethod = (order['payment_method'] ?? "").toString().toLowerCase();
+    final bool isPaid = paymentMethod.contains("paid") || paymentMethod.contains("stripe");
+    
+    final String status = isPaid ? "Paid" : "Pending";
+    final Color statusColor = isPaid ? Colors.green : Colors.orangeAccent;
+    
     final DateTime date = order['timestamp'] != null 
         ? DateTime.fromMillisecondsSinceEpoch(order['timestamp']) 
         : (order['date'] != null ? DateTime.parse(order['date']) : DateTime.now());
-    final String orderId = "CWT${order['id'].toString().padLeft(orderIdPadding, '0')}";
     
-    final DateTime shippingDate = date.add(const Duration(days: shippingLagDays));
-    final String shippingDateStr = DateFormat('dd MMM yyyy').format(shippingDate);
-    final String orderDateStr = DateFormat('dd MMM yyyy').format(date);
-
-    Color statusColor = const Color(0xFF4DB6AC); // Default teal
-    IconData statusIcon = Icons.inventory_2_outlined;
-
-    final bool isDelivered = status.toLowerCase().contains("delivered");
-    final bool isEnRoute = status.toLowerCase().contains("way");
-
-    if (isDelivered) {
-      statusColor = Colors.green;
-      statusIcon = Icons.local_shipping_outlined;
-    } else if (isEnRoute) {
-      statusColor = Colors.blue;
-      statusIcon = Icons.local_shipping_outlined;
-    }
+    final String orderId = order['id'] ?? "#N/A";
+    final String orderDateStr = DateFormat('dd MMM yyyy, hh:mm a').format(date);
 
     return GestureDetector(
       onTap: () {
@@ -62,9 +49,9 @@ class OrderCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _buildStatusRow(status, orderDateStr, statusColor, statusIcon, isDarkMode),
+            _buildStatusRow(status, orderDateStr, statusColor, Icons.receipt_long_outlined, isDarkMode),
             const SizedBox(height: 20),
-            _buildInfoRow(orderId, shippingDateStr, isDarkMode),
+            _buildInfoRow(orderId, isDarkMode),
           ],
         ),
       ),
@@ -81,12 +68,14 @@ class OrderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                status,
+                status.toUpperCase(),
                 style: TextStyle(
                   color: color,
                   fontWeight: FontWeight.w900,
-                  fontSize: 14,
+                  fontSize: 13,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
@@ -94,7 +83,7 @@ class OrderCard extends StatelessWidget {
                 style: TextStyle(
                   color: isDarkMode ? Colors.white : Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 15,
                 ),
               ),
             ],
@@ -105,11 +94,10 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String orderId, String shippingDate, bool isDarkMode) {
+  Widget _buildInfoRow(String orderId, bool isDarkMode) {
     return Row(
       children: [
-        _buildInfoColumn("Order", orderId, Icons.sell_outlined, isDarkMode),
-        _buildInfoColumn("Shipping Date", shippingDate, Icons.calendar_month_outlined, isDarkMode),
+        _buildInfoColumn("Order No", orderId, Icons.receipt_long_outlined, isDarkMode),
       ],
     );
   }

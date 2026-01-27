@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:aaliyahs_collection_estore/src/features/shop/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 
-class ProductImageCarousel extends StatelessWidget {
+class ProductImageCarousel extends StatefulWidget {
   final Product product;
   final int selectedIndex;
   final Function(int) onPageChanged;
@@ -16,6 +16,39 @@ class ProductImageCarousel extends StatelessWidget {
   });
 
   @override
+  State<ProductImageCarousel> createState() => _ProductImageCarouselState();
+}
+
+class _ProductImageCarouselState extends State<ProductImageCarousel> {
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.selectedIndex);
+  }
+
+  @override
+  void didUpdateWidget(ProductImageCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedIndex != widget.selectedIndex && 
+        _pageController.hasClients && 
+        _pageController.page?.round() != widget.selectedIndex) {
+      _pageController.animateToPage(
+        widget.selectedIndex, 
+        duration: const Duration(milliseconds: 300), 
+        curve: Curves.easeInOut
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
@@ -24,12 +57,13 @@ class ProductImageCarousel extends StatelessWidget {
       child: Stack(
         children: [
           PageView.builder(
-            itemCount: product.images.length,
-            onPageChanged: onPageChanged,
+            controller: _pageController,
+            itemCount: widget.product.images.length,
+            onPageChanged: widget.onPageChanged,
             itemBuilder: (context, index) {
-              final String img = product.images[index];
+              final String img = widget.product.images[index];
               return Hero(
-                tag: "product_${product.id}_$index",
+                tag: "product_${widget.product.id}_$index",
                 child: Center(
                   child: img.isEmpty
                       ? const Icon(Icons.image_not_supported_outlined, size: 80, color: Colors.grey)
@@ -47,6 +81,7 @@ class ProductImageCarousel extends StatelessWidget {
             },
           ),
           _buildDotIndicators(),
+          _buildArrowNav(context),
         ],
       ),
     );
@@ -60,18 +95,66 @@ class ProductImageCarousel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(
-          product.images.length,
+          widget.product.images.length,
           (index) => AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             margin: const EdgeInsets.symmetric(horizontal: 4),
-            width: selectedIndex == index ? 20 : 8,
+            width: widget.selectedIndex == index ? 20 : 8,
             height: 8,
             decoration: BoxDecoration(
-              color: selectedIndex == index ? aaliyahPrimaryColor : Colors.grey.withValues(alpha: 0.5),
+              color: widget.selectedIndex == index ? aaliyahPrimaryColor : Colors.grey.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildArrowNav(BuildContext context) {
+    if (widget.product.images.length <= 1) return const SizedBox.shrink();
+
+    return Positioned.fill(
+      child: Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Left Arrow
+              widget.selectedIndex > 0
+                  ? _arrowButton(
+                      Icons.arrow_back_ios_new, 
+                      () => _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut)
+                    )
+                  : const SizedBox(width: 40),
+              
+              // Right Arrow
+              widget.selectedIndex < widget.product.images.length - 1
+                  ? _arrowButton(
+                      Icons.arrow_forward_ios, 
+                      () => _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut)
+                    )
+                  : const SizedBox(width: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _arrowButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
       ),
     );
   }

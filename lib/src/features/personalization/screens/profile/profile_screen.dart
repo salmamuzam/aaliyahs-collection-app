@@ -149,7 +149,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           "My Profile",
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
              fontWeight: FontWeight.bold,
-             fontSize: DeviceUtils.getFontSize(24),
           ),
         ),
       ),

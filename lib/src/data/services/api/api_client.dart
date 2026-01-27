@@ -37,6 +37,7 @@ class DioClient implements ApiClient {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
+        validateStatus: (status) => status != null && status < 500,
       ),
     );
 
@@ -88,13 +89,30 @@ class DioClient implements ApiClient {
           break;
       }
 
+      final int statusCode = response.statusCode ?? 500;
+      final bool isSuccess = statusCode >= 200 && statusCode < 300;
+
+      // Parse data if available
+      T? parsedData;
+      if (response.data != null) {
+          if (fromJson != null) {
+             parsedData = fromJson(response.data is Map ? response.data : {'data': response.data});
+          } else if (response.data is T) {
+             parsedData = response.data;
+          } else {
+             try {
+                parsedData = response.data as T;
+             } catch (_) {}
+          }
+      }
+
       return ApiResponse<T>(
-        data: fromJson != null && response.data != null 
-            ? fromJson(response.data is Map ? response.data : {'data': response.data}) 
-            : null,
-        statusCode: response.statusCode.toString(),
-        success: true,
+        data: parsedData,
+        statusCode: statusCode.toString(),
+        success: isSuccess,
+        statusMessage: (response.data is Map) ? response.data['message'] : response.statusMessage,
       );
+
     } on DioException catch (e) {
       String message = "An error occurred";
       if (e.response?.data != null && e.response?.data is Map) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/src/features/shop/screens/checkout/widgets/checkout_address_field.dart';
+import 'package:aaliyahs_collection_estore/src/utils/validators/validator.dart';
 
 class CheckoutAddressStep extends StatelessWidget {
   final TextEditingController streetController;
@@ -41,13 +43,33 @@ class CheckoutAddressStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          CheckoutAddressField(label: "Street Address", controller: streetController, icon: Icons.home_outlined),
+          CheckoutAddressField(
+            label: "Street Address", 
+            controller: streetController, 
+            icon: Icons.home_outlined,
+            validator: AaliyahValidator.validateRequiredField,
+          ),
           const SizedBox(height: 16),
-          CheckoutAddressField(label: "City", controller: cityController, icon: Icons.location_city_outlined),
+          CheckoutAddressField(
+            label: "City", 
+            controller: cityController, 
+            icon: Icons.location_city_outlined,
+            validator: AaliyahValidator.validateRequiredField,
+          ),
           const SizedBox(height: 16),
-          CheckoutAddressField(label: "Postal Code", controller: postalCodeController, icon: Icons.markunread_mailbox_outlined),
+          CheckoutAddressField(
+            label: "Postal Code", 
+            controller: postalCodeController, 
+            icon: Icons.markunread_mailbox_outlined,
+            validator: AaliyahValidator.validatePostalCode,
+          ),
           const SizedBox(height: 16),
-          CheckoutAddressField(label: "Province", controller: provinceController, icon: Icons.map_outlined),
+          CheckoutAddressField(
+            label: "Province", 
+            controller: provinceController, 
+            icon: Icons.map_outlined,
+            validator: AaliyahValidator.validateRequiredField,
+          ),
           const SizedBox(height: 16),
           CheckoutAddressField(label: "Country", controller: countryController, icon: Icons.flag_outlined, enabled: false),
           const SizedBox(height: 24),
@@ -63,7 +85,7 @@ class CheckoutAddressStep extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: isLocating ? null : onLocateMe,
         icon: isLocating
-            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+            ? LoadingAnimationWidget.staggeredDotsWave(color: highlightColor, size: 24)
             : Icon(Icons.my_location, color: highlightColor),
         label: Text(
           isLocating ? "Locating..." : "Use Current Location",

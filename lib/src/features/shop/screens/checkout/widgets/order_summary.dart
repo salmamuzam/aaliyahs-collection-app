@@ -123,7 +123,7 @@ class OrderSummarySection extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              "Rs. ${item.price}",
+                              "LKR ${item.price}",
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,

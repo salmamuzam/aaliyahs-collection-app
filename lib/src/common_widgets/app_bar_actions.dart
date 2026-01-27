@@ -30,29 +30,6 @@ class CartAppBarAction extends StatelessWidget {
         final isDarkMode = Theme.of(context).brightness == Brightness.dark;
         final iconColor = color ?? (isDarkMode ? aaliyahLightColor : aaliyahDarkColor);
         
-        Widget baseIcon = Icon(
-          Icons.shopping_cart_outlined,
-          color: iconColor,
-        );
-
-        // Helper to conditionally wrap the icon with a badge
-        Widget wrapWithBadge(Widget target) {
-          if (count > 0) {
-            return badges.Badge(
-              badgeContent: Text(
-                count.toString(),
-                style: const TextStyle(color: aaliyahLightColor, fontSize: 10),
-              ),
-              showBadge: true,
-              badgeAnimation: const badges.BadgeAnimation.scale(),
-              child: target,
-            );
-          }
-          return target;
-        }
-
-        final iconWithMaybeBadge = wrapWithBadge(baseIcon);
-
         return Padding(
           padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
           child: GestureDetector(
@@ -62,12 +39,30 @@ class CartAppBarAction extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const CartScreen()),
               );
             },
-            child: cartKey != null
-                ? AddToCartIcon(
-                    key: cartKey!,
-                    icon: iconWithMaybeBadge,
-                  )
-                : iconWithMaybeBadge,
+            // We attach the key to the Badge widget so the add-to-cart animation 
+            // knows where to fly the product image to.
+            // We completely control the badge visibility (count > 0).
+            child: badges.Badge(
+              key: cartKey, 
+              position: badges.BadgePosition.topEnd(top: -8, end: -3),
+              showBadge: count > 0,
+              ignorePointer: false,
+              badgeContent: Text(
+                count.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+              badgeStyle: const badges.BadgeStyle(
+                badgeColor: Colors.red, // Standard notification red is clearer
+                padding: EdgeInsets.all(4),
+                elevation: 0,
+              ),
+              badgeAnimation: const badges.BadgeAnimation.scale(),
+              child: Icon(
+                Icons.shopping_cart_outlined,
+                color: iconColor,
+                size: 26,
+              ),
+            ),
           ),
         );
       },

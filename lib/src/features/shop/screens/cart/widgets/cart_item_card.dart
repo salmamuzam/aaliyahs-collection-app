@@ -87,7 +87,7 @@ class CartItemCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            "Rs. ${(item.priceDouble * item.quantity).toStringAsFixed(2)}",
+            "LKR ${(item.priceDouble * item.quantity).toStringAsFixed(2)}",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

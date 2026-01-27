@@ -37,8 +37,21 @@ class UserProvider extends ChangeNotifier {
       
       if (response.success && response.data != null) {
         _token = await _userService.getStoredToken();
-        _user = UserModel.fromJson(response.data!);
-        await _cacheUser(response.data!);
+        
+        final dynamic rawData = response.data!;
+        // Robust parsing: Check for nested 'data' or 'user' keys common in Laravel Resources
+        final Map<String, dynamic> userMap;
+        if (rawData['data'] != null && rawData['data'] is Map) {
+             userMap = rawData['data'];
+        } else if (rawData['user'] != null && rawData['user'] is Map) {
+             userMap = rawData['user'];
+        } else {
+             userMap = rawData;
+        }
+        
+        _user = UserModel.fromJson(userMap);
+        await _cacheUser(userMap);
+        notifyListeners();
       }
     } catch (e) {
       debugPrint("Error fetching profile: $e");

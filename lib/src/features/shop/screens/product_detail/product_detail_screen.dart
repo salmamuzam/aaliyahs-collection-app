@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import 'package:aaliyahs_collection_estore/src/features/shop/models/product.dart';
 import 'package:aaliyahs_collection_estore/src/constants/colors.dart';
@@ -144,7 +145,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   isFav ? Icons.favorite : Icons.favorite_outline_outlined,
                   color: Colors.white,
                 ),
-                onPressed: () => favProvider.toggleFavorite(widget.product),
+                onPressed: () {
+                   final isAlreadyLoved = favProvider.isExists(widget.product);
+                   favProvider.toggleFavorite(widget.product);
+                   
+                   final snackBar = SnackBar(
+                      elevation: 0,
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.transparent,
+                      duration: const Duration(seconds: 2),
+                      content: AwesomeSnackbarContent(
+                        title: isAlreadyLoved ? 'Removed from Wishlist!' : 'Added to Wishlist!',
+                        message: isAlreadyLoved 
+                           ? '${widget.product.displayName} has been removed from your wishlist.' 
+                           : '${widget.product.displayName} has been added to your wishlist.',
+                        contentType: isAlreadyLoved ? ContentType.warning : ContentType.success,
+                      ),
+                   );
+                   ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(snackBar);
+                },
               ),
             ),
           );

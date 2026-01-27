@@ -114,7 +114,7 @@ class CheckoutSummaryStep extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Rs. ${item.price} x ${item.quantity}",
+                  "LKR ${item.price} * ${item.quantity}",
                   style: TextStyle(
                     color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600, 
                     fontSize: 13, 
@@ -125,7 +125,7 @@ class CheckoutSummaryStep extends StatelessWidget {
             ),
           ),
           Text(
-            "Rs. ${totalItemPrice.toStringAsFixed(0)}",
+            "LKR ${totalItemPrice.toStringAsFixed(0)}",
             style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black),
           ),
         ],

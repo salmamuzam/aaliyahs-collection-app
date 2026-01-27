@@ -6,6 +6,7 @@ class CheckoutAddressField extends StatelessWidget {
   final TextEditingController controller;
   final IconData icon;
   final bool enabled;
+  final String? Function(String?)? validator;
 
   const CheckoutAddressField({
     super.key,
@@ -13,6 +14,7 @@ class CheckoutAddressField extends StatelessWidget {
     required this.controller,
     required this.icon,
     this.enabled = true,
+    this.validator,
   });
 
   @override
@@ -24,6 +26,7 @@ class CheckoutAddressField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       enabled: enabled,
+      validator: validator,
       style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
       decoration: InputDecoration(
         labelText: label,

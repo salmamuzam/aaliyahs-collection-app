@@ -1,6 +1,7 @@
 import 'package:aaliyahs_collection_estore/src/data/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 
 /// Manages authentication flows including Login, Registration, 2FA, and Social Sign-In.
 /// Follows "From Zero to Hero" best practices: Logic abstraction, Error mapping, and Identity monitoring.
