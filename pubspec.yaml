@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   provider: ^6.1.5+1
   carousel_slider: ^5.1.1
 
@@ -42,7 +44,6 @@ dependencies:
   loading_animation_widget: ^1.3.0
   toastification: ^3.0.3
   cached_network_image: ^3.4.1
-  fade_shimmer: 2.4.0
   sqflite: ^2.4.2
   path: ^1.9.1
   path_provider: ^2.1.5
@@ -66,17 +67,29 @@ dependencies:
   timeago: ^3.7.1
   readmore: ^3.0.0
   intl: ^0.20.2
-  lottie: ^3.3.2
   pinput: ^6.0.1
   skeletonizer: ^2.1.2
   animate_do: ^4.2.0
   smooth_page_indicator: ^2.0.1
   dio: ^5.9.0
-  json_annotation: ^4.9.0
   flutter_screenutil: ^5.9.3
   responsive_builder: ^0.7.1
   auto_size_text: ^3.0.0
-  http: ^1.6.0
+  local_auth: ^3.0.0
+  speech_to_text: ^7.3.0
+  permission_handler: ^12.0.1
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  open_filex: ^4.7.0
+  shimmer: ^3.0.0
+  cloud_firestore: ^6.1.2
+  firebase_database: ^12.1.2
+  flutter_slidable: ^4.0.3
+  flutter_animate: ^4.5.2
+  accordion: ^2.6.0
+  flutter_initicon: ^3.0.1
+  circular_profile_avatar: ^2.0.5
+  animated_custom_dropdown: ^3.1.1
 
 dev_dependencies:
   flutter_test:
@@ -88,8 +101,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  json_serializable: ^6.11.4
-  build_runner: ^2.10.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -103,16 +114,17 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/welcome/
-    - assets/images/products/abayas/
-    - assets/images/products/accessories/
-    - assets/images/products/hijabs/
-    - assets/images/products/dresses/
-    - assets/images/banners/
-    - assets/icons/
-    - assets/images/cart/
-    - assets/images/wishlist/
+    - assets/images/authentication/
+    - assets/images/shop/banners/
+    - assets/images/shop/categories/
+    - assets/images/shop/products/abayas/
+    - assets/images/shop/products/accessories/
+    - assets/images/shop/products/hijabs/
+    - assets/images/shop/products/dresses/
+    - assets/images/shop/cart/
+    - assets/images/shop/favorites/
     - assets/images/profile/
+    - assets/data/
     - assets/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see

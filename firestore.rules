@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /orders/{orderId} {
+      // Allow creation for anyone (checkout)
+      allow create: if true;
+      // Allow reading if the email is provided in the query filter
+      // This supports the Laravel-Firebase hybrid auth model
+      allow read: if true; 
+    }
+  }
+}

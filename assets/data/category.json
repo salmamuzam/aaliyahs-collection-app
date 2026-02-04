@@ -1,0 +1,22 @@
+[
+  {
+    "id": 24,
+    "name": "Abaya",
+    "image": "assets/images/shop/categories/abaya_category.png"
+  },
+  {
+    "id": 25,
+    "name": "Dress",
+    "image": "assets/images/shop/categories/dress_category.png"
+  },
+  {
+    "id": 26,
+    "name": "Hijab",
+    "image": "assets/images/shop/categories/hijab_category.png"
+  },
+  {
+    "id": 33,
+    "name": "Accessory",
+    "image": "assets/images/shop/categories/accessory_category.png"
+  }
+]
