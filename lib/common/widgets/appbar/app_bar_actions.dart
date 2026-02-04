@@ -54,14 +54,14 @@ class CartAppBarAction extends StatelessWidget {
               // Badge widget shows the count on top of the icon
               icon: badges.Badge(
                 position: badges.BadgePosition.topEnd(top: -8, end: -3),  // Position badge at top-right
-                showBadge: count > 0,  // Only show badge if there are items in cart
+                showBadge: count > 0,
                 ignorePointer: false,
                 
                 // The number displayed in the badge
-                badgeContent: Text(
+                badgeContent: count > 0 ? Text(
                   count.toString(),
                   style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
+                ) : null,
                 
                 // Badge styling
                 badgeStyle: const badges.BadgeStyle(

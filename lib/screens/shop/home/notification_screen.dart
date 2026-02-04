@@ -44,28 +44,26 @@ class NotificationScreen extends StatelessWidget {
                 leftIcon: Icon(iconConfig['icon'], color: Colors.white),
                 headerBackgroundColor: iconConfig['color'],
                 headerBackgroundColorOpened: iconConfig['color'],
-                header: Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification.title,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
+                header: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notification.title,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                           ),
-                          if (!isRead) Container(height: 8, width: 8, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
-                        ],
-                      ),
-                      Text(
-                        timeago.format(notification.timestamp),
-                        style: const TextStyle(color: Colors.white70, fontSize: 11),
-                      ),
-                    ],
-                  ),
+                        ),
+                        if (!isRead) Container(height: 8, width: 8, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                      ],
+                    ),
+                    Text(
+                      timeago.format(notification.timestamp),
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                  ],
                 ),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -14,7 +14,7 @@ class ApiEndpoints {
 
   // ProductModels
   static const String home = 'home';
-  static const String bestSelling = 'ProductModels/best-selling';
+  static const String bestSelling = 'products/best-selling';
   static const String categories = 'categories';
   static const String shop = 'shop';
 

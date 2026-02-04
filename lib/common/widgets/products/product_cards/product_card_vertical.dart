@@ -48,8 +48,8 @@ class ProductCardVertical extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     // Create a stable key for this widget (used for add-to-cart animation)
-    // Using GlobalObjectKey with product ensures it's persistent for this product instance
-    final GlobalKey widgetKey = GlobalObjectKey(product);
+    // Using heroPrefix ensures uniqueness if same product is shown in different grids
+    final GlobalKey widgetKey = GlobalObjectKey("${heroPrefix ?? ''}_${product.id}");
 
     // Card is the container for the product
     return Card(

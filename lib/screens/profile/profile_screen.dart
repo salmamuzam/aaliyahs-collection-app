@@ -155,8 +155,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: isDarkMode ? aaliyahDarkColor : Colors.white,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
-            expandedHeight: 120,
+          SliverAppBar(
+            pinned: true,
+            floating: true,
             leading: IconButton(
               onPressed: () => Navigator.pushReplacement(
                 context,
