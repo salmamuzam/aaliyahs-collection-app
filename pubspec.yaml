@@ -117,6 +117,7 @@ flutter:
     - assets/images/authentication/
     - assets/images/shop/banners/
     - assets/images/shop/categories/
+    - assets/images/shop/products/
     - assets/images/shop/products/abayas/
     - assets/images/shop/products/accessories/
     - assets/images/shop/products/hijabs/

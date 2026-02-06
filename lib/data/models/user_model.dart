@@ -27,6 +27,7 @@ class UserModel {
     // Extensive fallback for profile image fields
     String photoUrl = json['profile_photo_url'] ?? 
                       json['profile_photo_path'] ?? 
+                      json['profile_picture'] ?? 
                       json['image'] ?? 
                       json['photo'] ?? 
                       json['avatar'] ?? 

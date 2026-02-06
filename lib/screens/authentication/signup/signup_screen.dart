@@ -1,8 +1,7 @@
-import 'package:aaliyahs_collection_estore/common/widgets/form/form_header_widget.dart';
-import 'package:aaliyahs_collection_estore/util/constants/image_strings.dart';
+
 import 'package:aaliyahs_collection_estore/util/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/util/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/screens/authentication/signup/widgets/signup_footer_widget.dart';
+
 import 'package:aaliyahs_collection_estore/screens/authentication/signup/widgets/signup_form_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -41,15 +40,35 @@ class SignupScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FormHeaderWidget(
-                        image: aaliyahWelcomeScreenImage,
-                        title: aaliyahSignUpTitle,
-                        subTitle: aaliyahSignUpSubTitle,
-                        heightBetween: 10,
-                        imageHeight: 0.12, // Reduced from default (usually 0.2 or higher)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: AaliyahSizes.aaliyahFormHeight - 20),
+                          Text(
+                            aaliyahSignUpTitle,
+                            style: Theme.of(context).textTheme.headlineLarge,
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(aaliyahAlreadyHaveAccount, style: Theme.of(context).textTheme.bodyMedium),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context), // Go back to login
+                                child: Text(aaliyahLogin.toUpperCase()),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AaliyahSizes.aaliyahFormHeight - 20),
+                          Text(
+                            aaliyahSignUpSubTitle,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                       SignUpFormWidget(),
-                      SignUpFooterWidget(),
+                      // SignUpFooterWidget(), // Removed as link is moved to top
                     ],
                   ),
                 ),

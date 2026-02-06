@@ -6,6 +6,7 @@
 
 const String aaliyahLogin = "Sign In";
 const String aaliyahSignup = "Sign Up";
+const String aaliyahAlreadyHaveAccount = "Already have an account?";
 
 // Welcome Screen Text
 

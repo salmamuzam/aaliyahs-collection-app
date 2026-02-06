@@ -55,4 +55,11 @@ class CategoryModel {
         return "$rootBaseURL/$url";
     }
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': iconURL,
+    };
+  }
 }

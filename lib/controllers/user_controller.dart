@@ -1,6 +1,7 @@
 import 'package:aaliyahs_collection_estore/data/models/user_model.dart';
 import 'package:aaliyahs_collection_estore/data/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -64,6 +65,7 @@ class UserController extends ChangeNotifier {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_cache', json.encode(data));
+      await prefs.setString('user_email', data['email'] ?? ''); // Save email for offline lookup
     } catch (e) {
        debugPrint("Cache User Error: $e");
     }
@@ -73,14 +75,63 @@ class UserController extends ChangeNotifier {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? userStr = prefs.getString('user_cache');
+      
       if (userStr != null) {
-        _user = UserModel.fromJson(json.decode(userStr));
+        final Map<String, dynamic> data = json.decode(userStr);
+        final user = UserModel.fromJson(data);
+        
+        // STALE DATA CHECK: If cache has old 'salma.jpg' path, ignore it and reload from JSON
+        if (user.profilePhotoUrl.contains('salma.jpg') || user.profilePhotoUrl.contains('fathima.jpg')) {
+           debugPrint("⚠️ Stale image path found in cache, reloading from local user.json...");
+           await _loadUserFromLocalJSON();
+           return;
+        }
+
+        _user = user;
         _token = await _userRepository.getStoredToken();
         notifyListeners();
-        debugPrint("Loaded User from Local Cache for Offline usage");
+        debugPrint("✅ Loaded User from SharedPreferences Cache");
+        return;
       }
+      
+      // If no cache, try to load from local JSON (Offline Fallback)
+      debugPrint("📦 No cache found, attempting to load from local user.json...");
+      await _loadUserFromLocalJSON();
+      
     } catch (e) {
        debugPrint("Cache Load Error: $e");
+       // Final fallback: Try local JSON
+       await _loadUserFromLocalJSON();
+    }
+  }
+
+  /// Load user from local JSON file (assets/data/user.json)
+  /// Used for offline support when no cache is available
+  Future<void> _loadUserFromLocalJSON() async {
+    try {
+      final String response = await rootBundle.loadString('assets/data/user.json');
+      final List<dynamic> users = json.decode(response);
+      
+      // Matched with stored email from cache if available
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String storedEmail = prefs.getString('user_email') ?? 'salma@gmail.com'; // Default for test
+      
+      if (users.isNotEmpty) {
+        // Find user by email
+        final userJson = users.firstWhere(
+          (u) => u['email'] == storedEmail,
+          orElse: () => users.first, 
+        );
+        _user = UserModel.fromJson(userJson);
+        
+        // IMPORTANT: Update cache with the fresh local data so we don't keep hitting this fallback
+        await _cacheUser(userJson);
+        
+        debugPrint("✅ Loaded User from local user.json: ${_user?.email}");
+        notifyListeners();
+      }
+    } catch (e) {
+       debugPrint("❌ Error loading user from local JSON: $e");
     }
   }
 

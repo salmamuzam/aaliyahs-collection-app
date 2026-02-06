@@ -1,6 +1,5 @@
 import 'package:aaliyahs_collection_estore/screens/navigation/navigation_menu.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/form/form_header_widget.dart';
-import 'package:aaliyahs_collection_estore/util/constants/image_strings.dart';
+
 import 'package:aaliyahs_collection_estore/util/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/util/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/controllers/auth_controller.dart';
@@ -10,6 +9,8 @@ import 'package:toastification/toastification.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pinput/pinput.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:aaliyahs_collection_estore/util/device/device_utility.dart';
 
 class TwoFactorScreen extends StatefulWidget {
   final String login;
@@ -87,18 +88,18 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       decoration: BoxDecoration(
         border: Border.all(color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
-        color: isDarkMode ? Colors.grey.shade900 : const Color.fromRGBO(243, 246, 249, 1),
+        color: isDarkMode ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: isDarkMode ? Colors.white : aaliyahPrimaryColor),
-      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: isDarkMode ? const Color(0xFFE5EDEF) : const Color(0xFF0F172A), width: 2.0),
+      borderRadius: BorderRadius.circular(12),
     );
 
     final submittedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration?.copyWith(
-        color: isDarkMode ? Colors.grey.shade900 : const Color.fromRGBO(243, 246, 249, 1),
+        color: isDarkMode ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
       ),
     );
 
@@ -106,54 +107,132 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       builder: (context, authController, child) {
         return SafeArea(
           child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-              ),
-            ),
-            body: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: AaliyahSizes.defaultSpace),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            body: ResponsiveBuilder(
+              builder: (context, sizingInformation) {
+                return Stack(
                   children: [
-                    const FormHeaderWidget(
-                      image: aaliyahWelcomeScreenImage,
-                      title: aaliyah2FATitle,
-                      subTitle: aaliyah2FASubTitle,
+                    // Subtle Top Background Design
+                    Positioned(
+                      top: DeviceUtils.getVerticalSize(-50),
+                      left: DeviceUtils.getHorizontalSize(-50),
+                      child: Container(
+                        height: DeviceUtils.getVerticalSize(200),
+                        width: DeviceUtils.getHorizontalSize(200),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? aaliyahLightColor.withValues(alpha: 0.05)
+                              : aaliyahPrimaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: AaliyahSizes.spaceBtwSections),
-                    Column(
-                      children: [
-                        Pinput(
-                          length: 6,
-                          controller: _pinController,
-                          defaultPinTheme: defaultPinTheme,
-                          focusedPinTheme: focusedPinTheme,
-                          submittedPinTheme: submittedPinTheme,
-                          onCompleted: (pin) => _verifyCode(authController),
+                    Positioned(
+                      top: DeviceUtils.getVerticalSize(50),
+                      right: DeviceUtils.getHorizontalSize(-30),
+                      child: Container(
+                        height: DeviceUtils.getVerticalSize(150),
+                        width: DeviceUtils.getHorizontalSize(150),
+                        decoration: BoxDecoration(
+                          color: isDarkMode
+                              ? aaliyahLightColor.withValues(alpha: 0.05)
+                              : aaliyahSecondaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(height: AaliyahSizes.spaceBtwSections),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () => _verifyCode(authController),
-                            child: authController.isLoading
-                                ? LoadingAnimationWidget.staggeredDotsWave(
-                                    color: Colors.white,
-                                    size: 30,
-                                  )
-                                : Text(aaliyahVerify.toUpperCase(), style: const TextStyle(color: Colors.white)),
-                          ),
+                      ),
+                    ),
+                    // Content
+                    SingleChildScrollView(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: AaliyahSizes.defaultSpace),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: AaliyahSizes.appBarHeight), 
+                            
+                            // Header
+                            Text(
+                              aaliyah2FATitle,
+                              style: Theme.of(context).textTheme.headlineLarge,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              aaliyah2FASubTitle,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                              textAlign: TextAlign.center,
+                            ),
+                            
+                            const SizedBox(height: AaliyahSizes.spaceBtwSections),
+                            
+                            // Verification Code Section
+                            Text(
+                              "Verification Code",
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 15),
+                            
+                            Column(
+                              children: [
+                                Pinput(
+                                  length: 6,
+                                  controller: _pinController,
+                                  defaultPinTheme: defaultPinTheme,
+                                  focusedPinTheme: focusedPinTheme,
+                                  submittedPinTheme: submittedPinTheme,
+                                  onCompleted: (pin) => _verifyCode(authController),
+                                ),
+                                const SizedBox(height: AaliyahSizes.spaceBtwSections),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => _verifyCode(authController),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.teal,
+                                      foregroundColor: Colors.white,
+                                      minimumSize: const Size(double.infinity, 50),
+                                    ),
+                                    child: authController.isLoading
+                                        ? LoadingAnimationWidget.staggeredDotsWave(
+                                            color: Colors.white,
+                                            size: 30,
+                                          )
+                                        : Text(aaliyahVerify.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                                  ),
+                                ),
+                                const SizedBox(height: AaliyahSizes.spaceBtwSections),
+                                
+                                // Recovery Code Link
+                                TextButton(
+                                  onPressed: () {
+                                    // Placeholder for recovery logic
+                                    toastification.show(
+                                      context: context,
+                                      type: ToastificationType.info,
+                                      title: const Text("Coming Soon"),
+                                      description: const Text("Recovery code login is not implemented yet."),
+                                      autoCloseDuration: const Duration(seconds: 3),
+                                    );
+                                  },
+                                  child: const Text("Sign in with recovery code"),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ),
+                    // Back Button
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
           ),
         );

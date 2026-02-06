@@ -148,9 +148,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const Icon(Icons.cloud_off, size: 16, color: Colors.amber),
                 SizedBox(width: 8.w),
-                const Text(
-                  "Offline Mode: Showing Local Asset Data",
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
+                Expanded(
+                  child: const Text(
+                    "Offline Mode: Showing Local Asset Data",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

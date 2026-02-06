@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:aaliyahs_collection_estore/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 
@@ -60,24 +61,23 @@ class ProfileHeader extends StatelessWidget {
     return Stack(
       children: [
         CircularProfileAvatar(
-          profileUrl ?? '',
+          '', // Don't use the network property, we'll use child to have more control
           radius: 60,
           backgroundColor: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
           borderWidth: 2,
           borderColor: isDarkMode ? Colors.grey.shade800 : Colors.white,
           elevation: 5,
-          cacheImage: true,
           showInitialTextAbovePicture: false,
           onTap: onEditImage,
           child: localImageFile != null
               ? Image.file(localImageFile!, fit: BoxFit.cover)
-              : (!hasProfileImg
-                  ? Initicon(
+              : (hasProfileImg
+                  ? SmartImage(imageUrl: profileUrl!)
+                  : Initicon(
                       text: name,
                       size: 120,
                       backgroundColor: isDarkMode ? aaliyahPrimaryColor.withValues(alpha: 0.8) : aaliyahPrimaryColor,
-                    )
-                  : null), // CircularProfileAvatar handles networks image automatically if profileUrl is provided
+                    )),
         ),
         Positioned(
           bottom: 5,

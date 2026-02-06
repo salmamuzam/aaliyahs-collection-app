@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/util/constants/ui_constants.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -163,7 +163,7 @@ class OrderDetailScreen extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
         child: imageUrl.startsWith('http')
-            ? CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover, alignment: Alignment.topCenter)
+            ? SmartImage(imageUrl: imageUrl, fit: BoxFit.cover)
             : Image.asset(imageUrl, fit: BoxFit.cover, alignment: Alignment.topCenter),
       ),
     );

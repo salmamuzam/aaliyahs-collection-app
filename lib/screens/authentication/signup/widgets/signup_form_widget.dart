@@ -77,22 +77,18 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
   }
 
   Widget _buildNameRow() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: AuthTextField(
-            controller: _firstNameController,
-            label: aaliyahFirstName,
-            prefixIcon: Icons.person_outline_rounded,
-          ),
+        AuthTextField(
+          controller: _firstNameController,
+          label: aaliyahFirstName,
+          prefixIcon: Icons.person_outline_rounded,
         ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: AuthTextField(
-            controller: _lastNameController,
-            label: aaliyahLastName,
-            prefixIcon: Icons.person_outline_rounded,
-          ),
+        const SizedBox(height: 15),
+        AuthTextField(
+          controller: _lastNameController,
+          label: aaliyahLastName,
+          prefixIcon: Icons.person_outline_rounded,
         ),
       ],
     );
@@ -141,6 +137,11 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
         builder: (context, authController, child) {
           return ElevatedButton(
             onPressed: () => _handleSignUp(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 50),
+            ),
             child: authController.isLoading
                 ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 30)
                 : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),

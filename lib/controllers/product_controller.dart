@@ -156,12 +156,14 @@ class ProductController extends ChangeNotifier {
     // Proactive check (Requirement 3: Data Source Switching)
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
+       debugPrint("🔌 [OFFLINE DETECTED] No internet connection. Switching to local assets.");
        await _loadLocalDataAsFallback();
        _setLoading(false);
        return;
     }
     
     try {
+      debugPrint("🌐 [ONLINE] Fetching Home Data from Laravel API...");
       await _fetchBestSellersFromFirebase();
       
       final results = await Future.wait([
@@ -220,16 +222,37 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> _loadLocalDataAsFallback() async {
-    debugPrint("Loading local fallback data...");
+    debugPrint("📂 [OFFLINE] Loading local fallback data...");
     _isUsingLocalData = true; // Mark as offline fallback active
+    
+    // Reset pagination to prevent infinite scroll attempts on local data
+    _hasMore = false; 
+    _nextPage = 1;
+
     final localProductModels = await _productRepository.loadLocalProducts();
     final localCategories = await _productRepository.loadLocalCategories();
     
     if (localProductModels.isNotEmpty) {
+      // Home Screen Sections: Use different slices of data to avoid visually repeating products
       _latestProducts = localProductModels.take(4).toList();
-      _featuredProducts = localProductModels.take(4).toList();
-      _bestSellingProducts = localProductModels.take(4).toList();
-      _shopProducts = localProductModels;
+      _featuredProducts = localProductModels.length > 4 
+          ? localProductModels.skip(4).take(4).toList() 
+          : localProductModels;
+      _bestSellingProducts = localProductModels.length > 8 
+          ? localProductModels.skip(8).take(4).toList() 
+          : localProductModels.reversed.take(4).toList();
+      
+      // Shop Page Data (respect Category Filter)
+      if (_selectedCategoryId != null && _selectedCategoryId != 0) {
+        _shopProducts = localProductModels.where((p) => p.categoryId == _selectedCategoryId).toList();
+        debugPrint("🎯 [OFFLINE] Filtered ${localProductModels.length} products to ${_shopProducts.length} for Category ID: $_selectedCategoryId");
+      } else {
+        _shopProducts = localProductModels;
+        debugPrint("🎯 [OFFLINE] Showing all ${localProductModels.length} products (No Category Filter)");
+      }
+
+      // Apply current sort option (Price, Newest etc)
+      _applyClientSideSort();
     }
 
     if (localCategories.isNotEmpty) {
@@ -274,6 +297,7 @@ class ProductController extends ChangeNotifier {
     
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
+       debugPrint("🔌 [OFFLINE DETECTED] No internet connection. Switching Shop to local assets.");
        await _loadLocalDataAsFallback();
        _setLoading(false);
        return;
@@ -281,6 +305,7 @@ class ProductController extends ChangeNotifier {
 
     try {
       if (categoryId != null) {
+        debugPrint("🌐 [ONLINE] Fetching Shop Products for category $categoryId from Laravel API...");
         final response = await _productRepository.getShopProducts(
           categoryIds: [categoryId], 
           page: 1,
@@ -292,6 +317,7 @@ class ProductController extends ChangeNotifier {
           _updatePagination(response.data!);
         }
       } else {
+        debugPrint("🌐 [ONLINE] Fetching all Shop Products (Multi-Category Workaround) from Laravel API...");
         // "All" Filter: Workaround for backend 500 error on "No Filter" or "Multiple Filters"
         // We fetch ALL categories individually in parallel and merge them deduplicated.
         List<Future<List<ProductModel>>> futures = [];

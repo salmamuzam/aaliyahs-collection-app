@@ -168,4 +168,8 @@ class AuthController extends ChangeNotifier {
     await _authRepository.logout();  // Clear tokens and sign out
     notifyListeners();  // Update UI to show user is logged out
   }
+
+  // Biometric methods
+  Future<String?> getBioEmail() => _authRepository.getBioEmail();
+  Future<String?> getBioPassword() => _authRepository.getBioPassword();
 }

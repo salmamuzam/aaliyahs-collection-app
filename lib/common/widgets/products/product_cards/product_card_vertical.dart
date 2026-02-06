@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:aaliyahs_collection_estore/data/models/product_model.dart';
 import 'package:aaliyahs_collection_estore/controllers/favorite_controller.dart';
 import 'package:aaliyahs_collection_estore/controllers/cart_controller.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -63,7 +63,7 @@ class ProductCardVertical extends StatelessWidget {
       child: InkWell(
         onTap: onPress,  // Open product detail screen when tapped
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -152,7 +152,7 @@ class ProductCardVertical extends StatelessWidget {
                 ),
               ),
               
-              const SizedBox(height: 6),
+              // Spacing removed to prevent overflow on small screens
               
               // SECTION 2: PRODUCT NAME, PRICE, AND ADD TO CART BUTTON
               Expanded(
@@ -178,11 +178,13 @@ class ProductCardVertical extends StatelessWidget {
                     // Price and Add to Cart button row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Price
                         Flexible(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
                             child: Text(
                               "LKR ${product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",  // Remove non-numeric characters
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -192,6 +194,8 @@ class ProductCardVertical extends StatelessWidget {
                             ),
                           ),
                         ),
+                        
+                        const SizedBox(width: 8),
                         
                         // Add to Cart button
                         InkWell(
@@ -234,11 +238,11 @@ class ProductCardVertical extends StatelessWidget {
               child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
             )
           : product.image.startsWith('http')
-              ? CachedNetworkImage(
+              ? SmartImage(
                   imageUrl: product.image,
-                  memCacheHeight: 600,
-                  memCacheWidth: 400,
-                  placeholder: (context, url) => Shimmer.fromColors(
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                  placeholder: Shimmer.fromColors(
                     baseColor: const Color(0xffe6e6e6),
                     highlightColor: const Color(0xfff9f9f9),
                     child: Container(
@@ -250,16 +254,7 @@ class ProductCardVertical extends StatelessWidget {
                       ),
                     ),
                   ),
-                  imageBuilder: (context, imageProvider) => Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                      ),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
+                  errorWidget: Container(
                     color: Colors.grey.shade100,
                     child: const Icon(Icons.error_outline, color: Colors.red),
                   ),

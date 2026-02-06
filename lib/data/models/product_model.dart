@@ -1,6 +1,5 @@
 
 import 'package:aaliyahs_collection_estore/util/constants/api_strings.dart';
-import 'package:aaliyahs_collection_estore/util/constants/api_endpoints.dart';
 import 'package:aaliyahs_collection_estore/util/formatters/text_formatter.dart';
 
 class ProductModel {
@@ -31,18 +30,18 @@ class ProductModel {
     String processUrl(String url) {
        if (url.isEmpty) return '';
        
-       // 1. Handle complete URLs pointing to localhost/emulator IPs
+       // 1. PRIORITY: Keep local asset paths as-is for offline support
+       if (url.startsWith('assets/')) {
+          return url; // Return immediately - don't convert to network URL
+       }
+       
+       // 2. Handle complete URLs pointing to localhost/emulator IPs
        if (url.startsWith('http')) {
            if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2')) {
               final Uri uri = Uri.parse(url);
               return "$rootBaseURL${uri.path}";
            }
            return url;
-       }
-
-       // 2. Handle GitHub Pages assets (prefixed with assets/ in JSON)
-       if (url.startsWith('assets/')) {
-          return "${ApiEndpoints.githubApiBase}$url";
        }
 
        // 3. Normalize path for Laravel storage
@@ -74,7 +73,7 @@ class ProductModel {
       description: json['description'] ?? '',
       price: json['price']?.toString() ?? '0',
       images: validImages,
-      categoryId: json['CategoryModel_id'] ?? (json['CategoryModel'] != null && json['CategoryModel'] is Map 
+      categoryId: json['category_id'] ?? json['CategoryModel_id'] ?? (json['CategoryModel'] != null && json['CategoryModel'] is Map 
           ? json['CategoryModel']['id'] 
           : null),
       categoryName: json['CategoryModel'] != null 
@@ -104,4 +103,16 @@ class ProductModel {
 
   @override
   int get hashCode => id != null ? id.hashCode : name.hashCode;
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'price': price,
+      'images': images,
+      'category_id': categoryId,
+      'CategoryModel': {'name': categoryName, 'id': categoryId},
+      'quantity': quantity,
+    };
+  }
 }

@@ -6,6 +6,7 @@ import 'package:aaliyahs_collection_estore/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 
 class EditProfileImagePicker extends StatelessWidget {
   final File? localImageFile;
@@ -29,24 +30,23 @@ class EditProfileImagePicker extends StatelessWidget {
         return Stack(
           children: [
             CircularProfileAvatar(
-              user?.profilePhotoUrl ?? '',
+              '', // DO NOT pass assets here, it triggers network loading errors
               radius: 60,
               backgroundColor: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
               borderWidth: 2,
               borderColor: isDarkMode ? Colors.grey.shade800 : Colors.white,
               elevation: 5,
-              cacheImage: true,
               showInitialTextAbovePicture: false,
               onTap: onPickImage,
               child: localImageFile != null
                   ? Image.file(localImageFile!, fit: BoxFit.cover)
-                  : (!hasProfileImg
-                      ? Initicon(
+                  : (hasProfileImg
+                       ? SmartImage(imageUrl: user.profilePhotoUrl)
+                      : Initicon(
                           text: user?.name ?? "Guest",
                           size: 120,
                           backgroundColor: isDarkMode ? aaliyahPrimaryColor.withValues(alpha: 0.8) : aaliyahPrimaryColor,
-                        )
-                      : null),
+                        )),
             ),
             Positioned(
               bottom: 5,

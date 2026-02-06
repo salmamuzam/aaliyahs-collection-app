@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
 
@@ -158,7 +158,7 @@ class NotificationScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: item.productImage.startsWith('http')
-                ? CachedNetworkImage(imageUrl: item.productImage, height: 45, width: 45, fit: BoxFit.cover)
+                ? SmartImage(imageUrl: item.productImage, height: 45, width: 45, fit: BoxFit.cover)
                 : Image.asset(item.productImage, height: 45, width: 45, fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),

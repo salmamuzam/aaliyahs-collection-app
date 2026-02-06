@@ -17,6 +17,7 @@ import 'package:aaliyahs_collection_estore/util/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/screens/shop/product_detail/widgets/product_image_carousel.dart';
 import 'package:aaliyahs_collection_estore/screens/shop/product_detail/widgets/product_info_section.dart';
 import 'package:aaliyahs_collection_estore/screens/shop/product_detail/widgets/product_detail_bottom_action.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/shimmers/product_detail_shimmer.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ProductModel product;
@@ -43,11 +44,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Consumer<ProductDetailController>(
       builder: (context, controller, child) {
         if (controller.isLoading) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: aaliyahPrimaryColor),
-            ),
-          );
+          return const ProductDetailShimmer();
         }
 
         final productToDisplay = controller.product ?? widget.product;

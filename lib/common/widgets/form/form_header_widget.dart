@@ -36,19 +36,14 @@ class FormHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get screen size to make image responsive
-    final size = MediaQuery.of(context).size;
+
     
     // Stack items vertically
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,  // Align everything to the left
       children: [
         // Logo/Image at the top
-        Image(
-          image: AssetImage(image),
-          // Calculate image height based on screen size
-          // clamp() ensures it's between 50 and 200 pixels (not too small or too big)
-          height: (size.height * imageHeight).clamp(50, 200),
-        ),
+
         
         // Space between image and title
         SizedBox(height: heightBetween ?? (AaliyahSizes.aaliyahFormHeight - 20)),

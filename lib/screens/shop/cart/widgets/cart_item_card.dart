@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -96,30 +96,11 @@ class CartItemCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
-        child: item.image.isEmpty
-            ? const Icon(Icons.image_not_supported_outlined, color: Colors.grey)
-            : item.image.startsWith('http')
-                ? CachedNetworkImage(
-                    imageUrl: item.image,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    memCacheWidth: 200,
-                    memCacheHeight: 250,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: isDarkMode ? const Color(0xff2d2f30) : const Color(0xffe6e6e6),
-                      highlightColor: isDarkMode ? const Color(0xff3a3e3f) : const Color(0xfff9f9f9),
-                      child: Container(
-                        height: 120,
-                        width: 90,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
-                        ),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => const Icon(Icons.error_outline),
-                  )
-                : Image.asset(item.image, fit: BoxFit.cover, alignment: Alignment.topCenter),
+        child: SmartImage(
+          imageUrl: item.image,
+          fit: BoxFit.cover,
+          errorWidget: const Icon(Icons.error_outline),
+        ),
       ),
     );
   }

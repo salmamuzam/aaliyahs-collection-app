@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:aaliyahs_collection_estore/data/models/product_model.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 
@@ -67,25 +67,35 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                   : "ProductModel_${widget.product.name}_$index";
               return Hero(
                 tag: heroTag,
-                child: Center(
-                  child: img.isEmpty
-                      ? const Icon(Icons.image_not_supported_outlined, size: 80, color: Colors.grey)
-                      : Semantics(
-                          label: "Product image ${index + 1} of ${widget.product.images.length}: ${widget.product.displayName}",
-                          image: true,
-                          child: CachedNetworkImage(
-                            imageUrl: img,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            alignment: Alignment.topCenter,
-                            // Optimization: Limit decode size to 1000px to save memory
-                            memCacheWidth: 1000,
-                            memCacheHeight: 1500,
-                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) => const Icon(Icons.error_outline),
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Center(
+                    child: img.isEmpty
+                        ? const Icon(Icons.image_not_supported_outlined, size: 80, color: Colors.grey)
+                        : Semantics(
+                            label: "Product image ${index + 1} of ${widget.product.images.length}: ${widget.product.displayName}",
+                            image: true,
+                            child: img.startsWith('http') 
+                                ? SmartImage(
+                                    imageUrl: img,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment.topCenter,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    placeholder: const Center(child: CircularProgressIndicator()),
+                                    errorWidget: const Icon(Icons.error_outline),
+                                  )
+                                : Image.asset(
+                                    img,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    alignment: Alignment.topCenter,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image_outlined, size: 50, color: Colors.grey),
+                                  ),
                           ),
-                        ),
+                  ),
                 ),
               );
             },

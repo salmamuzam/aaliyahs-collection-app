@@ -68,12 +68,39 @@ class AuthRepository {
       if (responseData['data'] != null && responseData['data']['token'] != null) {
         final token = responseData['data']['token'];
         await _storage.write(key: 'token', value: token);
+        
+        // 🔐 SECURE STORAGE: Save credentials for biometrics
+        try {
+          debugPrint("🔐 [AUTH REPO]: Saving biometric credentials...");
+          debugPrint("🔐 [AUTH REPO]: Email to save: $login");
+          
+          await _storage.write(key: 'bio_email', value: login);
+          await _storage.write(key: 'bio_password', value: password);
+          
+          // Verify the credentials were saved correctly
+          final verifyEmail = await _storage.read(key: 'bio_email');
+          final verifyPassword = await _storage.read(key: 'bio_password');
+          
+          if (verifyEmail == login && verifyPassword == password) {
+            debugPrint("🔐 [AUTH REPO]: ✅ Biometric credentials saved and verified successfully!");
+            debugPrint("🔐 [AUTH REPO]: Stored email: $verifyEmail");
+          } else {
+            debugPrint("🔐 [AUTH REPO]: ⚠️ Warning: Credential verification failed!");
+            debugPrint("🔐 [AUTH REPO]: Expected email: $login, Got: $verifyEmail");
+          }
+        } catch (e) {
+          debugPrint("🔐 [AUTH REPO]: ❌ Error saving biometric credentials: $e");
+        }
+        
         _apiClient.setToken(token);
       }
     }
 
     return response;
   }
+
+  Future<String?> getBioEmail() async => await _storage.read(key: 'bio_email');
+  Future<String?> getBioPassword() async => await _storage.read(key: 'bio_password');
 
   // --- GOOGLE AUTH (FIREBASE) ---
 
@@ -148,7 +175,7 @@ class AuthRepository {
       final token = await _storage.read(key: 'token');
       if (token != null) {
         _apiClient.setToken(token);
-        await _apiClient.request(path: ApiEndpoints.logout, method: MethodType.post);
+        await _apiClient.request(path: ApiEndpoints.logout, method: MethodType.get);
       }
       
       // Federated Sign-Out Best Practice

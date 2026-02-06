@@ -3,17 +3,14 @@ import 'package:auth_buttons/auth_buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
-import 'package:aaliyahs_collection_estore/util/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/util/constants/ui_constants.dart';
 import 'package:aaliyahs_collection_estore/controllers/auth_controller.dart';
+import 'package:aaliyahs_collection_estore/util/constants/ui_constants.dart';
 
 class LoginFooterWidget extends StatelessWidget {
   const LoginFooterWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -27,21 +24,7 @@ class LoginFooterWidget extends StatelessWidget {
             style: const AuthButtonStyle(
               width: double.infinity,
               height: 50,
-            ),
-          ),
-        ),
-        SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () => Navigator.pushNamed(context, '/signup'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: isDarkMode ? const Color(0xFFE5EDEF) : null,
-              side: isDarkMode ? const BorderSide(color: Color(0xFFE5EDEF)) : null,
-            ),
-            child: Text(
-              aaliyahSignup.toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              borderRadius: 30.0,
             ),
           ),
         ),

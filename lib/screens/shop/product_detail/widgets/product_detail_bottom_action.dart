@@ -52,7 +52,10 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
           Tooltip(
             message: "Decrease Quantity",
             child: _buildQtyBtn(Icons.remove, () {
-              if (_quantity > 1) setState(() => _quantity--);
+              if (_quantity > 1) {
+                HapticFeedback.lightImpact();
+                setState(() => _quantity--);
+              }
             }),
           ),
           Padding(
@@ -65,6 +68,7 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
           Tooltip(
             message: "Increase Quantity",
             child: _buildQtyBtn(Icons.add, () {
+              HapticFeedback.lightImpact();
               setState(() => _quantity++);
             }),
           ),

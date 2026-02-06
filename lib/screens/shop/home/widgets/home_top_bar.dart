@@ -8,6 +8,7 @@ import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/util/formatters/text_formatter.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 
 class HomeTopBar extends StatelessWidget {
   const HomeTopBar({super.key});
@@ -22,21 +23,18 @@ class HomeTopBar extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                    );
-                  },
-                  child: _buildProfileImage(user, isDarkMode),
-                ),
-                const SizedBox(width: 12),
-                _buildWelcomeText(context, user),
-              ],
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+              child: _buildProfileImage(user, isDarkMode),
             ),
+            const SizedBox(width: 12),
+            Expanded(child: _buildWelcomeText(context, user)),
+            const SizedBox(width: 8),
             _buildNotificationIcon(context, isDarkMode),
           ],
         );
@@ -48,20 +46,19 @@ class HomeTopBar extends StatelessWidget {
     final bool hasProfileImg = user?.profilePhotoUrl != null && user!.profilePhotoUrl.isNotEmpty;
     
     return CircularProfileAvatar(
-      user?.profilePhotoUrl ?? '',
+      '', // DO NOT pass assets here, it triggers network loading errors
       radius: 25,
       backgroundColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
       borderWidth: 2,
       borderColor: isDarkMode ? aaliyahDarkColor : aaliyahLightColor,
-      cacheImage: true,
       showInitialTextAbovePicture: false,
-      child: !hasProfileImg
-          ? Initicon(
+      child: hasProfileImg
+          ? SmartImage(imageUrl: user!.profilePhotoUrl)
+          : Initicon(
               text: user?.name ?? "Guest",
               size: 50,
               backgroundColor: isDarkMode ? aaliyahPrimaryColor.withValues(alpha: 0.8) : aaliyahPrimaryColor,
-            )
-          : null,
+            ),
     );
   }
 

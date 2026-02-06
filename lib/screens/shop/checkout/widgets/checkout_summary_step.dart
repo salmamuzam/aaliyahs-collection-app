@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:aaliyahs_collection_estore/controllers/cart_controller.dart';
 import 'package:aaliyahs_collection_estore/data/models/product_model.dart';
 
@@ -102,15 +102,13 @@ class CheckoutSummaryStep extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: image.startsWith('http')
-                  ? CachedNetworkImage(
-                      imageUrl: image, 
-                      width: 60, 
-                      height: 60, 
-                      fit: BoxFit.cover, 
-                      alignment: Alignment.topCenter
-                    )
-                  : Image.asset(image, width: 60, height: 60, fit: BoxFit.cover, alignment: Alignment.topCenter),
+              child: SmartImage(
+                imageUrl: image,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorWidget: const Icon(Icons.error),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(

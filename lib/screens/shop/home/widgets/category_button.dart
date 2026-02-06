@@ -1,7 +1,7 @@
 import 'package:aaliyahs_collection_estore/data/models/category_model.dart';
 import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -76,9 +76,9 @@ class CategoryButton extends StatelessWidget {
                             ),
                           )
                         : category.iconURL.startsWith('http')
-                            ? CachedNetworkImage(
+                            ? SmartImage(
                                 imageUrl: category.iconURL,
-                                placeholder: (context, url) => Shimmer.fromColors(
+                                placeholder: Shimmer.fromColors(
                                   baseColor: isDarkMode
                                       ? const Color(0xff2d2f30)
                                       : const Color(0xffe6e6e6),
@@ -94,14 +94,12 @@ class CategoryButton extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                errorWidget: (context, url, error) => Icon(
+                                errorWidget: Icon(
                                   Icons.category_outlined, 
                                   size: 24,
                                   color: isSelected ? aaliyahPrimaryColor : Colors.grey,
                                 ),
                                 fit: BoxFit.cover, // Cover full circle
-                                memCacheWidth: 200,
-                                memCacheHeight: 200,
                               )
                             : Image.asset(
                                 category.iconURL,
