@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
-import 'package:accordion/accordion.dart';
-import 'package:accordion/controllers.dart';
 
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/models/notification_model.dart';
@@ -30,76 +28,77 @@ class NotificationScreen extends StatelessWidget {
                 return _buildEmptyState(context);
               }
               
-              return Accordion(
-                maxOpenSections: 1,
-                headerBackgroundColorOpened: colorScheme.primary,
-                scaleWhenAnimating: true,
-                openAndCloseAnimation: true,
-                headerPadding: EdgeInsets.symmetric(
-                  vertical: DeviceUtils.m3Padding(3), 
-                  horizontal: DeviceUtils.m3Padding(4)
-                ),
-                sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
-                sectionClosingHapticFeedback: SectionHapticFeedback.light,
-                paddingListHorizontal: DeviceUtils.m3Margin,
-                paddingListTop: DeviceUtils.m3Margin,
-                children: provider.notifications.map((notification) {
+              return ListView.builder(
+                padding: EdgeInsets.all(DeviceUtils.m3Margin),
+                itemCount: provider.notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = provider.notifications[index];
                   final iconConfig = _getIconConfig(context, notification);
                   final isRead = notification.isRead;
                   
-                  return AccordionSection(
-                    leftIcon: Icon(iconConfig['icon'] as IconData, color: Colors.white),
-                    headerBackgroundColor: iconConfig['color'] as Color,
-                    headerBackgroundColorOpened: iconConfig['color'] as Color,
-                    header: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                notification.title,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                              ),
-                            ),
-                            if (!isRead) Container(height: 8, width: 8, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
-                          ],
-                        ),
-                        Text(
-                          timeago.format(notification.timestamp),
-                          style: const TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                      ],
+                  return Card(
+                    margin: EdgeInsets.only(bottom: DeviceUtils.m3Padding(4)),
+                    clipBehavior: Clip.antiAlias,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                     ),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notification.body,
-                          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.5),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: iconConfig['color'] as Color,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(iconConfig['icon'] as IconData, color: Colors.white, size: 20),
                         ),
-                        if (notification.orderItems != null && notification.orderItems!.isNotEmpty) ...[
-                          SizedBox(height: DeviceUtils.m3Padding(4)),
-                          AaliyahDividerTheme.fullWidthDivider(context, height: 1),
-                          SizedBox(height: DeviceUtils.m3Padding(3)),
-                          ...notification.orderItems!.map((item) => _buildItemRow(context, item)),
-                          SizedBox(height: DeviceUtils.m3Padding(2)),
-                          _buildPaymentSummary(context, notification.paymentMethod, notification.totalAmount),
-                        ],
-                        SizedBox(height: DeviceUtils.m3Padding(2)),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: TextButton.icon(
-                            onPressed: () => provider.removeNotification(notification),
-                            icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
-                            label: const Text('Clear', style: TextStyle(color: Colors.red)),
+                        title: Text(
+                          notification.title,
+                          style: TextStyle(
+                            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                            fontSize: 15,
+                            color: colorScheme.onSurface,
                           ),
                         ),
-                      ],
+                        subtitle: Text(
+                          timeago.format(notification.timestamp),
+                          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11),
+                        ),
+                        trailing: isRead 
+                            ? null 
+                            : Container(height: 8, width: 8, decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle)),
+                        childrenPadding: EdgeInsets.all(DeviceUtils.m3Padding(4)),
+                        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            notification.body,
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.5),
+                          ),
+                          if (notification.orderItems != null && notification.orderItems!.isNotEmpty) ...[
+                            SizedBox(height: DeviceUtils.m3Padding(4)),
+                            AaliyahDividerTheme.fullWidthDivider(context, height: 1),
+                            SizedBox(height: DeviceUtils.m3Padding(3)),
+                            ...notification.orderItems!.map((item) => _buildItemRow(context, item)),
+                            SizedBox(height: DeviceUtils.m3Padding(2)),
+                            _buildPaymentSummary(context, notification.paymentMethod, notification.totalAmount),
+                          ],
+                          SizedBox(height: DeviceUtils.m3Padding(2)),
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: TextButton.icon(
+                              onPressed: () => provider.removeNotification(notification),
+                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                              label: const Text('Clear', style: TextStyle(color: Colors.red)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
-                }).toList(),
+                },
               );
             },
           ),

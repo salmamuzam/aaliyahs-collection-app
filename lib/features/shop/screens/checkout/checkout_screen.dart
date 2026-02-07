@@ -12,6 +12,8 @@ import 'package:aaliyahs_collection_estore/data/repositories/order_repository.da
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/order_success_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/utils/validators/validator.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 
 // Checkout Feature Widgets
@@ -42,6 +44,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   DateTime? _selectedDeliveryDate;
   TimeOfDay? _selectedDeliveryTime;
 
+  // Address Step Error Tracking
+  bool _streetHasError = false;
+  bool _cityHasError = false;
+  bool _postalHasError = false;
+  bool _provinceHasError = false;
+  bool _dateHasError = false;
+  bool _timeHasError = false;
+
   @override
   void dispose() {
     _streetController.dispose();
@@ -66,7 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: (isCompact || isMedium)
             ? Column(
                 children: [
-                  CheckoutProgressBar(currentStep: _currentStep),
+                   CheckoutProgressBar(currentStep: _currentStep),
                   Expanded(
                     child: _buildStepContent(cartController),
                   ),
@@ -139,11 +149,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    final stepNames = ['Address', 'Payment', 'Review'];
-    
     return AaliyahSmallAppBar(
       title: 'Checkout',
-      subtitle: 'Step ${_currentStep + 1} of 3: ${stepNames[_currentStep]}',
       leading: IconButton(
         onPressed: () {
           if (_currentStep > 0) {
@@ -172,6 +179,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           onDateSelected: (date) => setState(() => _selectedDeliveryDate = date),
           selectedTime: _selectedDeliveryTime,
           onTimeSelected: (time) => setState(() => _selectedDeliveryTime = time),
+          streetHasError: _streetHasError,
+          cityHasError: _cityHasError,
+          postalHasError: _postalHasError,
+          provinceHasError: _provinceHasError,
+          dateHasError: _dateHasError,
+          timeHasError: _timeHasError,
         );
       case 1:
         return CheckoutPaymentStep(
@@ -194,14 +207,114 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _handleNextAction(CartController cartController) {
     if (_currentStep == 0) {
-      if (_formKey.currentState!.validate()) {
-        setState(() => _currentStep++);
-      }
+      _validateAddressStep();
     } else if (_currentStep < 2) {
       setState(() => _currentStep++);
     } else {
       _placeOrder(cartController);
     }
+  }
+
+  void _validateAddressStep() {
+    // Reset all errors first
+    setState(() {
+      _streetHasError = false;
+      _cityHasError = false;
+      _postalHasError = false;
+      _provinceHasError = false;
+      _dateHasError = false;
+      _timeHasError = false;
+    });
+
+    // 1. Validate Street Address
+    final streetErr = AaliyahValidator.validateStreetAddress(_streetController.text);
+    if (streetErr != null) {
+      setState(() => _streetHasError = true);
+      _showValidationError(streetErr);
+      return;
+    }
+
+    // 2. Validate City
+    final cityErr = AaliyahValidator.validateCity(_cityController.text);
+    if (cityErr != null) {
+      setState(() => _cityHasError = true);
+      _showValidationError(cityErr);
+      return;
+    }
+
+    // 3. Validate Postal Code
+    final postalErr = AaliyahValidator.validatePostalCode(_postalCodeController.text);
+    if (postalErr != null) {
+      setState(() => _postalHasError = true);
+      _showValidationError(postalErr);
+      return;
+    }
+
+    // 4. Validate Province
+    final provinceErr = AaliyahValidator.validateProvince(_provinceController.text);
+    if (provinceErr != null) {
+      setState(() => _provinceHasError = true);
+      _showValidationError(provinceErr);
+      return;
+    }
+
+    // 5. Validate Delivery Date
+    if (_selectedDeliveryDate == null) {
+      setState(() => _dateHasError = true);
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        title: const Text(aaliyahEmptyFieldTitle),
+        description: const Text('Please select Preferred Delivery Date!'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      return;
+    }
+
+    // 6. Validate Delivery Time
+    if (_selectedDeliveryTime == null) {
+      setState(() => _timeHasError = true);
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        title: const Text(aaliyahEmptyFieldTitle),
+        description: const Text('Please select Preferred Delivery Time!'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      return;
+    }
+
+    // All valid
+    setState(() {
+      _currentStep++;
+    });
+  }
+
+  void _showValidationError(String errorMsg) {
+    String errorMessage = errorMsg;
+    String title = 'Validation Error';
+
+    // Check if the error message follows the "Title! Description!" format
+    if (errorMessage.contains('! ')) {
+      final List<String> parts = errorMessage.split('! ');
+      title = '${parts[0]}!';
+      errorMessage = parts.sublist(1).join('! ');
+      
+      if (title == 'Empty Field!') {
+        title = aaliyahEmptyFieldTitle;
+      }
+    }
+
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.fillColored,
+      title: Text(title),
+      description: Text(errorMessage),
+      autoCloseDuration: const Duration(seconds: 4),
+    );
   }
 
   Future<void> _getCurrentLocation() async {
@@ -246,7 +359,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     final String? orderId = await _storeOrder('Cash on Delivery', cartController.totalPrice());
     _notifyOrderSuccess(cartController, orderId, 'Cash on Delivery');
-    _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}');
+    _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}', 'Cash on Delivery');
   }
 
   Future<void> _makePayment(double amount) async {
@@ -257,9 +370,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       onSuccess: () async {
         if (!mounted) return;
         final cartController = Provider.of<CartController>(context, listen: false);
-        final orderId = await _storeOrder('Stripe (Paid)', cartController.totalPrice());
-        _notifyOrderSuccess(cartController, orderId, 'Stripe (Paid)');
-        _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}');
+        final orderId = await _storeOrder('Stripe', cartController.totalPrice());
+        _notifyOrderSuccess(cartController, orderId, 'Stripe');
+        _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}', 'Stripe');
       },
       onError: (err) {
         if (mounted) {
@@ -284,7 +397,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     Provider.of<NotificationController>(context, listen: false).addNotification(
       "Aaliyah's Collection", // Brand Name as Title
-      'Order #$displayOrderId placed successfully. Shipping details to follow.', // Concise & Useful
+      'Your order #$displayOrderId has been placed successfully!', 
       orderId: orderId,
       totalAmount: cartController.totalPrice(),
       paymentMethod: method,
@@ -330,7 +443,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return await OrderRepository().storeOrderInFirestore(orderData: orderData);
   }
 
-  void _showSuccessAndNavigate(CartController cartController, String orderId) {
+  void _showSuccessAndNavigate(CartController cartController, String orderId, String paymentMethod) {
     final String amount = cartController.formattedTotalPrice;
     final List<dynamic> items = cartController.cart.map((item) => {
       'title': item.displayName,
@@ -351,6 +464,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           orderId: orderId,
           items: items,
           email: email,
+          paymentMethod: paymentMethod,
+          address: _streetController.text,
+          city: _cityController.text,
+          state: _provinceController.text,
           deliveryDate: _selectedDeliveryDate,
           deliveryTime: _selectedDeliveryTime,
         ),

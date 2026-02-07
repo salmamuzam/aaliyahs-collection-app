@@ -28,10 +28,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _usernameController;
   late TextEditingController _emailController;
-  late TextEditingController _dobController;
-  late TextEditingController _vacationController;
   DateTime? _selectedDob;
-  DateTimeRange? _vacationRange;
   
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -46,12 +43,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
     _usernameController = TextEditingController(text: user?.username ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _selectedDob = user?.dob != null ? DateTime.tryParse(user!.dob!) : null;
-    _dobController = TextEditingController(
-      text: _selectedDob != null 
-          ? '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}' 
-          : ''
-    );
-    _vacationController = TextEditingController();
   }
 
   @override
@@ -93,8 +84,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                   _buildActionButton(),
                   const SizedBox(height: 16),
                   _buildDeleteButton(userController),
-                  const SizedBox(height: 32),
-                  _buildFooter(userController),
                 ],
               ),
             ),
@@ -107,7 +96,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context, bool isDarkMode) {
     return AaliyahSmallAppBar(
       title: 'Edit profile',
-      subtitle: 'Update your personal information',
       leading: IconButton(
         onPressed: () => Navigator.pop(context),
         icon: const Icon(Icons.arrow_back),
@@ -142,69 +130,11 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
             label: 'Email',
             prefixIcon: Icons.email_outlined,
             isOutlined: true),
-        const SizedBox(height: 20),
-        GestureDetector(
-          onTap: _showBirthdayPicker,
-          child: AbsorbPointer(
-            child: AuthTextField(
-                controller: _dobController,
-                label: 'Birthday',
-                helperText: 'Example: 25/12/1995',
-                prefixIcon: Icons.cake_outlined,
-                isOutlined: true),
-          ),
-        ),
-        const SizedBox(height: 20),
-        GestureDetector(
-          onTap: _showVacationPicker,
-          child: AbsorbPointer(
-            child: AuthTextField(
-                controller: _vacationController,
-                label: 'Vacation mode (Delivery pause)',
-                helperText: 'Example: 01/12/2026 - 15/12/2026',
-                prefixIcon: Icons.beach_access_outlined,
-                isOutlined: true),
-          ),
-        ),
       ],
     );
   }
 
-  Future<void> _showVacationPicker() async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      initialDateRange: _vacationRange,
-      helpText: 'Select vacation dates',
-      saveText: 'Review',
-    );
-    if (picked != null) {
-      setState(() {
-        _vacationRange = picked;
-        _vacationController.text = 
-            '${picked.start.day}/${picked.start.month} - ${picked.end.day}/${picked.end.month}/${picked.end.year}';
-      });
-    }
-  }
 
-  Future<void> _showBirthdayPicker() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDob ?? DateTime(2000),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      initialEntryMode: DatePickerEntryMode.input, // M3 requirement for distant past
-      helpText: 'Select your birthday',
-      confirmText: 'Save',
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDob = picked;
-        _dobController.text = '${picked.day}/${picked.month}/${picked.year}';
-      });
-    }
-  }
 
   Widget _buildActionButton() {
     return SizedBox(
@@ -218,31 +148,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
     );
   }
 
-  Widget _buildFooter(UserController userController) {
-    return Center(
-      child: Text(
-        'Joined: ${_formatDate(userController.user?.createdAt)}',
-        style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
-      ),
-    );
-  }
 
-  String _formatDate(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'Unknown';
-    try {
-      final DateTime date = DateTime.parse(dateStr);
-      // Manual formatting since intl might not be installed or configured
-      // Format: 31 October 2022
-      const List<String> months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      return '${date.day} ${months[date.month - 1]} ${date.year}';
-    } catch (e) {
-      // Return original if parsing fails (fallback)
-      return dateStr;
-    }
-  }
 
   Widget _buildDeleteButton(UserController userController) {
     return SizedBox(

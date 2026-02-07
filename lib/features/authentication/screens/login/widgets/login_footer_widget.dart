@@ -20,7 +20,6 @@ class LoginFooterWidget extends StatelessWidget {
           child: GoogleAuthButton(
             onPressed: () => _handleGoogleSignIn(context),
             style: const AuthButtonStyle(
-              width: double.infinity,
               height: 50,
               borderRadius: 30.0,
             ),

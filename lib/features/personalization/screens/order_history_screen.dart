@@ -10,7 +10,6 @@ import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_loader.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/menus/expressive_menu.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -197,76 +196,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, bool isDarkMode) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(64.0),
-      child: Selector<OrderController, int>(
-        selector: (_, controller) => controller.orders.length,
-        builder: (context, orderCount, _) {
-          return AaliyahSmallAppBar(
-            title: 'Orders',
-            subtitle: orderCount > 0 ? "$orderCount ${orderCount == 1 ? 'order' : 'orders'}" : null,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-            ),
-            actions: [
-              AaliyahExpressiveMenu(
-                isVibrant: true, // Prominent filter
-                width: 260,
-                items: [
-                  const AaliyahMenuItem(
-                    label: 'All Orders',
-                    value: 'all',
-                    leadingIcon: Icons.list_alt_rounded,
-                    trailingText: 'Default',
-                  ),
-                  const Divider(height: 1),
-                  AaliyahMenuItem(
-                    label: 'Processing',
-                    value: 'processing',
-                    leadingIcon: Icons.sync_rounded,
-                    supportingText: 'Orders being prepared',
-                    badge: orderCount > 0 ? '2' : null,
-                  ),
-                  AaliyahMenuItem(
-                    label: 'Delivered',
-                    value: 'delivered',
-                    leadingIcon: Icons.task_alt_rounded,
-                    supportingText: 'Successfully received',
-                    badge: orderCount > 0 ? '${orderCount - 2}' : null,
-                  ),
-                  const AaliyahMenuItem(
-                    label: 'Cancelled',
-                    value: 'cancelled',
-                    leadingIcon: Icons.cancel_outlined,
-                    supportingText: 'Returned or failed',
-                  ),
-                ],
-                child: const IconButton(
-                  onPressed: null, // MenuAnchor handles the tap
-                  tooltip: 'Filter orders',
-                  icon: Icon(Icons.filter_list_rounded),
-                ),
-              ),
-              Semantics(
-                label: 'Refresh orders',
-                button: true,
-                child: IconButton(
-                  onPressed: () {
-                    final user = Provider.of<UserController>(context, listen: false).user;
-                    if (user != null) {
-                      Provider.of<OrderController>(context, listen: false).fetchUserOrders(user.email);
-                    }
-                  },
-                  tooltip: 'Refresh',
-                  icon: const Icon(Icons.refresh_rounded),
-                ),
-              ),
-            ],
-            backgroundColor: Colors.transparent,
-          );
-        },
+    return AaliyahSmallAppBar(
+      title: 'My Orders',
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(Icons.arrow_back),
       ),
+      backgroundColor: Colors.transparent,
     );
   }
 

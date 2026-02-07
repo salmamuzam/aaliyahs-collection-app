@@ -42,9 +42,7 @@ class CartAppBarAction extends StatelessWidget {
                 tooltip: 'View cart',
                 icon: Badge(
                   isLabelVisible: count > 0,
-                  // M3 Badge: Limit to 4 characters including "+"
                   label: Text(count > 999 ? '999+' : count.toString()),
-                  // M3 Badge: Anchor at upper trailing edge of icon
                   alignment: AlignmentDirectional.topEnd,
                   child: Icon(
                     Icons.shopping_bag_outlined,

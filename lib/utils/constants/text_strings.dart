@@ -4,15 +4,15 @@
 
 // Login and Signup Text
 
-const String aaliyahLogin = 'Sign in'; // Sentence case
-const String aaliyahSignup = 'Sign up'; // Sentence case
-const String aaliyahAlreadyHaveAccount = 'Already have an account?';
+const String aaliyahLogin = 'Sign In'; // Title case
+const String aaliyahSignup = 'Sign Up'; // Title case
+const String aaliyahAlreadyHaveAccount = 'Already Have An Account?';
 
 // Welcome Screen Text
 
 const String aaliyahWelcomeTitle = "Aaliyah's Collection";
 const String aaliyahWelcomeSubTitle =
-    "Welcome to Aaliyah's Collection. Start shopping."; // Action oriented
+    "Welcome to Aaliyah's Collection. Start Shopping."; // Title Case
 
 const String aaliyahTextSpan2 = 'Discover the latest collection'; // Neutral
 
@@ -24,18 +24,18 @@ const String aaliyahPasswordMismatchSubTitle = "Passwords don't match";
 
 const String aaliyahLoginTitle = 'Welcome back'; // Sentence case
 const String aaliyahLoginSubTitle = 'Sign in to continue';
-const String aaliyahLoginLabel = 'Email or username'; // Sentence case
-const String aaliyahRememberMe = 'Remember me';
+const String aaliyahLoginLabel = 'Email or Username'; // Title case
+const String aaliyahRememberMe = 'Remember Me';
 const String aaliyahEmail = 'Email';
 const String aaliyahPassword = 'Password';
-const String aaliyahForgetPassword = 'Forgot password?';
+const String aaliyahForgetPassword = 'Forgot Password?';
 
 // Sign Up Screen Text
 
-const String aaliyahSignUpTitle = 'Create account'; // Sentence case
+const String aaliyahSignUpTitle = 'Sign Up'; // Title case
 const String aaliyahSignUpSubTitle = 'Enter your details'; // Simpler
-const String aaliyahFirstName = 'First name'; // Sentence case
-const String aaliyahLastName = 'Last name';
+const String aaliyahFirstName = 'First Name'; // Title case
+const String aaliyahLastName = 'Last Name'; // Title case
 
 const String aaliyahAutoBrightness = 'Auto brightness'; // Simpler
 const String aaliyahAutoBrightnessSub = 'Uses the light sensor to adjust brightness';
@@ -57,6 +57,18 @@ const String aaliyahSignUpEmptySubTitle = 'Please fill in your information!';
 const String aaliyahPasswordMismatchTitle = 'Password Mismatch!';
 const String aaliyahPasswordMismatchSubTitle2 = 'Please check your password fields!';
 
+const String aaliyahInvalidEmailTitle = 'Invalid Format!';
+const String aaliyahInvalidEmailSubTitle = 'Please enter a valid email address!';
+
+const String aaliyahNameTooShortTitle = 'Too Short!';
+const String aaliyahNameTooShortSubTitle = 'Please enter at least 3 characters!';
+
+const String aaliyahPasswordTooShortTitle = 'Too Short!';
+const String aaliyahPasswordTooShortSubTitle = 'Please enter at least 8 characters!';
+const String aaliyahPasswordTooWeakTitle = 'Too Weak!';
+const String aaliyahPasswordNoNumberSubTitle = 'Please enter at least a number!';
+const String aaliyahPasswordNoSpecialSubTitle = 'Please enter at least one special character!';
+
 const String aaliyahRegistrationSuccessTitle = 'Success!';
 const String aaliyahRegistrationSuccessSubTitle = 'You have been registered successfully!';
 
@@ -64,12 +76,12 @@ const String aaliyahRegistrationFailedTitle = 'Registration failed';
 const String aaliyahRegistrationFailedSubTitle = 'Registration failed. Try again.'; // Short, simpler
 
 const String aaliyahUsername = 'Username';
-const String aaliyahConfirmPassword = 'Confirm password'; // Sentence case
+const String aaliyahConfirmPassword = 'Confirm Password'; // Title case
 
 // Home Screen Text
 
 const String aaliyahTextSpan = 'Discover\n';
-const String aaliyahBestSellingTitle = 'Best sellers'; // Sentence case
+const String aaliyahBestSellingTitle = 'Best Sellers'; // Sentence case
 
 // Add to Bag Button
 
@@ -113,13 +125,13 @@ const String aaliyahProfileEmail = 'aaliyah@gmail.com';
 const String aaliyahProfilePassword = 'Aaliyah2015*';
 
 // Forget Password Screen Text
-const String aaliyahForgetPasswordTitle = 'Forgot password'; // Sentence case
-const String aaliyahForgetPasswordSubTitle = 'Enter your email to reset password';
+const String aaliyahForgetPasswordTitle = 'Forget Password'; // Updated as requested // Sentence case
+const String aaliyahForgetPasswordSubTitle = 'Enter your Email to Reset Password';
 const String aaliyahResetPassword = 'Reset password'; // Sentence case
 
 // Two-Factor Authentication Screen Text
-const String aaliyah2FATitle = 'Verification code'; // Sentence case
-const String aaliyah2FASubTitle = 'Enter the 6-digit code';
+const String aaliyah2FATitle = '2FA Authentication';
+const String aaliyah2FASubTitle = 'Enter the 6 Digit Code';
 const String aaliyahVerify = 'Verify';
 const String aaliyahResendCode = 'Use a recovery code';
 

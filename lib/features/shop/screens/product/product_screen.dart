@@ -7,16 +7,15 @@ import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/appbar/search_app_bar.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_layout.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_category_selector.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_grid.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_vertical_category_list.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_sort_dropdown_wrapper.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 
 class ProductScreen extends StatefulWidget {
   final int? initialCategoryId;
@@ -40,7 +39,7 @@ class _ProductScreenState extends State<ProductScreen> {
   final GlobalKey<CartIconKey> _cartKey = GlobalKey<CartIconKey>();
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  late Function(GlobalKey) _runAddToCartAnimation;
+  Function(GlobalKey)? _runAddToCartAnimation;
   late NavigationController _navigationController;
 
   @override
@@ -95,9 +94,15 @@ class _ProductScreenState extends State<ProductScreen> {
     final provider = Provider.of<ProductController>(context, listen: false);
     if (widget.isBestSelling) {
       provider.fetchAllBestSellingProducts();
-    } else {
-      provider.fetchShopProducts(categoryIds: widget.initialCategoryId != null ? [widget.initialCategoryId!] : null);
+    } else if (widget.initialCategoryId != null) {
+      // Explicitly requested category
+      provider.fetchShopProducts(categoryIds: [widget.initialCategoryId!]);
+    } else if (provider.selectedCategoryIds.isEmpty && provider.shopProductModels.isEmpty) {
+      // Only fetch default "All" if no filters exist and no cache
+      provider.fetchShopProducts();
     }
+    // If selectedCategoryIds is NOT empty, it means Home already set a filter, 
+    // and fetchShopProducts was already called there, so we don't call it again here.
   }
 
   Future<void> _listen() async {
@@ -181,22 +186,16 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   PreferredSizeWidget _buildSearchAppBar(BuildContext context) {
-    return AaliyahSearchAppBar(
-      controller: _searchController,
-      hintText: 'Search products',
-      onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
-      onMicPress: _listen,
-      isListening: _isListening,
-      onBackPress: () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const NavigationMenu()),
+    return AppBar(
+      title: const Text('Shop'),
+      leading: IconButton(
+        onPressed: () {
+          Provider.of<NavigationController>(context, listen: false).setIndex(0);
+        },
+        icon: const Icon(Icons.arrow_back_rounded),
+        tooltip: 'Back to Home',
       ),
       actions: [
-        IconButton(
-          onPressed: () => _loadInitialData(),
-          tooltip: 'Refresh',
-          icon: const Icon(Icons.refresh_rounded),
-        ),
         const FavoriteAppBarAction(),
         CartAppBarAction(cartKey: _cartKey),
         const SizedBox(width: 8),
@@ -205,10 +204,64 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildMobileBody() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        const SizedBox(height: 8),
-        _buildSectionHeader('Collections'),
+        // Full Width Search Bar Row
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: AnimatedContainer(
+            duration: AMotion.durationStationaryEmphasized,
+            curve: AMotion.easingEmphasized,
+            height: 50,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainer,
+              borderRadius: _isListening 
+                  ? const BorderRadius.only(
+                      topLeft: Radius.circular(TUIConstants.shapeRadiusXL),
+                      topRight: Radius.circular(TUIConstants.shapeRadiusSmall),
+                      bottomLeft: Radius.circular(TUIConstants.shapeRadiusSmall),
+                      bottomRight: Radius.circular(TUIConstants.shapeRadiusXL),
+                    )
+                  : BorderRadius.circular(25),
+              border: Border.all(
+                color: _isListening ? colorScheme.primary : colorScheme.outlineVariant,
+                width: _isListening ? 2.0 : 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 12),
+                Icon(Icons.search_rounded, size: 20, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
+                    decoration: InputDecoration(
+                      hintText: _isListening ? 'Listening...' : 'Search products...',
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.only(top: 1),
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16),
+                    ),
+                    style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
+                  ),
+                ),
+                IconButton(
+                  onPressed: _listen,
+                  icon: Icon(
+                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                    color: _isListening ? colorScheme.error : colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        _buildSectionHeader('Browse By Category'),
         const ProductCategorySelector(),
         const SortDropdownWrapper(),
         Expanded(
@@ -230,7 +283,11 @@ class _ProductScreenState extends State<ProductScreen> {
             child: ProductGrid(
               key: ValueKey(Provider.of<ProductController>(context).selectedCategoryId),
               scrollController: _scrollController,
-              onAddToCart: (key) => _runAddToCartAnimation(key),
+              onAddToCart: (key) {
+                if (_runAddToCartAnimation != null) {
+                  _runAddToCartAnimation!(key);
+                }
+              },
             ),
           ),
         ),
@@ -294,7 +351,11 @@ class _ProductScreenState extends State<ProductScreen> {
       child: ProductGrid(
         key: ValueKey(Provider.of<ProductController>(context).selectedCategoryId),
         scrollController: _scrollController,
-        onAddToCart: (key) => _runAddToCartAnimation(key),
+        onAddToCart: (key) {
+          if (_runAddToCartAnimation != null) {
+            _runAddToCartAnimation!(key);
+          }
+        },
       ),
     );
   }
@@ -302,15 +363,21 @@ class _ProductScreenState extends State<ProductScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-            letterSpacing: 0.5,
+        child: Semantics(
+          header: true,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+                letterSpacing: 0.5,
+              ),
+            ),
           ),
         ),
       ),

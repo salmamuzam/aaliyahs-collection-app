@@ -22,8 +22,6 @@ import 'package:aaliyahs_collection_estore/features/personalization/screens/my_a
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_header.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_menu_item.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_settings_bottom_sheet.dart';
-import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_feedback_dialog.dart';
-import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_accessibility_feedback_dialog.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/bottom_sheets/aaliyah_drag_handle.dart';
 
@@ -194,12 +192,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SliverToBoxAdapter(
                 child: AaliyahSmallAppBar(
                   title: 'Profile',
-                  subtitle: 'Manage your account',
                   leading: IconButton(
-                    onPressed: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const NavigationMenu()),
-                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const NavigationMenu()),
+                      );
+                      // Set to Home page after navigation
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Provider.of<NavigationController>(context, listen: false).setIndex(0);
+                      });
+                    },
                     icon: const Icon(Icons.arrow_back),
                     tooltip: 'Back to home',
                   ),
@@ -231,8 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildEditProfileButton() {
     return SizedBox(
-      width: 200,
-      height: 48,
+      height: 56,
       child: FilledButton(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MyAccountScreen())),
         child: const Text('Edit profile'),
@@ -269,20 +271,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.settings_rounded,
               iconColor: iconColor,
               onTap: () => _showSettingsSheet(),
-            ),
-          ),
-        ),
-        SizedBox(height: DeviceUtils.m3Padding(2)),
-        Semantics(
-          label: 'Send feedback',
-          button: true,
-          child: _buildSegmentedItem(
-            context,
-            ProfileMenuItem(
-              title: 'Send feedback',
-              icon: Icons.feedback_rounded,
-              iconColor: iconColor,
-              onTap: () => _showFeedbackDialog(),
             ),
           ),
         ),
@@ -337,10 +325,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context) => ProfileSettingsBottomSheet(
         isAutoBrightnessEnabled: _isAutoBrightnessEnabled,
         onToggleAutoBrightness: (val) => _toggleAutoBrightness(val),
-        onShowAccessibilityFeedback: () {
-          Navigator.pop(context);
-          _showAccessibilityFeedbackDialog();
-        },
       ),
     );
   }
@@ -379,17 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showFeedbackDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const FeedbackDialog(),
-    );
-  }
 
-  void _showAccessibilityFeedbackDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const AccessibilityFeedbackDialog(),
-    );
-  }
+
+
 }

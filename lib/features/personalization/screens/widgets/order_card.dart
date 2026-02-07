@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/order_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
-import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/divider_theme.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 class OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
@@ -48,87 +46,83 @@ class OrderCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildStatusRow(context, status, orderDateStr, statusColor, Icons.receipt_long_rounded, isDarkMode),
-              AaliyahDividerTheme.fullWidthDivider(context, height: 32),
-              _buildInfoRow(context, orderId, isDarkMode),
-            ],
-          ),
+              // First row: Status Badge
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Second row: Order Number
+              Row(
+                children: [
+                  Icon(Icons.receipt_long_rounded, color: isDarkMode ? Colors.white : Colors.black87, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      orderId,
+                      style: (Theme.of(context).extension<AaliyahTypography>()?.titleMediumEmphasized ?? Theme.of(context).textTheme.titleMedium)?.copyWith(
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+                // Third row: Date and Time
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded, color: Colors.grey.shade400, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      orderDateStr,
+                      style: (Theme.of(context).extension<AaliyahTypography>()?.bodyMediumEmphasized ?? Theme.of(context).textTheme.bodyMedium)?.copyWith(
+                        color: isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                if (order['customer']?['city'] != null) ...[
+                  const SizedBox(height: 8),
+                  // Fourth row: Location (City)
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, color: Colors.grey.shade400, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        order['customer']['city'],
+                        style: (Theme.of(context).extension<AaliyahTypography>()?.bodyMediumEmphasized ?? Theme.of(context).textTheme.bodyMedium)?.copyWith(
+                          color: isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
         ),
       ),
     ),
   );
 }
-
-  Widget _buildStatusRow(BuildContext context, String status, String date, Color color, IconData icon, bool isDarkMode) {
-    return Row(
-      children: [
-        Icon(icon, color: isDarkMode ? Colors.white : Colors.black87, size: 24),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                status.toUpperCase(),
-                style: (Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized ?? Theme.of(context).textTheme.titleSmall)?.copyWith(
-                  color: color,
-                  letterSpacing: 0.5,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              AutoSizeText(
-                date,
-                style: (Theme.of(context).extension<AaliyahTypography>()?.bodyMediumEmphasized ?? Theme.of(context).textTheme.bodyMedium)?.copyWith(
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
-                maxLines: 1,
-                minFontSize: 11,
-              ),
-            ],
-          ),
-        ),
-        const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(BuildContext context, String orderId, bool isDarkMode) {
-    return Row(
-      children: [
-        _buildInfoColumn(context, 'Order number', orderId, Icons.receipt_long_rounded, isDarkMode),
-      ],
-    );
-  }
-
-  Widget _buildInfoColumn(BuildContext context, String label, String value, IconData icon, bool isDarkMode) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey.shade400, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: Theme.of(context).extension<AaliyahTypography>()?.labelSmallEmphasized.copyWith(color: colorScheme.onSurfaceVariant)),
-                AutoSizeText(
-                  value,
-                  style: (Theme.of(context).extension<AaliyahTypography>()?.bodyMediumEmphasized ?? Theme.of(context).textTheme.bodyMedium)?.copyWith(
-                    color: isDarkMode ? Colors.white : Colors.black,
-                  ),
-                  maxLines: 1,
-                  minFontSize: 10,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

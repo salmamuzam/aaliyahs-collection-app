@@ -15,6 +15,8 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
   final bool centerTitle;
   final Color? backgroundColor;
   final PreferredSizeWidget? bottom;
+  final double? titleSpacing;
+  final EdgeInsetsGeometry? titlePadding;
 
   const AaliyahSmallAppBar({
     super.key,
@@ -25,6 +27,8 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
     this.centerTitle = false,
     this.backgroundColor,
     this.bottom,
+    this.titleSpacing,
+    this.titlePadding,
   });
 
   @override
@@ -41,59 +45,63 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
       leading: leading,
       actions: actions,
       bottom: bottom,
-      title: subtitle != null
-          ? Semantics(
-              header: true,
-              label: '$title. $subtitle',
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: centerTitle ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 24.0, // M3 Expressive: Larger title
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                      height: 1.2,
+      titleSpacing: titleSpacing,
+      title: Padding(
+        padding: titlePadding ?? EdgeInsets.zero,
+        child: subtitle != null
+            ? Semantics(
+                header: true,
+                label: '$title. $subtitle',
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: centerTitle ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 24.0, // M3 Expressive: Larger title
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w400,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.3,
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w400,
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ).animate().fadeIn(
-                duration: reduceMotion ? AMotion.durationShort4 : AMotion.durationEnterStandard,
-                curve: AMotion.effects,
-              ),
-            )
-          : Semantics(
-              header: true,
-              label: title,
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 24.0, // M3 Expressive: Larger title
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                  height: 1.2,
+                  ],
+                ).animate().fadeIn(
+                  duration: reduceMotion ? AMotion.durationShort4 : AMotion.durationEnterStandard,
+                  curve: AMotion.effects,
                 ),
-              ).animate().fadeIn(
-                duration: reduceMotion ? AMotion.durationShort4 : AMotion.durationEnterStandard,
-                curve: AMotion.effects,
+              )
+            : Semantics(
+                header: true,
+                label: title,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 24.0, // M3 Expressive: Larger title
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                    height: 1.2,
+                  ),
+                ).animate().fadeIn(
+                  duration: reduceMotion ? AMotion.durationShort4 : AMotion.durationEnterStandard,
+                  curve: AMotion.effects,
+                ),
               ),
-            ),
+      ),
     );
   }
 

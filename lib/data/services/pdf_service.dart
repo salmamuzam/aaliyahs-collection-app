@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:intl/intl.dart';
 
 class PdfService {
   Future<void> generateInvoice({
@@ -10,6 +11,9 @@ class PdfService {
     required String amount,
     required List<dynamic> items,
     required String customerEmail,
+    String? customerAddress,
+    String? customerCity,
+    String? paymentMethod,
   }) async {
     final pdf = pw.Document();
 
@@ -38,10 +42,10 @@ class PdfService {
                             fontWeight: pw.FontWeight.bold,
                             color: primaryColor,
                           )),
-                      pw.Text('Modest Fashion Excellence',
-                          style: pw.TextStyle(
+                      pw.SizedBox(height: 4),
+                      pw.Text('Sri Lankan Clothing Brand',
+                          style: const pw.TextStyle(
                             fontSize: 12,
-                            fontStyle: pw.FontStyle.italic,
                             color: PdfColors.grey700,
                           )),
                     ],
@@ -55,16 +59,36 @@ class PdfService {
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.grey300,
                           )),
-                      pw.Text('Order: #$orderId',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('Date: ${DateTime.now().toString().split(' ')[0]}'),
+                      pw.SizedBox(height: 8),
+                      pw.RichText(
+                        text: pw.TextSpan(
+                          children: [
+                            pw.TextSpan(
+                                text: 'Order No: ',
+                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            pw.TextSpan(text: '#$orderId'),
+                          ],
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.RichText(
+                        text: pw.TextSpan(
+                          children: [
+                            pw.TextSpan(
+                                text: 'Date: ',
+                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            pw.TextSpan(
+                                text: DateFormat('dd/MM/yyyy').format(DateTime.now())),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              pw.SizedBox(height: 10),
+              pw.SizedBox(height: 20),
               pw.Divider(thickness: 2, color: primaryColor),
-              pw.SizedBox(height: 30),
+              pw.SizedBox(height: 40),
 
               // --- CLIENT & BUSINESS INFO ---
               pw.Row(
@@ -81,7 +105,17 @@ class PdfService {
                                 fontSize: 10)),
                         pw.SizedBox(height: 5),
                         pw.Text(customerEmail,
-                            style: const pw.TextStyle(fontSize: 14)),
+                            style: const pw.TextStyle(fontSize: 12)),
+                        if (customerAddress != null) ...[
+                          pw.SizedBox(height: 4),
+                          pw.Text(customerAddress,
+                              style: const pw.TextStyle(fontSize: 11)),
+                        ],
+                        if (customerCity != null) ...[
+                          pw.SizedBox(height: 4),
+                          pw.Text(customerCity,
+                              style: const pw.TextStyle(fontSize: 11)),
+                        ],
                       ],
                     ),
                   ),
@@ -95,16 +129,17 @@ class PdfService {
                                 color: secondaryColor,
                                 fontSize: 10)),
                         pw.SizedBox(height: 5),
-                        pw.Text('Aaliyah\'s Collection Store',
+                        pw.Text('Aaliyah\'s Collection',
                             style: const pw.TextStyle(fontSize: 12)),
-                        pw.Text('Colombo, Sri Lanka',
+                        pw.SizedBox(height: 4),
+                        pw.Text('Sri Lanka',
                             style: const pw.TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 ],
               ),
-              pw.SizedBox(height: 40),
+              pw.SizedBox(height: 50),
 
               // --- ITEMS TABLE ---
               pw.TableHelper.fromTextArray(
@@ -139,7 +174,7 @@ class PdfService {
                           .replaceAll(RegExp(r'[^0-9.]'), '')) ??
                       0.0;
                   return [
-                    item['title'] ?? 'Product',
+                    _toTitleCase(item['title'] ?? 'Product'),
                     qty.toString(),
                     price.toStringAsFixed(2),
                     (price * qty).toStringAsFixed(2),
@@ -148,22 +183,14 @@ class PdfService {
               ),
 
               // --- SUMMARY SECTION ---
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 40),
               pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  pw.Spacer(flex: 2),
                   pw.Expanded(
                     child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Row(
-                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                          children: [
-                            pw.Text('Subtotal:'),
-                            pw.Text('LKR $amount'),
-                          ],
-                        ),
-                        pw.SizedBox(height: 5),
-                        pw.Divider(color: PdfColors.grey200),
                         pw.Container(
                           padding: const pw.EdgeInsets.all(8),
                           decoration: const pw.BoxDecoration(
@@ -173,7 +200,32 @@ class PdfService {
                           child: pw.Row(
                             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                             children: [
-                              pw.Text('GRAND TOTAL:',
+                              pw.Text('Payment:',
+                                  style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      color: primaryColor)),
+                              pw.Text(paymentMethod ?? 'Cash on Delivery',
+                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  pw.SizedBox(width: 20),
+                  pw.Expanded(
+                    child: pw.Column(
+                      children: [
+                        pw.Container(
+                          padding: const pw.EdgeInsets.all(8),
+                          decoration: const pw.BoxDecoration(
+                            color: PdfColors.grey100,
+                            borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
+                          ),
+                          child: pw.Row(
+                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Text('Grand Total:',
                                   style: pw.TextStyle(
                                       fontWeight: pw.FontWeight.bold,
                                       color: primaryColor)),
@@ -192,23 +244,12 @@ class PdfService {
 
               // --- FOOTER ---
               pw.Spacer(),
-              pw.Divider(color: primaryColor),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text('Thank you for choosing Aaliyah\'s Collection.',
-                      style: pw.TextStyle(
-                          fontStyle: pw.FontStyle.italic, fontSize: 10)),
-                  pw.Text('Payment Method: Cash on Delivery',
-                      style: const pw.TextStyle(fontSize: 10)),
-                ],
-              ),
+              pw.Divider(thickness: 2, color: primaryColor),
               pw.SizedBox(height: 10),
               pw.Center(
-                child: pw.Text(
-                  'This is a computer-generated document. No signature required.',
-                  style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
-                ),
+                child: pw.Text('Thank you for shopping with us!',
+                    style: pw.TextStyle(
+                        fontStyle: pw.FontStyle.italic, fontSize: 12, color: primaryColor)),
               ),
             ],
           );
@@ -222,5 +263,12 @@ class PdfService {
     await file.writeAsBytes(await pdf.save());
 
     await OpenFilex.open(file.path);
+  }
+  String _toTitleCase(String text) {
+    if (text.isEmpty) return text;
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
   }
 }

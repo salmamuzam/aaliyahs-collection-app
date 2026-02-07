@@ -19,7 +19,7 @@ class CheckoutPaymentStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Payment methods',
+            'Payment Methods',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -30,7 +30,7 @@ class CheckoutPaymentStep extends StatelessWidget {
           _buildPaymentCard(
             context: context,
             index: 0,
-            title: 'Cash on delivery', // Sentence case
+            title: 'Cash on Delivery', 
             subtitle: 'Pay when you receive',
             icon: Icons.payments_rounded,
           ),

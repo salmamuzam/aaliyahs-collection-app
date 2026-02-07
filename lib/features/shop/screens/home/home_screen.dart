@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
@@ -10,24 +9,28 @@ import 'package:aaliyahs_collection_estore/features/personalization/controllers/
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/divider_theme.dart';
+import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
 // Home Feature Widgets
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_top_bar.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_banner_carousel.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_category_list.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_best_sellers_grid.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/texts/section_heading.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/custom_shapes/containers/search_container.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Function(GlobalKey)? onAddToCartAnimation;
+  
+  const HomeScreen({
+    super.key, 
+    this.onAddToCartAnimation
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
-  late Function(GlobalKey) runAddToCartAnimation;
+  // Removed internal cartKey and runAddToCartAnimation local var
   final ScrollController _scrollController = ScrollController();
   late NavigationController _navigationController;
 
@@ -42,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _navigationController.addListener(_handleNavSelection);
     });
   }
-
+  
   void _handleNavSelection() {
     if (_navigationController.reselectedIndex == 0 && _scrollController.hasClients) {
       _scrollController.animateTo(
@@ -73,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ]);
   }
 
-
   @override
   Widget build(BuildContext context) {
     final isCompact = DeviceUtils.isCompact;
@@ -83,13 +85,9 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return Scaffold(
       body: SafeArea(
-        top: false,
         bottom: false,
-        child: AddToCartAnimation(
-          cartKey: cartKey,
-          dragAnimation: const DragToCartAnimationOptions(rotation: true),
-          createAddToCartAnimation: (runAnimation) => runAddToCartAnimation = runAnimation,
-          child: RefreshIndicator(
+        // Removed internal AddToCartAnimation wrapper
+        child: RefreshIndicator(
             onRefresh: _fetchData,
             child: isCompact
                 ? Center(
@@ -151,7 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
           ),
-        ),
       ),
     );
   }
@@ -166,19 +163,51 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       sliver: SliverToBoxAdapter(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RepaintBoundary(child: HomeTopBar(onRefresh: _fetchData)),
+            const RepaintBoundary(child: HomeTopBar()),
             SizedBox(height: DeviceUtils.m3Padding(4)), 
-            SearchContainer(
-              text: 'Search clothes, abayas...',
-              showMic: true,
-              onTap: () => Provider.of<NavigationController>(context, listen: false).setIndex(1),
-            ),
+            _buildHomeWelcomeContent(),
             SizedBox(height: DeviceUtils.m3Padding(4)), 
             const RepaintBoundary(child: HomeBannerCarousel()),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHomeWelcomeContent() {
+    return Consumer<UserController>(
+      builder: (context, userController, child) {
+        final user = userController.user;
+        final textScale = MediaQuery.of(context).textScaler.scale(1.0);
+        final colorScheme = Theme.of(context).colorScheme;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Hi, ${user?.firstName ?? 'Guest'} ${user?.lastName ?? ''}",
+              style: (Theme.of(context).extension<AaliyahTypography>()?.editorialSmall ?? 
+                      Theme.of(context).textTheme.titleLarge)?.copyWith(
+                fontSize: (20 * textScale).clamp(16.0, 32.0),
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              'Welcome Back!',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: (12 * textScale).clamp(10.0, 16.0),
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -189,10 +218,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: DeviceUtils.m3Padding(6)), // 24dp
+            SizedBox(height: DeviceUtils.m3Padding(2)), // Reduced padding
             SectionHeading(
-              title: 'Shop by category',
-              actionLabel: 'See all',
+              title: 'Shop By Category',
+              actionLabel: 'See All',
               onActionPressed: () {
                 Provider.of<ProductController>(context, listen: false).toggleAllCategories(false);
                 Provider.of<NavigationController>(context, listen: false).setIndex(1);
@@ -210,14 +239,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverPadding(
       padding: EdgeInsets.fromLTRB(
         DeviceUtils.m3Margin, 
-        DeviceUtils.m3Padding(2), // 8dp
+        0, // Reduced padding
         DeviceUtils.m3Margin, 
         DeviceUtils.m3Padding(4)  // 16dp
       ),
       sliver: SliverToBoxAdapter(
         child: SectionHeading(
           title: aaliyahBestSellingTitle,
-          actionLabel: 'See all',
+          actionLabel: 'See All',
           onActionPressed: () => _navigateToBestSellers(context),
         ),
       ),
@@ -227,7 +256,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBestSellersGridSection() {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-      sliver: HomeBestSellersGrid(onAddToCart: (GlobalKey key) => runAddToCartAnimation(key)),
+      sliver: HomeBestSellersGrid(onAddToCart: (GlobalKey key) {
+        if (widget.onAddToCartAnimation != null) {
+          widget.onAddToCartAnimation!(key);
+        }
+      }),
     );
   }
 

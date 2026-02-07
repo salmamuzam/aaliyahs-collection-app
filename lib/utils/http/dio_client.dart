@@ -32,10 +32,7 @@ class DioClient implements ApiClient {
       _client.interceptors.add(LogInterceptor(
         request: false,
         requestHeader: false,
-        requestBody: false, // Reduced verbosity
         responseHeader: false,
-        responseBody: false, // Reduced verbosity
-        error: true,
         logPrint: (obj) => debugPrint('🌐 DIO: $obj'),
       ));
     }

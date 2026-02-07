@@ -24,7 +24,7 @@ class ProductGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProductController>(
       builder: (context, provider, child) {
-        if (provider.isLoading && provider.shopProductModels.isEmpty) {
+        if (provider.isLoading) {
           return _buildLoadingSkeleton(context);
         }
 

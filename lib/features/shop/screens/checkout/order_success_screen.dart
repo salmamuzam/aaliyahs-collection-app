@@ -10,6 +10,10 @@ class OrderSuccessScreen extends StatefulWidget {
   final String orderId;
   final List<dynamic> items;
   final String email;
+  final String paymentMethod;
+  final String? address;
+  final String? city;
+  final String? state;
   final DateTime? deliveryDate;
   final TimeOfDay? deliveryTime;
 
@@ -19,6 +23,10 @@ class OrderSuccessScreen extends StatefulWidget {
     required this.orderId,
     required this.items,
     required this.email,
+    required this.paymentMethod,
+    this.address,
+    this.city,
+    this.state,
     this.deliveryDate,
     this.deliveryTime,
   });
@@ -38,6 +46,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         amount: widget.orderAmount.replaceAll(RegExp(r'[^0-9.]'), ''),
         items: widget.items,
         customerEmail: widget.email,
+        customerAddress: widget.address,
+        customerCity: widget.city != null && widget.state != null ? '${widget.city}, ${widget.state}' : widget.city,
       );
     } catch (e) {
       if (mounted) {
@@ -106,18 +116,22 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 delay: const Duration(milliseconds: 200),
                 child: Column(
                   children: [
-                    Text(
-                      'Order confirmed', // Standard
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        'Success!', 
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        'Thank you for your purchase. Your order #${widget.orderId} has been placed.',
+                        'Your Order has been Placed!',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
@@ -150,25 +164,20 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   ),
                   child: Column(
                     children: [
-                      _buildSummaryRow(context, 'Amount paid', widget.orderAmount, isBold: true),
+                      _buildSummaryRow(context, 'Total:', widget.orderAmount, isBold: true),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Divider(color: colorScheme.outlineVariant),
                       ),
-                      _buildSummaryRow(context, 'Items', '${widget.items.length} Product(s)'),
-                      if (widget.deliveryDate != null) ...[
-                        const SizedBox(height: 10),
-                        _buildSummaryRow(
-                          context, 
-                          'Delivery', 
-                          "${widget.deliveryDate!.day}/${widget.deliveryDate!.month}/${widget.deliveryDate!.year}${widget.deliveryTime != null ? ' at ${widget.deliveryTime!.format(context)}' : ''}"
-                        ),
-                      ] else ...[
-                        const SizedBox(height: 10),
-                        _buildSummaryRow(context, 'Delivery', 'Standard delivery'),
-                      ],
+                      _buildSummaryRow(context, 'Items:', '${widget.items.length} ${widget.items.length == 1 ? 'Product' : 'Products'}'),
                       const SizedBox(height: 10),
-                      _buildSummaryRow(context, 'Payment', 'Confirmation sent to email'),
+                      _buildSummaryRow(context, 'Payment:', widget.paymentMethod),
+                      const SizedBox(height: 10),
+                      _buildSummaryRow(
+                        context, 
+                        'Date:', 
+                        '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}'
+                      ),
                     ],
                   ),
                 ),
@@ -210,7 +219,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                   ),
                                 )
                               : const Icon(Icons.download_rounded),
-                          label: Text(_isGeneratingPdf ? 'Generating...' : 'Download invoice'),
+                          label: Text(_isGeneratingPdf ? 'Generating...' : 'Download Invoice'),
                         ),
                       ),
                     ),
@@ -234,7 +243,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             side: BorderSide(color: colorScheme.outlineVariant),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                           ),
-                          child: const Text('Continue shopping', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: const Text('Continue Shopping', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ),
@@ -253,15 +262,25 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+        Flexible(
+          flex: 2,
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: colorScheme.onSurface,
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 3,
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: colorScheme.onSurface,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

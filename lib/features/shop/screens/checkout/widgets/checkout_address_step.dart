@@ -16,6 +16,14 @@ class CheckoutAddressStep extends StatelessWidget {
   final Function(DateTime) onDateSelected;
   final TimeOfDay? selectedTime;
   final Function(TimeOfDay) onTimeSelected;
+  
+  // Field-specific error states
+  final bool streetHasError;
+  final bool cityHasError;
+  final bool postalHasError;
+  final bool provinceHasError;
+  final bool dateHasError;
+  final bool timeHasError;
 
   const CheckoutAddressStep({
     super.key,
@@ -30,6 +38,12 @@ class CheckoutAddressStep extends StatelessWidget {
     required this.onDateSelected,
     required this.selectedTime,
     required this.onTimeSelected,
+    this.streetHasError = false,
+    this.cityHasError = false,
+    this.postalHasError = false,
+    this.provinceHasError = false,
+    this.dateHasError = false,
+    this.timeHasError = false,
   });
 
   @override
@@ -42,7 +56,7 @@ class CheckoutAddressStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Delivery address', // Sentence case
+            'Delivery Address',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -51,43 +65,46 @@ class CheckoutAddressStep extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           CheckoutAddressField(
-            label: 'Street address', // Sentence case
+            label: 'Street Address',
             controller: streetController, 
             icon: Icons.home_rounded,
-            validator: AaliyahValidator.validateRequiredField,
+            validator: AaliyahValidator.validateStreetAddress,
             textInputAction: TextInputAction.next,
+            hasError: streetHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
             label: 'City', 
             controller: cityController, 
             icon: Icons.location_city_rounded,
-            validator: AaliyahValidator.validateRequiredField,
+            validator: AaliyahValidator.validateCity,
             textInputAction: TextInputAction.next,
+            hasError: cityHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
-            label: 'Postal code', // Sentence case
+            label: 'Postal Code',
             controller: postalCodeController, 
             icon: Icons.markunread_mailbox_rounded,
             validator: AaliyahValidator.validatePostalCode,
             textInputAction: TextInputAction.next,
+            hasError: postalHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
             label: 'Province', 
             controller: provinceController, 
             icon: Icons.map_rounded,
-            validator: AaliyahValidator.validateRequiredField,
+            validator: AaliyahValidator.validateProvince,
             textInputAction: TextInputAction.done,
+            hasError: provinceHasError,
           ),
           const SizedBox(height: 16),
-          // Country is disabled, so no action needed
           CheckoutAddressField(label: 'Country', controller: countryController, icon: Icons.flag_rounded, enabled: false),
           const SizedBox(height: 24),
           
           Text(
-            'Delivery preference', 
+            'Delivery Preference', 
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -110,23 +127,25 @@ class CheckoutAddressStep extends StatelessWidget {
     final String formattedDate = selectedDate != null 
         ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
         : 'Not selected';
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       button: true,
-      label: 'Preferred delivery date',
+      label: 'Preferred Delivery Date',
       value: formattedDate,
       hint: 'Double tap to open calendar and select a delivery date',
       child: InkWell(
         onTap: () async {
+          final DateTime now = DateTime.now();
           final DateTime? picked = await showDatePicker(
             context: context,
-            initialDate: selectedDate ?? DateTime.now().add(const Duration(days: 3)),
-            firstDate: DateTime.now().add(const Duration(days: 2)), 
-            lastDate: DateTime.now().add(const Duration(days: 30)),
-            helpText: 'Select delivery date',
+            initialDate: selectedDate ?? now,
+            firstDate: now, 
+            lastDate: now.add(const Duration(days: 30)),
+            helpText: 'Select Delivery Date',
             confirmText: 'Continue',
             cancelText: 'Dismiss',
-            fieldLabelText: 'Delivery date',
+            fieldLabelText: 'Delivery Date',
             fieldHintText: 'DD/MM/YYYY',
           );
           if (picked != null) onDateSelected(picked);
@@ -136,31 +155,37 @@ class CheckoutAddressStep extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+            border: Border.all(
+              color: dateHasError ? colorScheme.error : colorScheme.outlineVariant,
+              width: dateHasError ? 2.0 : 1.0,
+            ),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
           ),
           child: Row(
             children: [
-              Icon(Icons.calendar_month_rounded, color: highlightColor),
+              Icon(
+                Icons.calendar_month_rounded, 
+                color: dateHasError ? colorScheme.error : highlightColor,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Preferred delivery date',
+                      'Preferred Delivery Date',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: dateHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      selectedDate != null ? formattedDate : 'Select a date',
+                      selectedDate != null ? formattedDate : 'Select a Date',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -168,13 +193,13 @@ class CheckoutAddressStep extends StatelessWidget {
                       'Format: DD/MM/YYYY',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_drop_down_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),
@@ -186,59 +211,86 @@ class CheckoutAddressStep extends StatelessWidget {
     final String formattedTime = selectedTime != null 
         ? selectedTime!.format(context)
         : 'Not selected';
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       button: true,
-      label: 'Preferred delivery time',
+      label: 'Preferred Delivery Time',
       value: formattedTime,
       hint: 'Double tap to select a preferred arrival time',
       child: InkWell(
         onTap: () async {
+          final TimeOfDay nowTime = TimeOfDay.now();
           final TimeOfDay? picked = await showTimePicker(
             context: context,
-            initialTime: selectedTime ?? const TimeOfDay(hour: 9, minute: 0),
-            helpText: 'Select arrival time',
+            initialTime: selectedTime ?? nowTime,
+            helpText: 'Select Arrival Time',
             confirmText: 'Save',
             cancelText: 'Dismiss',
           );
-          if (picked != null) onTimeSelected(picked);
+          
+          if (picked != null) {
+            // Check if selected time is in the past only if date is today
+            final DateTime now = DateTime.now();
+            if (selectedDate != null && 
+                selectedDate!.year == now.year && 
+                selectedDate!.month == now.month && 
+                selectedDate!.day == now.day) {
+              
+              if (picked.hour < nowTime.hour || (picked.hour == nowTime.hour && picked.minute < nowTime.minute)) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cannot select past time for today!'))
+                  );
+                }
+                return;
+              }
+            }
+            onTimeSelected(picked);
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+            border: Border.all(
+              color: timeHasError ? colorScheme.error : colorScheme.outlineVariant,
+              width: timeHasError ? 2.0 : 1.0,
+            ),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
           ),
           child: Row(
             children: [
-              Icon(Icons.access_time_rounded, color: highlightColor),
+              Icon(
+                Icons.access_time_rounded, 
+                color: timeHasError ? colorScheme.error : highlightColor,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Preferred delivery time',
+                      'Preferred Delivery Time',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: timeHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      selectedTime != null ? formattedTime : 'Select a time',
+                      selectedTime != null ? formattedTime : 'Select a Time',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_drop_down_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),
@@ -266,7 +318,7 @@ class CheckoutAddressStep extends StatelessWidget {
               )
             : Icon(Icons.my_location_rounded, color: highlightColor),
         label: Text(
-          isLocating ? 'Locating...' : 'Use current location',
+          isLocating ? 'Locating...' : 'Use Current Location',
           style: TextStyle(color: highlightColor),
         ),
         style: OutlinedButton.styleFrom(

@@ -24,7 +24,6 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  bool _agreedToTerms = false;
 
   // Error state tracking
   bool _firstNameHasError = false;
@@ -68,7 +67,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
       child: Form(
         key: _formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildNameRow(),
             SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
@@ -90,8 +89,6 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
             _buildPasswordField(),
             SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
             _buildConfirmPasswordField(),
-            SizedBox(height: TUIConstants.relativeHeight(context, 0.015)),
-            _buildTermsAndConditions(context),
             SizedBox(height: TUIConstants.relativeHeight(context, 0.03)),
             _buildSignUpButton(),
           ],
@@ -158,43 +155,6 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
     );
   }
 
-  Widget _buildTermsAndConditions(BuildContext context) {
-    return InkWell(
-      onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          children: [
-            Semantics(
-              label: 'Agree to terms and conditions',
-              selected: _agreedToTerms,
-              child: Checkbox(
-                value: _agreedToTerms,
-                onChanged: (value) => setState(() => _agreedToTerms = value ?? false),
-              ),
-            ),
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'I agree to the ', style: Theme.of(context).textTheme.bodyMedium),
-                    TextSpan(
-                      text: 'Terms and Conditions',
-                      style: Theme.of(context).textTheme.bodyMedium?.apply(
-                            color: Theme.of(context).colorScheme.primary,
-                            decoration: TextDecoration.underline,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildSignUpButton() {
     return SizedBox(
@@ -212,7 +172,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
                     color: Theme.of(context).colorScheme.onPrimary,
                     semanticLabel: 'Creating your new account',
                   )
-                : Text(aaliyahSignup.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                : const Text(aaliyahSignup, style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
           );
         }
       ),
@@ -226,25 +186,72 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
     // Clear previous errors
     _clearErrors();
 
-    // Check for empty fields
-    if (_firstNameController.text.isEmpty ||
-        _lastNameController.text.isEmpty ||
-        _usernameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      setState(() {
-        _firstNameHasError = _firstNameController.text.isEmpty;
-        _lastNameHasError = _lastNameController.text.isEmpty;
-        _usernameHasError = _usernameController.text.isEmpty;
-        _emailHasError = _emailController.text.isEmpty;
-        _passwordHasError = _passwordController.text.isEmpty;
-        _confirmPasswordHasError = _confirmPasswordController.text.isEmpty;
-      });
-      _showToast(aaliyahSignUpEmptyTitle, aaliyahSignUpEmptySubTitle, ToastificationType.error);
+    // 1. Check First Name
+    if (_firstNameController.text.isEmpty) {
+      setState(() => _firstNameHasError = true);
+      _showToast('Empty Field!', 'Please enter your first name!', ToastificationType.error);
+      return;
+    } else if (_firstNameController.text.length < 3) {
+      setState(() => _firstNameHasError = true);
+      _showToast(aaliyahNameTooShortTitle, aaliyahNameTooShortSubTitle, ToastificationType.error);
       return;
     }
 
-    // Check for password mismatch
+    // 2. Check Last Name
+    if (_lastNameController.text.isEmpty) {
+      setState(() => _lastNameHasError = true);
+      _showToast('Empty Field!', 'Please enter your last name!', ToastificationType.error);
+      return;
+    } else if (_lastNameController.text.length < 3) {
+      setState(() => _lastNameHasError = true);
+      _showToast(aaliyahNameTooShortTitle, aaliyahNameTooShortSubTitle, ToastificationType.error);
+      return;
+    }
+
+    // 3. Check Username
+    if (_usernameController.text.isEmpty) {
+      setState(() => _usernameHasError = true);
+      _showToast('Empty Field!', 'Please enter your username!', ToastificationType.error);
+      return;
+    }
+
+    // 4. Check Email
+    if (_emailController.text.isEmpty) {
+      setState(() => _emailHasError = true);
+      _showToast('Empty Field!', 'Please enter your email!', ToastificationType.error);
+      return;
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text)) {
+      setState(() => _emailHasError = true);
+      _showToast(aaliyahInvalidEmailTitle, aaliyahInvalidEmailSubTitle, ToastificationType.error);
+      return;
+    }
+
+    // 5. Password complexity checks
+    final password = _passwordController.text;
+    if (password.isEmpty) {
+      setState(() => _passwordHasError = true);
+      _showToast('Empty Field!', 'Please enter your password!', ToastificationType.error);
+      return;
+    }
+    if (password.length < 8) {
+      setState(() => _passwordHasError = true);
+      _showToast(aaliyahPasswordTooShortTitle, aaliyahPasswordTooShortSubTitle, ToastificationType.error);
+      return;
+    }
+    if (!password.contains(RegExp(r'[0-9]'))) {
+      setState(() => _passwordHasError = true);
+      _showToast(aaliyahPasswordTooWeakTitle, aaliyahPasswordNoNumberSubTitle, ToastificationType.error);
+      return;
+    }
+    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      setState(() => _passwordHasError = true);
+      _showToast(aaliyahPasswordTooWeakTitle, aaliyahPasswordNoSpecialSubTitle, ToastificationType.error);
+      return;
+    }
+
+    // 6. Check for password mismatch
     if (_passwordController.text != _confirmPasswordController.text) {
       setState(() {
         _passwordHasError = true;
@@ -254,10 +261,6 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
       return;
     }
 
-    if (!_agreedToTerms) {
-      _showToast('Terms & Conditions', 'Please agree to the terms and conditions to continue.', ToastificationType.warning);
-      return;
-    }
 
     final result = await authController.register(
       firstName: _firstNameController.text,

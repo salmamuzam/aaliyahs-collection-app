@@ -48,6 +48,7 @@ class WelcomeScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: DeviceUtils.getFontSize(28),
+            letterSpacing: 0.8,
           ),
         ),
         SizedBox(height: DeviceUtils.getVerticalSize(10)),
@@ -78,11 +79,12 @@ class WelcomeScreen extends StatelessWidget {
               side: BorderSide(color: isDarkMode ? Colors.white70 : colorScheme.primary),
             ),
             child: Text(
-              aaliyahLogin.toUpperCase(),
+              aaliyahLogin,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: DeviceUtils.getFontSize(14),
                 color: isDarkMode ? Colors.white : colorScheme.primary,
+                letterSpacing: 0.8,
               ),
             ),
           ),
@@ -97,13 +99,14 @@ class WelcomeScreen extends StatelessWidget {
             style: FilledButton.styleFrom(
               padding: DeviceUtils.getPadding(vertical: 16),
               backgroundColor: isDarkMode ? Colors.white : colorScheme.primary,
-              foregroundColor: isDarkMode ? colorScheme.primary : Colors.white,
+              foregroundColor: isDarkMode ? aaliyahPrimaryColor : Colors.white,
             ),
             child: Text(
-              aaliyahSignup.toUpperCase(),
+              aaliyahSignup,
               style: TextStyle(
                 fontWeight: FontWeight.bold, 
                 fontSize: DeviceUtils.getFontSize(14),
+                letterSpacing: 0.8,
               ),
             ),
           ),

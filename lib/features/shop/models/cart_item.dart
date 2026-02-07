@@ -8,6 +8,8 @@
 // Used by: CartController
 // ============================================================================
 
+import 'package:aaliyahs_collection_estore/utils/formatters/text_formatter.dart';
+
 class CartItem {
   final int id;              // Product ID (matches ProductModel.id)
   final String name;         // Product name for display
@@ -33,8 +35,8 @@ class CartItem {
   // GETTERS - Convenience Properties
   // ============================================================================
   
-  // Display name (alias for name)
-  String get displayName => name;
+  // Display name (formatted in title case)
+  String get displayName => TFormatter.toSentenceCase(name);
   
   // Price as double (for calculations)
   double get priceDouble => price;

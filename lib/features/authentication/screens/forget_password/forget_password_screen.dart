@@ -1,12 +1,11 @@
-
-import 'package:aaliyahs_collection_estore/utils/constants/sizes.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
-import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/form/auth_text_field.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
+import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
+import 'package:toastification/toastification.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -30,116 +29,135 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       child: Scaffold(
         body: ResponsiveBuilder(
           builder: (context, sizingInformation) {
-            final isDarkMode = Theme.of(context).brightness == Brightness.dark;
             return Stack(
               children: [
-                // Subtle Top Background Design
-                Positioned(
-                  top: DeviceUtils.getVerticalSize(-50),
-                  left: DeviceUtils.getHorizontalSize(-50),
-                  child: Container(
-                    height: DeviceUtils.getVerticalSize(200),
-                    width: DeviceUtils.getHorizontalSize(200),
-                    decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? aaliyahLightColor.withValues(alpha: 0.05)
-                          : aaliyahPrimaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: DeviceUtils.getVerticalSize(50),
-                  right: DeviceUtils.getHorizontalSize(-30),
-                  child: Container(
-                    height: DeviceUtils.getVerticalSize(150),
-                    width: DeviceUtils.getHorizontalSize(150),
-                    decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? aaliyahLightColor.withValues(alpha: 0.05)
-                          : aaliyahSecondaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
                 // Content
                 SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: AaliyahSizes.defaultSpace),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: AaliyahSizes.appBarHeight),
-                        
-                        // Centered Header
-                        Text(
-                          aaliyahForgetPasswordTitle,
-                          style: (Theme.of(context).extension<AaliyahTypography>()?.headlineLargeEmphasized ?? 
-                                  Theme.of(context).textTheme.headlineLarge),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          aaliyahForgetPasswordSubTitle,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
-                        
-                        const SizedBox(height: AaliyahSizes.spaceBtwSections),
-                        
-                        // Form
-                        Form(
-                          child: Column(
-                            children: [
-                              AuthTextField(
-                                controller: _emailController,
-                                label: aaliyahEmail,
-                                prefixIcon: Icons.email_outlined,
-                                keyboardType: TextInputType.emailAddress,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: sizingInformation.screenSize.height - 
+                                MediaQuery.of(context).padding.top - 
+                                MediaQuery.of(context).padding.bottom - 
+                                MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Padding(
+                      padding: DeviceUtils.getPadding(all: 20),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 150), // Increased top margin before heading
+                            
+                            // Group 01: Header
+                            Column(
+                              children: [
+                                Text(
+                                  aaliyahForgetPasswordTitle,
+                                  style: (Theme.of(context).extension<AaliyahTypography>()?.editorialLarge ?? 
+                                          Theme.of(context).textTheme.headlineLarge)?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20), // Padding after title
+                                Text(
+                                  aaliyahForgetPasswordSubTitle,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                            
+                            const SizedBox(height: 35), // Padding after header group
+                            
+                            // Group 02: Form
+                            Form(
+                              child: Column(
+                                children: [
+                                  AuthTextField(
+                                    controller: _emailController,
+                                    label: aaliyahEmail,
+                                    prefixIcon: Icons.email_outlined,
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                  const SizedBox(height: 25), // Padding after email field
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: FilledButton(
+                                      onPressed: () {
+                                        if (_emailController.text.isEmpty) {
+                                          _showErrorToast(
+                                            'Empty Field!', 
+                                            'Please enter your email address.',
+                                          );
+                                          return;
+                                        }
+
+                                        // Check for valid email format
+                                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                        if (!emailRegex.hasMatch(_emailController.text)) {
+                                          _showErrorToast(
+                                            aaliyahInvalidEmailTitle,
+                                            aaliyahInvalidEmailSubTitle,
+                                          );
+                                          return;
+                                        }
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Reset link sent to your email')),
+                                        );
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                        );
+                                      },
+                                      child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: AaliyahSizes.spaceBtwSections),
-                              SizedBox(
-                                width: double.infinity,
-                                child: FilledButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Reset link sent to your email')),
-                                    );
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('CONTINUE', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            
+                            const SizedBox(height: 35), // Padding after continue button
+                            
+                            // Group 03: Footer
+                            const Column(
+                              children: [
+                                Text(
+                                  "Don't Remember Your Email?",
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 10), // Padding after footer label
+                                // Signup Link removed from here because it's dynamic
+                              ],
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
+                              child: const Text(
+                                '$aaliyahSignup for a New Account',
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                        
-                        const SizedBox(height: AaliyahSizes.spaceBtwSections),
-                        
-                        // Footer Section
-                        Text(
-                          "Don't remember your email?",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Contact Us at aaliyahscollection@gmail.com',
-                          style: (Theme.of(context).extension<AaliyahTypography>()?.labelLargeEmphasized ?? 
-                                  Theme.of(context).textTheme.labelLarge)?.copyWith(
-                            color: Colors.teal, 
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 // Back Button
                 Positioned(
-                  top: 0,
-                  left: 0,
+                  top: 10, // Added padding before arrow
+                  left: 10,
                   child: IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    ),
                     icon: const Icon(Icons.arrow_back),
                   ),
                 ),
@@ -148,6 +166,17 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           },
         ),
       ),
+    );
+  }
+
+  void _showErrorToast(String title, String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.fillColored,
+      title: Text(title),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 4),
     );
   }
 }

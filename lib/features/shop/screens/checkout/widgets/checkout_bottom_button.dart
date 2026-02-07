@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 
 class CheckoutBottomButton extends StatelessWidget {
   final int currentStep;
@@ -27,15 +28,31 @@ class CheckoutBottomButton extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: onPressed,
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onPressed,
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Provider.of<NavigationController>(context, listen: false).setIndex(1);
+                },
+                child: const Text('Back to Shop'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -44,11 +61,11 @@ class CheckoutBottomButton extends StatelessWidget {
   String _getButtonLabel() {
     switch (currentStep) {
       case 0:
-        return 'Continue to payment';
+        return 'Continue to Payment';
       case 1:
-        return 'Review order';
+        return 'Review Order';
       case 2:
-        return selectedPaymentIndex == 0 ? 'Place order' : 'Pay now';
+        return selectedPaymentIndex == 0 ? 'Place Order' : 'Pay Now';
       default:
         return '';
     }

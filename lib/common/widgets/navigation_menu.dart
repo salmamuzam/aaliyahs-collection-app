@@ -8,6 +8,7 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_contro
 import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/connectivity_controller.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:quickalert/quickalert.dart';
@@ -21,6 +22,7 @@ import 'package:aaliyahs_collection_estore/features/personalization/screens/prof
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
+import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 class NavigationMenu extends StatefulWidget {
   const NavigationMenu({super.key});
@@ -31,6 +33,8 @@ class NavigationMenu extends StatefulWidget {
 
 class _NavigationMenuState extends State<NavigationMenu> {
   bool _isRailCollapsed = false; // M3 Expressive: Manual rail toggle state
+  final GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  Function(GlobalKey) runAddToCartAnimation = (key) {};
 
   @override
   void initState() {
@@ -43,6 +47,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
       _setupConnectivityListener();
     });
   }
+
 
   void _setupConnectivityListener() {
     final connectivity = Provider.of<ConnectivityController>(context, listen: false);
@@ -119,8 +124,8 @@ class _NavigationMenuState extends State<NavigationMenu> {
     }
   }
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
+  List<Widget> get _screens => [
+    HomeScreen(onAddToCartAnimation: (key) => runAddToCartAnimation(key)),
     const ProductScreen(),
     const FavoriteScreen(),
     const CartScreen(),
@@ -135,14 +140,18 @@ class _NavigationMenuState extends State<NavigationMenu> {
         final bool reduceMotion = access.reduceMotion;
         final int currentIndex = nav.selectedIndex;
 
-        return ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            final double width = sizingInformation.screenSize.width;
-            
-            // M3 Expressive: Flexible nav bar can be used in Compact (<600) and Medium (600-840)
-            final bool isCompact = width < 600;
-            final bool isMedium = width >= 600 && width < 840;
-            final bool useBottomBar = isCompact || isMedium;
+        return AddToCartAnimation(
+          cartKey: cartKey,
+          dragAnimation: const DragToCartAnimationOptions(rotation: true),
+          createAddToCartAnimation: (runAnimation) => runAddToCartAnimation = runAnimation,
+          child: ResponsiveBuilder(
+            builder: (context, sizingInformation) {
+              final double width = sizingInformation.screenSize.width;
+              
+              // M3 Expressive: Flexible nav bar can be used in Compact (<600) and Medium (600-840)
+              final bool isCompact = width < 600;
+              final bool isMedium = width >= 600 && width < 840;
+              final bool useBottomBar = isCompact || isMedium;
             
             if (useBottomBar) {
               return Scaffold(
@@ -185,13 +194,14 @@ class _NavigationMenuState extends State<NavigationMenu> {
                   ),
                 ],
               ),
-              floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-            );
-          },
-        );
-      },
-    );
-  }
+                  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+                );
+              },
+            ),
+          );
+        },
+      );
+    }
 
   Widget _buildNavigationRail(BuildContext context, ColorScheme colorScheme, SizingInformation sizing, NavigationController nav) {
     // M3 Expressive: Combined Width-based and Manual-toggle logic
@@ -488,6 +498,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
             semanticLabel: 'Cart, view my bag',
             showBadge: nav.selectedIndex != 3 && Provider.of<CartController>(context).cart.isNotEmpty,
             badgeCount: Provider.of<CartController>(context).cart.length,
+            isCart: true,
           ),
           _buildRailDestination(
             isExtended: isExtended,
@@ -690,6 +701,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   NavigationDestination _buildNavDestination(NavigationController nav, int index, IconData icon, IconData selectedIcon, String label, String semanticLabel, ColorScheme colorScheme) {
     return NavigationDestination(
+      key: (index == 3 && DeviceUtils.isCompact) ? cartKey : null, // Target for Cart Animation
       icon: _buildNumberedIcon(nav, index, icon, false, colorScheme),
       selectedIcon: _buildNumberedIcon(nav, index, selectedIcon, true, colorScheme),
       label: label,
@@ -705,16 +717,14 @@ class _NavigationMenuState extends State<NavigationMenu> {
     required String semanticLabel,
     bool showBadge = false,
     int? badgeCount,
+    bool isCart = false,
   }) {
     final String countText = badgeCount != null && badgeCount > 999 ? '999+' : (badgeCount?.toString() ?? '');
     
     // Helper to get color without context since we are inside a method
-    // But we need context for Theme. We can access 'context' if it's a State method.
-    // Yes, this is inside _NavigationMenuState.
     final colorScheme = Theme.of(context).colorScheme;
 
-    return NavigationRailDestination(
-      icon: isExtended 
+    Widget buildIcon() => isExtended 
           ? Icon(icon, color: colorScheme.onSurfaceVariant)
           : Semantics(
               label: showBadge ? '$semanticLabel, $countText items' : semanticLabel,
@@ -724,7 +734,11 @@ class _NavigationMenuState extends State<NavigationMenu> {
                 alignment: AlignmentDirectional.topEnd,
                 child: Icon(icon, color: colorScheme.onSurfaceVariant),
               ),
-            ),
+            );
+
+    return NavigationRailDestination(
+      // Apply key to the icon container if it is the cart item and not using bottom bar
+      icon: (isCart && !DeviceUtils.isCompact) ? KeyedSubtree(key: cartKey, child: buildIcon()) : buildIcon(),
       selectedIcon: Icon(selectedIcon, color: colorScheme.onSecondaryContainer), 
       label: Text(label), // Label must be a Widget, usually Text
       padding: const EdgeInsets.symmetric(vertical: 4), 

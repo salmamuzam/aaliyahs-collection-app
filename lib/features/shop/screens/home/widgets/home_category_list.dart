@@ -31,29 +31,29 @@ class HomeCategoryList extends StatelessWidget {
         }
 
         return SizedBox(
-          height: 140, // Consistent height for the carousel area
+          height: 115, // Reduced height to minimize whitespace
           child: CarouselView(
-            itemExtent: 100, // Multi-browse: large items around 100dp
+            itemExtent: 80, // Reduced from 100 to close gap
             shrinkExtent: 56, // Multi-browse: small items around 56dp
-            padding: const EdgeInsets.symmetric(horizontal: 4), // M3: 8dp between elements (half on each side here conceptually)
+            padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusXL),
             ),
             elevation: 0,
+            onTap: (index) {
+              final category = categoriesData[index];
+              HapticFeedback.selectionClick();
+              // 1. SET FILTER
+              productController.fetchShopProducts(categoryIds: [category.id!]);
+              // 2. SWITCH TAB
+              Provider.of<NavigationController>(context, listen: false).setIndex(1);
+            },
             children: categoriesData.map((category) {
               return CategoryButton(
                 category: category,
                 isSelected: productController.selectedCategoryId == category.id,
                 onTap: () {
-                  HapticFeedback.selectionClick();
-                  
-                  // 1. SET FILTER (Using existing functionality)
-                  productController.fetchShopProducts(categoryIds: [category.id!]);
-                  
-                  // 2. SWITCH TAB to Shop (Index 1)
-                  Provider.of<NavigationController>(context, listen: false).setIndex(1);
-                  
-                  // No Navigator.push - we switch tabs instead for a better 'Shop' page experience
+                   // Visual feedback handled by InkWell, logic handled by CarouselView or ignored if CarouselView intercepts
                 },
               );
             }).toList(),
@@ -82,7 +82,12 @@ class HomeCategoryList extends StatelessWidget {
                   height: 68,
                   width: 68,
                   decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(TUIConstants.shapeRadiusXL),
+                      topRight: Radius.circular(TUIConstants.shapeRadiusMedium),
+                      bottomLeft: Radius.circular(TUIConstants.shapeRadiusMedium),
+                      bottomRight: Radius.circular(TUIConstants.shapeRadiusXL),
+                    ),
                     color: Colors.white,
                   ),
                 ),

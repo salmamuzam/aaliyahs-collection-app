@@ -33,7 +33,7 @@ class CartItemCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card.outlined(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.zero, // Removed bottom margin to reduce spacing between products
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(TUIConstants.cardRadius)),
       clipBehavior: Clip.antiAlias,
       child: Slidable(
@@ -56,7 +56,7 @@ class CartItemCard extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12.0), // Reduced from 16
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -69,7 +69,7 @@ class CartItemCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               _buildItemImage(context),
-              const SizedBox(width: 8), // Reduced from 12
+              const SizedBox(width: 8),
               Expanded(
                 child: Semantics(
                   label: 'Item: ${item.displayName}, Price: LKR ${(item.price * item.quantity).toStringAsFixed(2)}, Quantity: ${item.quantity}.',
@@ -82,7 +82,6 @@ class CartItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _buildRemoveButton(context),
             ],
           ),
         ),
@@ -110,16 +109,17 @@ class CartItemCard extends StatelessWidget {
   Widget _buildItemImage(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      height: 100, // Reduced from 120
-      width: 80, // Reduced from 90
+      height: 100,
+      width: 80,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusSmall), // M3 Optical Roundness: 20(Card) - 12(Padding) = 8
+        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusSmall),
         color: colorScheme.surfaceContainer,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusSmall),
         child: SmartImage(
           imageUrl: item.image,
+          alignment: Alignment.topCenter,
           errorWidget: const Icon(Icons.error_outline_rounded),
         ),
       ),
@@ -164,12 +164,12 @@ class CartItemCard extends StatelessWidget {
       children: [
         _buildQtyBtn(context, Icons.remove_rounded, () => provider.decrementQtn(index), 'Decrease quantity'),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12), // Reduced from 16
+          padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced from 12
           child: Text(
             '${item.quantity}',
             style: GoogleFonts.robotoMono(
               fontWeight: FontWeight.bold,
-              fontSize: 14, // Reduced from 16
+              fontSize: 14,
               color: colorScheme.onSurface,
             ),
           ),
@@ -185,10 +185,10 @@ class CartItemCard extends StatelessWidget {
         HapticFeedback.lightImpact();
         onTap();
       },
-      icon: Icon(icon, size: 14), // Reduced from 16
+      icon: Icon(icon, size: 14),
       constraints: const BoxConstraints(
-        minWidth: 32, // Reduced from 48 (m3TargetSize)
-        minHeight: 32,
+        minWidth: 28, // Reduced from 32
+        minHeight: 28,
       ),
       padding: EdgeInsets.zero,
       tooltip: label,
@@ -198,21 +198,6 @@ class CartItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRemoveButton(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Semantics(
-      label: 'Remove item',
-      button: true,
-      child: IconButton(
-        onPressed: () => _removeThisItem(context),
-        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-        icon: Icon(
-          Icons.delete_outline_rounded,
-          color: colorScheme.onSurfaceVariant,
-          size: 22,
-        ),
-      ),
-    );
-  }
+
 }
 

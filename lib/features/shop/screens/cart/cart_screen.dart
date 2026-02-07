@@ -6,11 +6,11 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_
 import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
 
+import 'package:flutter/services.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/product/product_screen.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/cart/widgets/cart_error_info.dart';
+
 
 // Modular Cart Widgets
 import 'package:aaliyahs_collection_estore/features/shop/screens/cart/widgets/cart_item_card.dart';
@@ -85,16 +85,21 @@ class _CartScreenState extends State<CartScreen> {
       preferredSize: const Size.fromHeight(64.0),
       child: Consumer<CartController>(
         builder: (context, cartProvider, child) {
-          final itemCount = cartProvider.cart.length;
-          
           return AaliyahSmallAppBar(
-            title: 'Cart',
-            subtitle: itemCount > 0 ? "$itemCount ${itemCount == 1 ? 'item' : 'items'}" : null,
+            title: 'My Cart',
+            titlePadding: const EdgeInsets.only(top: 8.0),
+            titleSpacing: 24.0,
             leading: IconButton(
-              onPressed: () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const NavigationMenu()),
-              ),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NavigationMenu()),
+                );
+                // Set to Shop page after navigation
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Provider.of<NavigationController>(context, listen: false).setIndex(1);
+                });
+              },
               icon: const Icon(Icons.arrow_back_rounded),
             ),
             actions: const [
@@ -119,10 +124,13 @@ class _CartScreenState extends State<CartScreen> {
           Expanded(
             child: ListView.separated(
               controller: _scrollController,
-              padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-              itemCount: provider.cart.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin, vertical: 12),
+              itemCount: provider.cart.length + 1,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
+                if (index == provider.cart.length) {
+                  return _buildAddItemsButton(context);
+                }
                 return CartItemCard(
                   item: provider.cart[index],
                   index: index,
@@ -149,10 +157,13 @@ class _CartScreenState extends State<CartScreen> {
               Expanded(
                 child: ListView.separated(
                   controller: _scrollController,
-                  padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-                  itemCount: provider.cart.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin, vertical: 12),
+                  itemCount: provider.cart.length + 1,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
+                    if (index == provider.cart.length) {
+                      return _buildAddItemsButton(context);
+                    }
                     return CartItemCard(
                       item: provider.cart[index],
                       index: index,
@@ -196,36 +207,81 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart(BuildContext context) {
-    final bool isDesktop = DeviceUtils.isExpanded;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 600 : double.infinity),
-          padding: EdgeInsets.all(isDesktop ? 40 : DeviceUtils.m3Margin),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: isDesktop ? 300 : 200, // Reduced from 250
-                height: isDesktop ? 200 : 200, // Reduced from 250
-                child: Image.asset(emptyCartIllustration, fit: BoxFit.contain),
-              ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack).fadeIn(),
-              const SizedBox(height: 32),
-              ErrorInfo(
-                title: 'Your cart is empty', 
-                description: "Looks like you haven't added anything yet. Start shopping to find your next favorite item.",
-                btnText: 'Start shopping',
-                press: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProductScreen()),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon/Illustration Container with glassmorphism effect
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 80,
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                  ),
+                  Image.asset(
+                    emptyCartIllustration,
+                    height: 140,
+                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 48),
+            
+            // Text Content
+            Text(
+              'Your Cart is Empty',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Looks like you haven\'t added anything yet. Start shopping to find your next favorite items.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+            ),
+            const SizedBox(height: 48),
+            
+            
+            // Action Button
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonal(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
+                },
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                  foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                ),
+                child: const Text(
+                  'Continue Shopping',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -236,7 +292,7 @@ class _CartScreenState extends State<CartScreen> {
     final bool hasSelection = provider.selectedItemIds.isNotEmpty;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin - 8, vertical: 4), // Adjusted for InkWell padding
+      padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin - 8, vertical: 4), 
       color: colorScheme.surface,
       child: Row(
         children: [
@@ -281,6 +337,24 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAddItemsButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      child: Center(
+        child: TextButton.icon(
+          onPressed: () {
+            Provider.of<NavigationController>(context, listen: false).setIndex(1);
+          },
+          icon: const Icon(Icons.add_rounded, size: 20),
+          label: const Text(
+            'Add Items',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
       ),
     );
   }

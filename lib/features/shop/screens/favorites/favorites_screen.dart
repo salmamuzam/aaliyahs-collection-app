@@ -5,12 +5,10 @@ import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/cart/widgets/cart_error_info.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/products/product_cards/product_card_vertical.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/product_detail_screen.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/product/product_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart'; 
@@ -29,7 +27,7 @@ class FavoriteScreen extends StatefulWidget {
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
   final GlobalKey<CartIconKey> _cartKey = GlobalKey<CartIconKey>();
-  late Function(GlobalKey) _runAddToCartAnimation;
+  Function(GlobalKey)? _runAddToCartAnimation;
   final ScrollController _scrollController = ScrollController();
   late NavigationController _navigationController;
 
@@ -178,9 +176,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     return AaliyahSmallAppBar(
       title: 'My Wishlist',
-      subtitle: provider.favorites.isNotEmpty 
-          ? "${provider.favorites.length} ${provider.favorites.length == 1 ? 'item' : 'items'}" 
-          : null,
+      titleSpacing: 24.0,
+      titlePadding: const EdgeInsets.only(top: 8.0),
       actions: [
         const FavoriteAppBarAction(),
         CartAppBarAction(cartKey: _cartKey),
@@ -196,7 +193,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       padding: EdgeInsets.all(DeviceUtils.m3Margin),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: Responsive.getGridColumnCount(context),
-        childAspectRatio: 0.65,
+        childAspectRatio: Responsive.getGridAspectRatio(context),
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
@@ -225,7 +222,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               _enterSelectionMode(product.id!);
             }
           },
-          onAddToCart: (key) => _runAddToCartAnimation(key),
+          onAddToCart: (key) {
+            if (_runAddToCartAnimation != null) {
+              _runAddToCartAnimation!(key);
+            }
+          },
 
         );
       },
@@ -233,35 +234,81 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   }
 
   Widget _buildEmptyFavorites(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isDesktop = screenWidth > 600;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 600 : double.infinity),
-          padding: EdgeInsets.all(isDesktop ? 40 : DeviceUtils.m3Margin),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: isDesktop ? 300 : 200,
-                height: isDesktop ? 200 : 200, // Reduced from 250 to 200 for mobile
-                child: Image.asset(emptyFavoritesIllustration, fit: BoxFit.contain),
-              ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack).fadeIn(),
-              const SizedBox(height: 32),
-              ErrorInfo(
-                title: 'No Favorites Yet!',
-                description: "You haven't added any ProductModels to your favorites. Start exploring and save your favorites here!",
-                btnText: 'Discover Products',
-                press: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProductScreen()),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon/Illustration Container with glassmorphism effect
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                   Icon(
+                    Icons.favorite_rounded,
+                    size: 80,
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                  ),
+                  Image.asset(
+                    emptyFavoritesIllustration,
+                    height: 140,
+                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 48),
+            
+            // Text Content
+            Text(
+              'Your Wishlist is Empty',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Add the items you love to your wishlist and we\'ll keep them safe for you.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+            ),
+            const SizedBox(height: 48),
+            
+            
+            // Action Button
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonal(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
+                },
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                  foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                ),
+                child: const Text(
+                  'Continue Shopping',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

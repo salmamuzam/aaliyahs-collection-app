@@ -152,7 +152,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                 onTap: widget.onPress,
                 onLongPress: widget.onLongPress,
                 child: Padding(
-                  padding: EdgeInsets.all(DeviceUtils.m3Padding(4)),
+                  padding: const EdgeInsets.all(6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -169,9 +169,9 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                         ),
                       ),
                       
-                      SizedBox(height: DeviceUtils.m3Padding(2)),
+                      SizedBox(height: DeviceUtils.m3Padding(4)),
 
-                      Expanded(
+                      Flexible(
                         child: ExcludeSemantics(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,27 +182,47 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                                   color: effectiveScheme.onSurface,
                                   height: 1.2,
                                 ),
-                                maxLines: 2,
+                                maxLines: 3,
                                 minFontSize: 8,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               
-                              const Spacer(),
+                              SizedBox(height: DeviceUtils.m3Padding(4)),
                               
-                              // Price with safety margin for floating Cart Button
-                              Padding(
-                                padding: const EdgeInsets.only(right: 38), 
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
-                                    style: GoogleFonts.robotoMono(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: effectiveScheme.primary,
+                              // Price
+                              Text(
+                                "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
+                                style: GoogleFonts.robotoMono(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: effectiveScheme.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              
+                              const SizedBox(height: 6),
+
+                              // Add to Cart Button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 32,
+                                child: FilledButton(
+                                  onPressed: () {
+                                    HapticFeedback.selectionClick();
+                                    CartController.of(context, listen: false).addToCart(widget.product);
+                                    if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    backgroundColor: effectiveScheme.primary,
+                                    foregroundColor: effectiveScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
+                                    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                                   ),
+                                  child: const Text('Add to Cart'),
                                 ),
                               ),
                             ],
@@ -218,8 +238,8 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
               if (!widget.isSelected)
                 Positioned.directional(
                   textDirection: Directionality.of(context),
-                  top: DeviceUtils.m3Padding(2),
-                  end: DeviceUtils.m3Padding(2),
+                  top: 10,
+                  end: 10,
                   child: Tooltip(
                     message: widget.isWishlist ? 'Remove' : (provider.isExists(widget.product) ? 'Remove favorite' : 'Add favorite'),
                     child: IconButton.filledTonal(
@@ -231,12 +251,13 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                         widget.isWishlist 
                           ? Icons.delete_outline_rounded 
                           : (provider.isExists(widget.product) ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-                        size: 20,
+                        size: 18,
                         color: widget.isWishlist 
                           ? colorScheme.error 
                           : (provider.isExists(widget.product) ? effectiveScheme.primary : effectiveScheme.onSurfaceVariant),
                       ),
                       style: IconButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
                         backgroundColor: (isDarkMode ? colorScheme.surface : effectiveScheme.surfaceContainerHighest).withValues(alpha: 0.9),
                       ),
                     ),
@@ -252,28 +273,6 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                   child: Icon(Icons.check_circle_rounded, color: colorScheme.primary, size: 24),
                 ),
 
-              // 4. Add to Cart Button (Bottom Right)
-              Positioned.directional(
-                textDirection: Directionality.of(context),
-                bottom: DeviceUtils.m3Padding(2),
-                end: DeviceUtils.m3Padding(2),
-                child: Tooltip(
-                  message: 'Add to cart',
-                  child: IconButton.filled(
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
-                      CartController.of(context, listen: false).addToCart(widget.product);
-                      if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
-                    },
-                    icon: const Icon(Icons.add_rounded, size: 24),
-                    style: IconButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                      backgroundColor: effectiveScheme.primaryContainer,
-                      foregroundColor: effectiveScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ).animate(target: reduceMotion ? 0 : 1)

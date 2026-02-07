@@ -101,10 +101,46 @@ class AaliyahValidator {
 
   static String? validatePostalCode(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Postal code is required';
+      return 'Empty Field! Please enter your postal code!';
     }
     if (!RegExp(r'^\d+$').hasMatch(value)) {
-      return 'Postal code must contain only numbers';
+      return 'Invalid Format! Please enter only numbers!';
+    }
+    return null;
+  }
+
+  // Street Address
+  static String? validateStreetAddress(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Empty Field! Please enter your address!';
+    }
+    if (value.length <= 3) {
+      return 'Too Short! Please enter more than 3 characters!';
+    }
+    return null;
+  }
+
+  // City
+  static String? validateCity(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Empty Field! Please enter your city!';
+    }
+    if (value.length < 2) {
+      return 'Too Short! Please enter at least 2 characters!';
+    }
+    return null;
+  }
+
+  // Province
+  static String? validateProvince(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Empty Field! Please enter your province!';
+    }
+    if (value.length <= 3) {
+      return 'Too Short! Please enter more than 3 characters!';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      return 'Invalid Format! Please enter only letters!';
     }
     return null;
   }

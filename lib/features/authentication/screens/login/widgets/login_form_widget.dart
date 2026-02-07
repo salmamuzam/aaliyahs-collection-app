@@ -78,9 +78,9 @@ class _LoginFormState extends State<LoginForm> {
         return Form(
           key: _formKey,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: TUIConstants.relativeHeight(context, 0.02)),
+            padding: EdgeInsets.zero,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AuthTextField(
                   controller: _emailController,
@@ -115,12 +115,17 @@ class _LoginFormState extends State<LoginForm> {
                     );
                   },
                 ),
+                const SizedBox(height: 10), // Adjusting top gap
                 
-                _buildRememberMeAndForgetPassword(context, isDarkMode),
-                SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: _buildRememberMeAndForgetPassword(context, isDarkMode),
+                ),
+                
+                const SizedBox(height: 15), // Gap before login button
                 _buildLoginButton(),
+                const SizedBox(height: 20), // Added small gap after sign in button
                 if (_isBioAvailable) ...[ 
-                  const SizedBox(height: 15),
                   _buildBiometricButton(),
                 ],
               ].animate(
@@ -147,7 +152,7 @@ class _LoginFormState extends State<LoginForm> {
       child: OutlinedButton.icon(
         onPressed: () => _handleBiometricLogin(),
         icon: const Icon(Icons.fingerprint_rounded),
-        label: const Text('Login with Fingerprint'),
+        label: const Text('Login with Fingerprint', style: TextStyle(letterSpacing: 0.3)),
       ),
     );
   }
@@ -176,8 +181,8 @@ class _LoginFormState extends State<LoginForm> {
       if (savedEmail == null || savedPassword == null || savedEmail.isEmpty || savedPassword.isEmpty) {
         debugPrint('🔐 [UI]: No credentials saved yet - user needs to login with email/password first');
         _showErrorToast(
-          'Setup Required', 
-          'Please login in once to enable fingerprint!',
+          'Error!', 
+          'Please log in to enable fingerprint!',
         );
         return;
       }
@@ -205,33 +210,35 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Widget _buildRememberMeAndForgetPassword(BuildContext context, bool isDarkMode) {
-    return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         InkWell(
           onTap: () => setState(() => _rememberMe = !_rememberMe),
           borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Semantics(
-                  label: 'Remember me',
-                  selected: _rememberMe,
-                  button: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Semantics(
+                label: 'Remember me',
+                selected: _rememberMe,
+                button: true,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
                   child: Checkbox(
                     value: _rememberMe,
                     onChanged: (value) => setState(() => _rememberMe = value ?? false),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ),
-                Text(
-                  aaliyahRememberMe,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                aaliyahRememberMe,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
           ),
         ),
         TextButton(
@@ -240,6 +247,9 @@ class _LoginFormState extends State<LoginForm> {
             MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()),
           ),
           style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             foregroundColor: isDarkMode ? const Color(0xFFE5EDEF) : aaliyahPrimaryColor,
           ),
           child: const Text(
@@ -268,7 +278,7 @@ class _LoginFormState extends State<LoginForm> {
                     color: colorScheme.onPrimary,
                     semanticLabel: 'Logging into your account',
                   )
-                : Text(aaliyahLogin.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                : const Text('Sign In', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
           );
         }
       ),

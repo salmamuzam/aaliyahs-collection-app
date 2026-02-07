@@ -53,6 +53,7 @@ class AaliyahExpressiveMenu extends StatelessWidget {
         ),
         padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: useGaps ? 4 : 8)),
         minimumSize: WidgetStatePropertyAll(Size(width ?? 240, 0)),
+        maximumSize: width != null ? WidgetStatePropertyAll(Size(width!, double.infinity)) : null,
       ),
       builder: (context, controller, childWidget) {
         return InkWell(

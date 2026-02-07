@@ -1,4 +1,3 @@
-import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/login/widgets/login_footer_widget.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/login/widgets/login_form_widget.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/login/widgets/login_header_widget.dart';
@@ -7,9 +6,7 @@ import 'package:flutter/material.dart';
 // Main Login Screen
 
 import 'package:aaliyahs_collection_estore/common/widgets/misc/keyboard_dismisser.dart';
-
 import 'package:responsive_builder/responsive_builder.dart';
-
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -18,7 +15,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return KeyboardDismisser(
       child: SafeArea(
@@ -27,54 +23,35 @@ class LoginScreen extends StatelessWidget {
             builder: (context, sizingInformation) {
               return Stack(
                 children: [
-                  // Subtle Top Background Design - Scaled with Screen Utility
-                  ExcludeSemantics(
-                    child: Positioned(
-                      top: DeviceUtils.getVerticalSize(-50),
-                      left: DeviceUtils.getHorizontalSize(-50),
-                      child: Container(
-                        height: DeviceUtils.getVerticalSize(200),
-                        width: DeviceUtils.getHorizontalSize(200),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? aaliyahLightColor.withValues(alpha: 0.05)
-                              : aaliyahPrimaryColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-                  ExcludeSemantics(
-                    child: Positioned(
-                      top: DeviceUtils.getVerticalSize(50),
-                      right: DeviceUtils.getHorizontalSize(-30),
-                      child: Container(
-                        height: DeviceUtils.getVerticalSize(150),
-                        width: DeviceUtils.getHorizontalSize(150),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? aaliyahLightColor.withValues(alpha: 0.05)
-                              : aaliyahSecondaryColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-
                   SingleChildScrollView(
-                    child: Container(
-                      padding: DeviceUtils.getPadding(all: 20), 
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Section 01
-                          LoginHeaderWidget(size: size),
-                          // Section 02 - Add extra space if tablet/desktop
-                          SizedBox(height: sizingInformation.isTablet ? DeviceUtils.getVerticalSize(40) : DeviceUtils.getVerticalSize(20)),
-                          const LoginForm(),
-                          // Section 03
-                          const LoginFooterWidget(),
-                        ],
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: sizingInformation.screenSize.height - 
+                                  MediaQuery.of(context).padding.top - 
+                                  MediaQuery.of(context).padding.bottom - 
+                                  MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Padding(
+                        padding: DeviceUtils.getPadding(all: 20), 
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 40), // Added small top padding
+                              // Header
+                              LoginHeaderWidget(size: size),
+                              const SizedBox(height: 10),
+                              
+                              // Form
+                              const LoginForm(),
+                              
+                              const SizedBox(height: 20), // Reduced gap between Fingerprint and Footer
+                              
+                              // Footer
+                              const LoginFooterWidget(),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -35,9 +35,7 @@ class CategoryButton extends StatelessWidget {
       builder: (context, access, _) {
         // M3 Expressive: Shape Morphing configuration
         // Tension: Asymmetrical shape for unselected, morphs to circular when selected
-        final BorderRadius adaptiveRadius = isSelected 
-            ? BorderRadius.circular(34) // M3: Full Round (Circle)
-            : const BorderRadius.only(
+        const BorderRadius adaptiveRadius = BorderRadius.only(
                 topLeft: Radius.circular(TUIConstants.shapeRadiusXL), // 28
                 topRight: Radius.circular(TUIConstants.shapeRadiusMedium), // 12
                 bottomLeft: Radius.circular(TUIConstants.shapeRadiusMedium),
@@ -48,13 +46,12 @@ class CategoryButton extends StatelessWidget {
           button: true,
           label: 'Category ${category.name}',
           selected: isSelected,
-          child: Material(
+          child: Container(
             color: Colors.transparent,
-            child: InkWell(
+            child: GestureDetector(
               onTap: onTap,
-              borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(2)),
+                padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(1)), // Reduced to 4dp
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -85,44 +82,51 @@ class CategoryButton extends StatelessWidget {
                       ),
                       child: ClipRRect( // M3: Support shape morph clipping
                         borderRadius: adaptiveRadius,
-                        child: category.iconURL.isEmpty
-                            ? Container(
-                                color: Colors.transparent,
-                                child: Icon(
-                                  Icons.category_outlined,
-                                  size: 24,
-                                  color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-                                ),
-                              )
-                            : category.iconURL.startsWith('http')
-                                ? SmartImage(
-                                    imageUrl: category.iconURL,
-                                    placeholder: Shimmer.fromColors(
-                                      baseColor: colorScheme.surfaceContainerHighest,
-                                      highlightColor: colorScheme.surfaceContainer,
-                                      child: Container(
-                                        height: 68,
-                                        width: 68,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: adaptiveRadius,
-                                        ),
-                                      ),
-                                    ),
-                                    errorWidget: Icon(
-                                      Icons.category_rounded, 
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: onTap, 
+                            borderRadius: adaptiveRadius,
+                            child: category.iconURL.isEmpty
+                                ? Container(
+                                    color: Colors.transparent,
+                                    child: Icon(
+                                      Icons.category_outlined,
                                       size: 24,
                                       color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                                     ),
                                   )
-                                : Image.asset(
-                                    category.iconURL,
-                                    fit: BoxFit.cover,
-                                    cacheWidth: 200,
-                                  ),
+                                : category.iconURL.startsWith('http')
+                                    ? SmartImage(
+                                        imageUrl: category.iconURL,
+                                        placeholder: Shimmer.fromColors(
+                                          baseColor: colorScheme.surfaceContainerHighest,
+                                          highlightColor: colorScheme.surfaceContainer,
+                                          child: Container(
+                                            height: 68,
+                                            width: 68,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: adaptiveRadius,
+                                            ),
+                                          ),
+                                        ),
+                                        errorWidget: Icon(
+                                          Icons.category_rounded, 
+                                          size: 24,
+                                          color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                                        ),
+                                      )
+                                    : Image.asset(
+                                        category.iconURL,
+                                        fit: BoxFit.cover,
+                                        cacheWidth: 200,
+                                      ),
+                          ),
+                        ),
                       ),
                     ),
-                    SizedBox(height: DeviceUtils.m3Padding(2)), // 8dp
+                    SizedBox(height: DeviceUtils.m3Padding(1)), // 4dp (Reduced from 8dp)
                     // Category Name with dynamic styling
                     AutoSizeText(
                       category.displayName,

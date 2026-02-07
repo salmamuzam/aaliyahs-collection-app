@@ -356,35 +356,19 @@ class ProductController extends ChangeNotifier {
         }
       } else {
         _selectedCategoryIds.clear();
-        debugPrint('🌐 [ONLINE] Fetching all Shop Products (Multi-Category Workaround) from Laravel API...');
-        // "All" Filter: Workaround for backend 500 error on "No Filter" or "Multiple Filters"
-        // We fetch ALL categories individually in parallel and merge them deduplicated.
-        List<Future<List<ProductModel>>> futures = [];
+        debugPrint('🌐 [ONLINE] Fetching all Shop Products (Page 1) from Laravel API...');
         
-        // Use existing categories or fetch if empty
-        if (_categories.isEmpty) {
-           await _fetchCategoriesFallback();
-        }
+        // Fetch all products with pagination enabled
+        final response = await _productRepository.getShopProducts(
+          page: 1,
+          sort: _sortOption
+        );
 
-        for (var categoryModel in _categories) {
-           if (categoryModel.id != null) {
-             // Fetch only the first page for each category for "All" view
-             futures.add(_productRepository.getShopProducts(categoryIds: [categoryModel.id!], page: 1, sort: _sortOption).then((res) => res.success ? res.data!.results : []));
-           }
+        if (response.success && response.data != null) {
+          _shopProducts = response.data!.results;
+          _updatePagination(response.data!);
+          _hasMore = true; // Enable pagination for 'All'
         }
-        
-        final results = await Future.wait(futures);
-        final Map<int, ProductModel> uniqueProductModels = {};
-        
-        for (var list in results) {
-          for (var p in list) {
-            if (p.id != null) uniqueProductModels[p.id!] = p;
-          }
-        }
-        
-        _shopProducts = uniqueProductModels.values.toList();
-        _hasMore = false; // "All" currently doesn't support pagination due to backend merge workaround
-        _applyClientSideSort();
       }
       
     } catch (e) {
@@ -452,12 +436,13 @@ class ProductController extends ChangeNotifier {
   // Load More is now redundant for Shop with recursive fetch, 
   // but kept for compatibility or safe-guard.
   Future<void> loadMoreShopProducts() async {
-    if (_isFetchingMore || !_hasMore || _selectedCategoryIds.isEmpty) return;
+    // Modified: Allow loading more even if categories are empty (for 'All' pagination)
+    if (_isFetchingMore || !_hasMore) return;
     
     _setFetchingMore(true);
     try {
       final response = await _productRepository.getShopProducts(
-        categoryIds: _selectedCategoryIds.toList(),
+        categoryIds: _selectedCategoryIds.isNotEmpty ? _selectedCategoryIds.toList() : null,
         page: _nextPage,
         sort: _sortOption
       );
