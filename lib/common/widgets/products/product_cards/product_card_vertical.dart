@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/data/models/product_model.dart';
-import 'package:aaliyahs_collection_estore/controllers/favorite_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/cart_controller.dart';
-import 'package:aaliyahs_collection_estore/widgets/smart_image.dart';
+import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:aaliyahs_collection_estore/util/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/image_cache_sizes.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
 
 // ============================================================================
 // PRODUCT CARD VERTICAL - Displays a Product in a Card Layout
@@ -23,21 +29,88 @@ import 'package:auto_size_text/auto_size_text.dart';
 // Used in: Home screen, Shop screen, Search results
 // ============================================================================
 
-class ProductCardVertical extends StatelessWidget {
+class ProductCardVertical extends StatefulWidget {
   final ProductModel product;         // The product data to display
   final VoidCallback onPress;         // What happens when card is tapped
+  final VoidCallback? onLongPress;    // What happens when card is long pressed
   final Function(GlobalKey)? onAddToCart;  // Callback for add-to-cart animation
   final String? heroPrefix;           // Optional prefix for Hero tags to avoid collisions
   final bool isWishlist;              // True if showing on wishlist screen (shows delete icon)
+  final bool isSelected;              // True if the card is currently selected
 
   const ProductCardVertical({
     super.key,
     required this.product,
     required this.onPress,
+    this.onLongPress,
     this.onAddToCart,
     this.heroPrefix,
     this.isWishlist = false,
+    this.isSelected = false,
   });
+
+  @override
+  State<ProductCardVertical> createState() => _ProductCardVerticalState();
+}
+class _ProductCardVerticalState extends State<ProductCardVertical> {
+  ColorScheme? _contentScheme;
+  String? _lastImage;
+  Brightness? _lastBrightness;
+
+  @override
+  void initState() {
+    super.initState();
+    // Color extraction moved to didChangeDependencies to safely access Theme.of(context)
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _handleColorExtraction();
+  }
+
+  @override
+  void didUpdateWidget(ProductCardVertical oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.product.image != widget.product.image) {
+      _handleColorExtraction();
+    }
+  }
+
+  void _handleColorExtraction() {
+    if (widget.product.image.isEmpty) return;
+    
+    final String currentImage = widget.product.image;
+    final Brightness currentBrightness = Theme.of(context).brightness;
+
+    if (_lastImage != currentImage || _lastBrightness != currentBrightness) {
+      _lastImage = currentImage;
+      _lastBrightness = currentBrightness;
+      _extractColor(currentBrightness);
+    }
+  }
+
+  Future<void> _extractColor(Brightness brightness) async {
+    try {
+      ImageProvider imageProvider;
+      if (widget.product.image.startsWith('http')) {
+        imageProvider = NetworkImage(widget.product.image);
+      } else {
+        imageProvider = AssetImage(widget.product.image);
+      }
+
+      final scheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+        brightness: brightness,
+      );
+      
+      if (mounted) {
+        setState(() => _contentScheme = scheme);
+      }
+    } catch (e) {
+      debugPrint('Error extracting color for product card: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,203 +118,193 @@ class ProductCardVertical extends StatelessWidget {
     final provider = Provider.of<FavoriteController>(context);
 
     // Check if app is in dark mode
+    final colorScheme = Theme.of(context).colorScheme;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
+    // M3 Advanced: Use content-based scheme if available
+    final effectiveScheme = _contentScheme ?? colorScheme;
+    
     // Create a stable key for this widget (used for add-to-cart animation)
-    // Using heroPrefix ensures uniqueness if same product is shown in different grids
-    final GlobalKey widgetKey = GlobalObjectKey("${heroPrefix ?? ''}_${product.id}");
+    final GlobalKey widgetKey = GlobalObjectKey("${widget.heroPrefix ?? ''}_${widget.product.id}");
 
-    // Card is the container for the product
-    return Card(
-      elevation: isDarkMode ? 0 : 2,  // Shadow (no shadow in dark mode)
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(TUIConstants.cardRadius)),
-      clipBehavior: Clip.antiAlias,  // Clip content to rounded corners
-      color: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
-      
-      // InkWell makes the card tappable with ripple effect
-      child: InkWell(
-        onTap: onPress,  // Open product detail screen when tapped
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<AccessibilityController>(
+      builder: (context, access, _) {
+        final bool reduceMotion = access.reduceMotion;
+        
+        return Card(
+          elevation: widget.isSelected ? 0 : 1, 
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium),
+            side: BorderSide(
+              color: widget.isSelected ? colorScheme.primary : (isDarkMode ? colorScheme.outlineVariant : Colors.transparent),
+              width: widget.isSelected ? 2 : 1,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          color: widget.isSelected 
+              ? colorScheme.primaryContainer.withValues(alpha: 0.15) 
+              : colorScheme.surfaceContainerLow,
+          child: Stack(
             children: [
-              // SECTION 1: PRODUCT IMAGE WITH FAVORITE BUTTON
-              Container(
-                key: widgetKey,  // Attach key for animation
-                child: Stack(  // Stack allows overlaying favorite button on image
-                  children: [
-                    // Product Image
-                    AspectRatio(
-                      aspectRatio: 1,  // Make image square (1:1 ratio)
-                      child: product.id != 0 
-                        ? Hero(
-                            tag: "${heroPrefix ?? ''}ProductModel_${product.id ?? product.name}_0",  // Unique Hero animation tag
-                            child: _buildProductImage(),
-                          )
-                        : _buildProductImage(),
-                    ),
-                    
-                    // Favorite button positioned at top-right corner
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: () {
-                          // Check if product is already in favorites
-                          final isAlreadyLoved = provider.isExists(product);
-                          
-                          // Add or remove from favorites
-                          provider.toggleFavorite(product);
-                          
-                          // Show snackbar notification
-                          final snackBar = SnackBar(
-                            elevation: 0,
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.transparent,
-                            duration: const Duration(seconds: 2),
-                            content: AwesomeSnackbarContent(
-                              title: isAlreadyLoved ? 'Removed from Wishlist!' : 'Added to Wishlist!',
-                              message: isAlreadyLoved 
-                                 ? '${product.displayName} has been removed from your wishlist.' 
-                                 : '${product.displayName} has been added to your wishlist.',
-                              contentType: isAlreadyLoved ? ContentType.warning : ContentType.success,
-                            ),
-                          );
-                          ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(snackBar);
-                        },
-                        
-                        // Circular button with heart icon
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark 
-                              ? aaliyahDarkColor.withValues(alpha: 0.8) 
-                              : aaliyahLightColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).brightness == Brightness.dark 
-                                ? Colors.grey.shade800 
-                                : Colors.white, 
-                              width: 2
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 4,
+              // 1. Primary Interaction Layer (Card Content)
+              InkWell(
+                onTap: widget.onPress,
+                onLongPress: widget.onLongPress,
+                child: Padding(
+                  padding: EdgeInsets.all(DeviceUtils.m3Padding(4)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        key: widgetKey,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: widget.product.id != 0 
+                            ? Hero(
+                                tag: "${widget.heroPrefix ?? ''}ProductModel_${widget.product.id ?? widget.product.name}_0",
+                                child: _buildProductImage(),
                               )
+                            : _buildProductImage(),
+                        ),
+                      ),
+                      
+                      SizedBox(height: DeviceUtils.m3Padding(2)),
+
+                      Expanded(
+                        child: ExcludeSemantics(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AutoSizeText(
+                                widget.product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
+                                style: Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized.copyWith(
+                                  color: effectiveScheme.onSurface,
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                minFontSize: 8,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              
+                              const Spacer(),
+                              
+                              // Price with safety margin for floating Cart Button
+                              Padding(
+                                padding: const EdgeInsets.only(right: 38), 
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
+                                    style: GoogleFonts.robotoMono(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: effectiveScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
-                          child: Icon(
-                            // Show delete icon on wishlist screen, heart icon elsewhere
-                            isWishlist 
-                              ? Icons.delete_outline 
-                              : (provider.isExists(product) ? Icons.favorite : Icons.favorite_outline_outlined),
-                            color: isWishlist 
-                              ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.red) 
-                              : (provider.isExists(product) 
-                                  ? Colors.red 
-                                  : (Theme.of(context).brightness == Brightness.dark ? aaliyahLightColor : aaliyahDarkColor)),
-                            size: 18,
-                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              
-              // Spacing removed to prevent overflow on small screens
-              
-              // SECTION 2: PRODUCT NAME, PRICE, AND ADD TO CART BUTTON
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Product name with auto-sizing text
-                    AutoSizeText(
-                      // Capitalize first letter of each word
-                      product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+
+              // 2. Favorite Button (Secondary Action)
+              if (!widget.isSelected)
+                Positioned.directional(
+                  textDirection: Directionality.of(context),
+                  top: DeviceUtils.m3Padding(2),
+                  end: DeviceUtils.m3Padding(2),
+                  child: Tooltip(
+                    message: widget.isWishlist ? 'Remove' : (provider.isExists(widget.product) ? 'Remove favorite' : 'Add favorite'),
+                    child: IconButton.filledTonal(
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        provider.toggleFavorite(widget.product);
+                      },
+                      icon: Icon(
+                        widget.isWishlist 
+                          ? Icons.delete_outline_rounded 
+                          : (provider.isExists(widget.product) ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                        size: 20,
+                        color: widget.isWishlist 
+                          ? colorScheme.error 
+                          : (provider.isExists(widget.product) ? effectiveScheme.primary : effectiveScheme.onSurfaceVariant),
                       ),
-                      maxLines: 2,  // Show maximum 2 lines
-                      minFontSize: 8,  // Minimum font size before truncating
-                      overflow: TextOverflow.ellipsis,  // Add ... if text is too long
+                      style: IconButton.styleFrom(
+                        backgroundColor: (isDarkMode ? colorScheme.surface : effectiveScheme.surfaceContainerHighest).withValues(alpha: 0.9),
+                      ),
                     ),
-                    
-                    const SizedBox(height: 2),
-                    
-                    const Spacer(),
-                    
-                    // Price and Add to Cart button row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Price
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "LKR ${product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",  // Remove non-numeric characters
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
-                        
-                        const SizedBox(width: 8),
-                        
-                        // Add to Cart button
-                        InkWell(
-                          borderRadius: BorderRadius.circular(30),
-                          onTap: () {
-                            // Add product to cart
-                            CartController.of(context, listen: false).addToCart(product);
-                            
-                            // Trigger add-to-cart animation if callback provided
-                            if (onAddToCart != null) {
-                              onAddToCart!(widgetKey);
-                            }
-                          },
-                          child: Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Theme.of(context).brightness == Brightness.dark 
-                              ? aaliyahLightColor 
-                              : aaliyahDarkColor,
-                            size: 20,
-                          ),
-                        ),
-                      ],
+                  ),
+                ),
+
+              // 3. Selection Indicator
+              if (widget.isSelected)
+                Positioned.directional(
+                  textDirection: Directionality.of(context),
+                  top: DeviceUtils.m3Padding(2),
+                  start: DeviceUtils.m3Padding(2),
+                  child: Icon(Icons.check_circle_rounded, color: colorScheme.primary, size: 24),
+                ),
+
+              // 4. Add to Cart Button (Bottom Right)
+              Positioned.directional(
+                textDirection: Directionality.of(context),
+                bottom: DeviceUtils.m3Padding(2),
+                end: DeviceUtils.m3Padding(2),
+                child: Tooltip(
+                  message: 'Add to cart',
+                  child: IconButton.filled(
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      CartController.of(context, listen: false).addToCart(widget.product);
+                      if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
+                    },
+                    icon: const Icon(Icons.add_rounded, size: 24),
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                      backgroundColor: effectiveScheme.primaryContainer,
+                      foregroundColor: effectiveScheme.onPrimaryContainer,
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
+        ).animate(target: reduceMotion ? 0 : 1)
+          .fadeIn(
+            duration: AMotion.durationExpressiveEffectsDefault, 
+            curve: AMotion.expressiveDefaultEffects,
+          )
+          .slideY(
+            begin: 0.1,
+            end: 0,
+            duration: AMotion.durationExpressiveDefault,
+            curve: reduceMotion ? Curves.linear : AMotion.easingEmphasized,
+          );
+      },
     );
   }
 
   Widget _buildProductImage() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: product.image.isEmpty
+      borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), // M3 Optical Roundness: 20(Card) - 8(Padding) = 12
+      child: widget.product.image.isEmpty
           ? Container(
               color: Colors.grey.shade100,
               child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
             )
-          : product.image.startsWith('http')
+          : widget.product.image.startsWith('http')
               ? SmartImage(
-                  imageUrl: product.image,
-                  fit: BoxFit.cover,
+                  imageUrl: widget.product.image,
                   alignment: Alignment.topCenter,
+                  cacheWidth: ImageCacheSizes.productThumbnail,
+                  cacheHeight: ImageCacheSizes.productThumbnail,
                   placeholder: Shimmer.fromColors(
                     baseColor: const Color(0xffe6e6e6),
                     highlightColor: const Color(0xfff9f9f9),
@@ -250,7 +313,7 @@ class ProductCardVertical extends StatelessWidget {
                       width: 200,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium),
                       ),
                     ),
                   ),
@@ -260,9 +323,11 @@ class ProductCardVertical extends StatelessWidget {
                   ),
                 )
               : Image.asset(
-                  product.image,
+                  widget.product.image,
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
+                  cacheWidth: ImageCacheSizes.productThumbnail,
+                  cacheHeight: ImageCacheSizes.productThumbnail,
                 ),
     );
   }

@@ -1,7 +1,9 @@
-import 'package:aaliyahs_collection_estore/data/services/api/api_client.dart';
-import 'package:aaliyahs_collection_estore/util/constants/api_strings.dart';
-import 'package:aaliyahs_collection_estore/util/constants/api_endpoints.dart';
-import 'package:aaliyahs_collection_estore/data/services/api/api_response.dart';
+import 'package:aaliyahs_collection_estore/utils/http/dio_client.dart';
+import 'package:aaliyahs_collection_estore/utils/http/http_method.dart';
+import 'package:aaliyahs_collection_estore/utils/http/api_client.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/api_strings.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/api_endpoints.dart';
+import 'package:aaliyahs_collection_estore/utils/http/api_response.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserRepository {
@@ -25,7 +27,7 @@ class UserRepository {
     String? token = await _getToken();
 
     if (token == null) {
-      return ApiResponse.fromError("No token found", "401");
+      return ApiResponse.fromError('No token found', '401');
     }
 
     _apiClient.setToken(token);
@@ -44,14 +46,14 @@ class UserRepository {
     String? token = await _getToken();
 
     if (token == null) {
-      return ApiResponse.fromError("No token found", "401");
+      return ApiResponse.fromError('No token found', '401');
     }
 
     _apiClient.setToken(token);
 
     final data = {
-      "first_name": firstName,
-      "last_name": lastName,
+      'first_name': firstName,
+      'last_name': lastName,
     };
 
     return await _apiClient.request(
@@ -70,15 +72,15 @@ class UserRepository {
     String? token = await _getToken();
 
     if (token == null) {
-      return ApiResponse.fromError("No token found", "401");
+      return ApiResponse.fromError('No token found', '401');
     }
 
     _apiClient.setToken(token);
 
     final data = {
-      "current_password": currentPassword,
-      "password": password,
-      "password_confirmation": passwordConfirmation,
+      'current_password': currentPassword,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
     };
 
     return await _apiClient.request(
@@ -93,7 +95,7 @@ class UserRepository {
     String? token = await _getToken();
 
     if (token == null) {
-      return ApiResponse.fromError("No token found", "401");
+      return ApiResponse.fromError('No token found', '401');
     }
 
     _apiClient.setToken(token);

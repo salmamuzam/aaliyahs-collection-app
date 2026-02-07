@@ -1,4 +1,4 @@
-import 'package:aaliyahs_collection_estore/util/constants/sizes.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 
 // ============================================================================

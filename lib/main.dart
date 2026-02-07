@@ -4,22 +4,41 @@ import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:aaliyahs_collection_estore/util/config/firebase_options.dart';
+
+import 'package:aaliyahs_collection_estore/utils/config/firebase_options.dart';
 import 'package:aaliyahs_collection_estore/data/services/notification_service.dart';
+import 'package:aaliyahs_collection_estore/data/services/image_cache_service.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/performance_monitor.dart';
 import 'package:aaliyahs_collection_estore/app.dart';
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: "assets/.env");
+  await dotenv.load(fileName: 'assets/.env');
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
-    debugPrint("Firebase Error: $e");
+    debugPrint('Firebase Error: $e');
   }
 
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
   await NotificationService.initialize();
+
+
+
+  // Initialize optimized image caching
+  ImageCacheService().initialize();
+
+  // Initialize performance monitoring (debug mode only)
+  if (kDebugMode) {
+    PerformanceMonitor().initialize();
+    debugPrint('🚀 Performance monitoring enabled');
+/*
+  } else {
+    debugPrint('📈 Firebase Performance Monitoring Active');
+  }
+*/
+  }
 
   // Enforce Edge-to-Edge (Modern Android Requirement)
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

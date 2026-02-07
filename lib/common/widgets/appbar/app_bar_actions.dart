@@ -1,11 +1,9 @@
-import 'package:aaliyahs_collection_estore/screens/shop/favorites/favorites_screen.dart';
-import 'package:aaliyahs_collection_estore/screens/shop/cart/cart_screen.dart';
-import 'package:aaliyahs_collection_estore/util/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/features/shop/screens/favorites/favorites_screen.dart';
+import 'package:aaliyahs_collection_estore/features/shop/screens/cart/cart_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/controllers/cart_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/favorite_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 // ============================================================================
@@ -17,67 +15,41 @@ import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 // ============================================================================
 
 class CartAppBarAction extends StatelessWidget {
-  final GlobalKey<CartIconKey>? cartKey;  // Key for add-to-cart animation (where items fly to)
-  final Color? color;                      // Optional custom color for the icon
+  final GlobalKey<CartIconKey>? cartKey;
+  final Color? color;
 
   const CartAppBarAction({super.key, this.cartKey, this.color});
 
   @override
   Widget build(BuildContext context) {
-    // Use Selector instead of Consumer for better performance
-    // Selector only rebuilds when cart.length changes, not when other cart data changes
-    // This is more efficient than Consumer which rebuilds on any cart change
     return Selector<CartController, int>(
-      selector: (_, provider) => provider.cart.length,  // Only watch the cart count
+      selector: (_, provider) => provider.cart.length,
       builder: (context, count, child) {
-        // Check if app is in dark mode to adjust icon color
-        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-        final iconColor = color ?? (isDarkMode ? aaliyahLightColor : aaliyahDarkColor);
+        final colorScheme = Theme.of(context).colorScheme;
         
         return Padding(
-          padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
-          
-          // GestureDetector makes the icon tappable
-          child: GestureDetector(
-            onTap: () {
-              // Navigate to cart screen when tapped
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CartScreen()),
-              );
-            },
-            
-            // AddToCartIcon is required by the add_to_cart_animation package
-            // It provides the target location for the flying animation
-            child: AddToCartIcon(
-              key: cartKey ?? GlobalKey<CartIconKey>(),
-              // Badge widget shows the count on top of the icon
-              icon: badges.Badge(
-                position: badges.BadgePosition.topEnd(top: -8, end: -3),  // Position badge at top-right
-                showBadge: count > 0,
-                ignorePointer: false,
-                
-                // The number displayed in the badge
-                badgeContent: count > 0 ? Text(
-                  count.toString(),
-                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                ) : null,
-                
-                // Badge styling
-                badgeStyle: const badges.BadgeStyle(
-                  badgeColor: Colors.red,  // Red color for notification (standard UI pattern)
-                  padding: EdgeInsets.all(4),
-                  elevation: 0,
+          padding: const EdgeInsets.only(right: 8.0),
+          child: AddToCartIcon(
+            key: cartKey ?? GlobalKey<CartIconKey>(),
+            icon: Semantics(
+              label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
+              button: true,
+              child: IconButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartScreen()),
                 ),
-                
-                // Animation when badge appears/updates
-                badgeAnimation: const badges.BadgeAnimation.scale(),
-                
-                // The cart icon itself
-                child: Icon(
-                  Icons.shopping_cart_outlined,
-                  color: iconColor,
-                  size: 26,
+                tooltip: 'View cart',
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  // M3 Badge: Limit to 4 characters including "+"
+                  label: Text(count > 999 ? '999+' : count.toString()),
+                  // M3 Badge: Anchor at upper trailing edge of icon
+                  alignment: AlignmentDirectional.topEnd,
+                  child: Icon(
+                    Icons.shopping_bag_outlined,
+                    color: color ?? colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -88,52 +60,38 @@ class CartAppBarAction extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// FAVORITE APP BAR ACTION - Wishlist/Favorites Icon with Badge
-// ============================================================================
-// This widget shows the favorites/wishlist icon in the AppBar
-// It displays a badge with the number of favorited items
-// When tapped, it opens the favorites screen
-// ============================================================================
-
 class FavoriteAppBarAction extends StatelessWidget {
-  final Color? color;  // Optional custom color for the icon
+  final Color? color;
   
   const FavoriteAppBarAction({super.key, this.color});
 
   @override
   Widget build(BuildContext context) {
-    // Use Selector for performance optimization
-    // Only rebuilds when favorites count changes, not when other favorite data changes
     return Selector<FavoriteController, int>(
-      selector: (_, provider) => provider.favorites.length,  // Only watch the favorites count
+      selector: (_, provider) => provider.favorites.length,
       builder: (context, count, child) {
+        final colorScheme = Theme.of(context).colorScheme;
         return Padding(
-          padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
-          
-          // GestureDetector makes the icon tappable
-          child: GestureDetector(
-            onTap: () {
-              // Navigate to favorites screen when tapped
-              Navigator.push(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Semantics(
+            label: count > 0 ? 'Wishlist, ${count > 999 ? "999+" : count}' : 'Wishlist, empty',
+            button: true,
+            child: IconButton(
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const FavoriteScreen()),
-              );
-            },
-            
-            // Badge widget shows the count on top of the icon
-            child: badges.Badge(
-              badgeContent: Text(
-                count.toString(),
-                style: const TextStyle(color: aaliyahLightColor, fontSize: 10),
               ),
-              showBadge: count > 0,  // Only show badge if there are favorited items
-              badgeAnimation: const badges.BadgeAnimation.scale(),
-              
-              // The heart icon itself
-              child: Icon(
-                Icons.favorite_outline_outlined,
-                color: color ?? (Theme.of(context).brightness == Brightness.dark ? aaliyahLightColor : aaliyahDarkColor),
+              tooltip: 'View wishlist',
+              icon: Badge(
+                isLabelVisible: count > 0,
+                // M3 Badge: Limit to 4 characters including "+"
+                label: Text(count > 999 ? '999+' : count.toString()),
+                // M3 Badge: Anchor at upper trailing edge of icon
+                alignment: AlignmentDirectional.topEnd,
+                child: Icon(
+                  Icons.favorite_border_rounded,
+                  color: color ?? colorScheme.onSurface,
+                ),
               ),
             ),
           ),

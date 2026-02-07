@@ -8,13 +8,13 @@ class OfflineDataService {
   /// Load local JSON data from assets
   Future<Map<String, dynamic>> loadLocalJson(String assetPath) async {
     try {
-      debugPrint("📂 [OFFLINE SERVICE]: Loading JSON from $assetPath");
+      debugPrint('📂 [OFFLINE SERVICE]: Loading JSON from $assetPath');
       final String jsonString = await rootBundle.loadString(assetPath);
       final Map<String, dynamic> data = json.decode(jsonString);
-      debugPrint("✅ [OFFLINE SERVICE]: Successfully loaded JSON from $assetPath");
+      debugPrint('✅ [OFFLINE SERVICE]: Successfully loaded JSON from $assetPath');
       return data;
     } catch (e) {
-      debugPrint("❌ [OFFLINE SERVICE]: Error loading JSON from $assetPath: $e");
+      debugPrint('❌ [OFFLINE SERVICE]: Error loading JSON from $assetPath: $e');
       return {};
     }
   }
@@ -37,14 +37,18 @@ class OfflineDataService {
       final parts = imagePath.split('/');
       final filename = parts.last;
       
-      // Check common asset paths
-      final possiblePaths = [
-        'assets/images/shop/products/$filename',
-        'assets/images/shop/categories/$filename',
-        'assets/images/shop/banners/$filename',
-      ];
+      // Determine category based on URL pattern or filename
+      if (imagePath.contains('abaya')) return 'assets/images/shop/products/abayas/$filename';
+      if (imagePath.contains('dress')) return 'assets/images/shop/products/dresses/$filename';
+      if (imagePath.contains('hijab')) return 'assets/images/shop/products/hijabs/$filename';
+      if (imagePath.contains('access')) return 'assets/images/shop/products/accessories/$filename';
 
-      return possiblePaths.first; // Return first possible path as default
+      // Fallback: Check if it's a category image
+      if (filename.startsWith('1766') || filename.contains('category')) {
+          return 'assets/images/shop/categories/$filename';
+      }
+
+      return 'assets/images/shop/products/$filename';
     }
 
     return imagePath;
@@ -62,30 +66,36 @@ class OfflineDataService {
 
   /// Convert network image URL to local asset path
   String networkUrlToAssetPath(String url) {
-    // Extract filename from Cloudinary or Railway URLs
-    if (url.contains('cloudinary.com') || url.contains('railway.app')) {
-      final uri = Uri.parse(url);
-      final pathSegments = uri.pathSegments;
-      
-      if (pathSegments.isNotEmpty) {
-        final filename = pathSegments.last;
-        
-        // Determine category based on URL pattern or filename
-        if (url.contains('/products/')) {
-          return 'assets/images/shop/products/$filename';
-        } else if (url.contains('/categories/')) {
-          return 'assets/images/shop/categories/$filename';
-        } else if (url.contains('/banners/')) {
-          return 'assets/images/shop/banners/$filename';
-        }
-        
-        // Default to products
-        return 'assets/images/shop/products/$filename';
-      }
-    }
+    if (url.isEmpty) return 'assets/images/shop/products/placeholder_product.png';
+    if (url.startsWith('assets/')) return url;
 
-    // If not a recognized URL, treat as asset path
-    return url.startsWith('assets/') ? url : 'assets/images/$url';
+    try {
+      final uri = Uri.parse(url);
+      final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+      if (filename.isEmpty) return 'assets/images/shop/products/placeholder_product.png';
+
+      // 1. Check common categories in URL
+      if (url.contains('/banners/')) return 'assets/images/shop/banners/$filename';
+      if (url.contains('/categories/')) return 'assets/images/shop/categories/$filename';
+      if (url.contains('/profile/') || url.contains('/users/') || url.contains('avatar')) {
+        return 'assets/images/personalization/profile/$filename';
+      }
+
+      // 2. Specialized Product Folder Check
+      if (url.contains('abaya')) return 'assets/images/shop/products/abayas/$filename';
+      if (url.contains('dress')) return 'assets/images/shop/products/dresses/$filename';
+      if (url.contains('hijab')) return 'assets/images/shop/products/hijabs/$filename';
+      if (url.contains('access')) return 'assets/images/shop/products/accessories/$filename';
+
+      // 3. Fallback to product root or category root if name looks like Category ID
+      if (filename.startsWith('1766') || filename.contains('category')) {
+          return 'assets/images/shop/categories/$filename';
+      }
+
+      return 'assets/images/shop/products/$filename';
+    } catch (_) {
+      return 'assets/images/shop/products/placeholder_product.png';
+    }
   }
 
   /// Get placeholder image based on category

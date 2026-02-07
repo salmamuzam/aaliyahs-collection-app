@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:aaliyahs_collection_estore/util/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
+
 
 // ============================================================================
 // SECTION HEADING - Reusable Heading with Optional Action Button
@@ -32,26 +33,31 @@ class SectionHeading extends StatelessWidget {
       children: [
         // Heading text
         Flexible(  // Flexible prevents text overflow on small screens
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: DeviceUtils.getFontSize(22),  // Responsive font size based on screen
+          child: Semantics(
+            header: true,
+            child: Text(
+              title,
+              style: Theme.of(context).extension<AaliyahTypography>()?.headlineSmallEmphasized ?? 
+                     Theme.of(context).textTheme.headlineMedium,
+              maxLines: 1,  // Only show 1 line
+              overflow: TextOverflow.ellipsis,  // Add ... if text is too long
             ),
-            maxLines: 1,  // Only show 1 line
-            overflow: TextOverflow.ellipsis,  // Add ... if text is too long
           ),
         ),
         
         // Action button (only show if actionLabel is provided)
         if (actionLabel != null)
-          TextButton(
-            onPressed: onActionPressed,
-            style: TextButton.styleFrom(
-              // White text in dark mode, default color in light mode
-              foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+          Semantics(
+            label: 'See all ${title.toLowerCase()}',
+            button: true,
+            child: TextButton(
+              onPressed: onActionPressed,
+              style: TextButton.styleFrom(
+                // White text in dark mode, default color in light mode
+                foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+              ),
+              child: Text(actionLabel!),
             ),
-            child: Text(actionLabel!),
           ),
       ],
     );

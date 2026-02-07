@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:aaliyahs_collection_estore/data/models/cart_item.dart';
+import 'package:aaliyahs_collection_estore/features/shop/models/cart_item.dart';
 
 /// Service for reading/writing to the local file system (Requirement 3: Local Data Source).
 class DataRepository {
@@ -34,7 +34,7 @@ class DataRepository {
       final file = await _recentlyViewedFile;
       await file.writeAsString(jsonEncode(productIds));
     } catch (e) {
-      debugPrint("Error writing to local storage: $e");
+      debugPrint('Error writing to local storage: $e');
     }
   }
 
@@ -42,14 +42,14 @@ class DataRepository {
   Future<List<int>> getRecentlyViewed() async {
     try {
       final file = await _recentlyViewedFile;
-      if (await file.exists()) {
+      if (file.existsSync()) {
         final content = await file.readAsString();
         final List<dynamic> decoded = jsonDecode(content);
         return List<int>.from(decoded);
       }
       return [];
     } catch (e) {
-      debugPrint("Error reading from local storage: $e");
+      debugPrint('Error reading from local storage: $e');
       return [];
     }
   }
@@ -59,13 +59,13 @@ class DataRepository {
     try {
       final file = await _notesFile;
       Map<String, String> notes = {};
-      if (await file.exists()) {
+      if (file.existsSync()) {
         notes = Map<String, String>.from(jsonDecode(await file.readAsString()));
       }
       notes[productId.toString()] = note;
       await file.writeAsString(jsonEncode(notes));
     } catch (e) {
-      debugPrint("Error saving note: $e");
+      debugPrint('Error saving note: $e');
     }
   }
 
@@ -73,12 +73,12 @@ class DataRepository {
   Future<String> getProductNote(int productId) async {
     try {
       final file = await _notesFile;
-      if (await file.exists()) {
+      if (file.existsSync()) {
         final Map<String, dynamic> notes = jsonDecode(await file.readAsString());
-        return notes[productId.toString()] ?? "";
+        return notes[productId.toString()] ?? '';
       }
     } catch (_) {}
-    return "";
+    return '';
   }
 
   // ============================================================================
@@ -89,14 +89,14 @@ class DataRepository {
   Future<List<CartItem>> getCart() async {
     try {
       final file = await _cartFile;
-      if (await file.exists()) {
+      if (file.existsSync()) {
         final content = await file.readAsString();
         final List<dynamic> decoded = jsonDecode(content);
         return decoded.map((json) => CartItem.fromJson(json)).toList();
       }
       return [];
     } catch (e) {
-      debugPrint("Error reading cart from local storage: $e");
+      debugPrint('Error reading cart from local storage: $e');
       return [];
     }
   }
@@ -109,7 +109,7 @@ class DataRepository {
       final file = await _cartFile;
       await file.writeAsString(jsonEncode(cart.map((e) => e.toJson()).toList()));
     } catch (e) {
-      debugPrint("Error adding to cart: $e");
+      debugPrint('Error adding to cart: $e');
     }
   }
 
@@ -121,7 +121,7 @@ class DataRepository {
       final file = await _cartFile;
       await file.writeAsString(jsonEncode(cart.map((e) => e.toJson()).toList()));
     } catch (e) {
-      debugPrint("Error removing from cart: $e");
+      debugPrint('Error removing from cart: $e');
     }
   }
 
@@ -136,7 +136,7 @@ class DataRepository {
         await file.writeAsString(jsonEncode(cart.map((e) => e.toJson()).toList()));
       }
     } catch (e) {
-      debugPrint("Error updating cart quantity: $e");
+      debugPrint('Error updating cart quantity: $e');
     }
   }
 
@@ -146,7 +146,7 @@ class DataRepository {
       final file = await _cartFile;
       await file.writeAsString(jsonEncode([]));
     } catch (e) {
-      debugPrint("Error clearing cart: $e");
+      debugPrint('Error clearing cart: $e');
     }
   }
 }

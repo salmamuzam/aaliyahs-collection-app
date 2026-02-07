@@ -4,24 +4,28 @@ import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:toastification/toastification.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
-import 'package:aaliyahs_collection_estore/util/device/device_utility.dart';
-import 'package:aaliyahs_collection_estore/controllers/cart_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/favorite_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/auth_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/user_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/product_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/connectivity_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/notification_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/order_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/address_controller.dart';
-import 'package:aaliyahs_collection_estore/controllers/product_detail_controller.dart';
 
-import 'package:aaliyahs_collection_estore/screens/authentication/login/login_screen.dart';
-import 'package:aaliyahs_collection_estore/screens/authentication/signup/signup_screen.dart';
-import 'package:aaliyahs_collection_estore/screens/navigation/navigation_menu.dart';
-import 'package:aaliyahs_collection_estore/screens/authentication/auth_wrapper.dart';
-import 'package:aaliyahs_collection_estore/util/theme/theme.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
+import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
+import 'package:aaliyahs_collection_estore/utils/device/connectivity_controller.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/order_controller.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/address_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/product_detail_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
+
+import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
+import 'package:aaliyahs_collection_estore/features/authentication/screens/signup/signup_screen.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
+import 'package:aaliyahs_collection_estore/features/authentication/screens/auth_wrapper.dart';
+import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 
 class AaliyahApp extends StatelessWidget {
   const AaliyahApp({super.key});
@@ -50,67 +54,110 @@ class AaliyahApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderController()),          // Manages order history
         ChangeNotifierProvider(create: (_) => AddressController()),        // Manages shipping addresses
         ChangeNotifierProvider(create: (_) => ProductDetailController()),  // Manages individual product details
-        
-        // WHY 10 CONTROLLERS? Each handles a specific responsibility (separation of concerns)
-        // This makes the code organized, maintainable, and easy to test
+        ChangeNotifierProvider(create: (_) => AccessibilityController()),  // Manages accessibility preferences
+        ChangeNotifierProvider(create: (_) => NavigationController()),    // Manages global navigation state
       ],
+      
+      // WHY 10 CONTROLLERS? Each handles a specific responsibility (separation of concerns)
+      // This makes the code organized, maintainable, and easy to test
       
       // STEP 3: Setup RESPONSIVE DESIGN
       // ScreenUtilInit makes the app look good on all screen sizes
       child: ScreenUtilInit(
-        designSize: const Size(360, 690),  // Base design size (standard phone)
         minTextAdapt: true,                // Ensures text is readable on all devices
         splitScreenMode: true,             // Supports split-screen multitasking
         builder: (context, child) {
-          // STEP 4: Wrap with ToastificationWrapper for notifications
           return ToastificationWrapper(
-            child: MaterialApp(
-              title: 'Aaliyah\'s Collection',
-              debugShowCheckedModeBanner: false,  // Removes debug banner
+            child: Consumer<AccessibilityController>(
+              builder: (context, accessController, _) {
+                return DynamicColorBuilder(
+                  builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+                
+                // Determine valid schemes (System Dynamic vs App Default)
+                ColorScheme lightScheme;
+                ColorScheme darkScheme;
+
+                if (lightDynamic != null && !accessController.highContrast) {
+                  lightScheme = lightDynamic.harmonized();
+                } else {
+                  lightScheme = AaliyahAppTheme.lightTheme.colorScheme;
+                }
+
+                if (darkDynamic != null && !accessController.highContrast) {
+                  darkScheme = darkDynamic.harmonized();
+                } else {
+                  darkScheme = AaliyahAppTheme.darkTheme.colorScheme;
+                }
+
+                // Create Theme Data
+                ThemeData lightTheme = (lightDynamic != null && !accessController.highContrast)
+                    ? AaliyahAppTheme.createTheme(lightScheme, Brightness.light)
+                    : (accessController.highContrast 
+                        ? AaliyahAppTheme.highContrastLightTheme 
+                        : AaliyahAppTheme.lightTheme);
+
+                ThemeData darkTheme = (darkDynamic != null && !accessController.highContrast)
+                    ? AaliyahAppTheme.createTheme(darkScheme, Brightness.dark)
+                    : (accessController.highContrast 
+                        ? AaliyahAppTheme.highContrastDarkTheme 
+                        : AaliyahAppTheme.darkTheme);
+
+                // Apply M3 Motion Physics: Page Transitions
+                const m3PageTransitions = PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                  },
+                );
+
+                lightTheme = lightTheme.copyWith(pageTransitionsTheme: m3PageTransitions);
+                darkTheme = darkTheme.copyWith(pageTransitionsTheme: m3PageTransitions);
+
+                // Apply Font Scaling & Style
+                // We use base theme text theme as a reference for text scaling
+                lightTheme = lightTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(lightTheme.textTheme));
+                darkTheme = darkTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(darkTheme.textTheme));
               
-              // STEP 5: INTERNATIONALIZATION - Support multiple languages
-              // This makes the app accessible to users worldwide
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,   // Material widgets in different languages
-                GlobalWidgetsLocalizations.delegate,    // Basic widgets in different languages
-                GlobalCupertinoLocalizations.delegate,  // iOS-style widgets in different languages
-              ],
-              supportedLocales: const [
-                Locale('en'), // English
-                Locale('ar'), // Arabic (supports right-to-left text)
-                Locale('es'), // Spanish
-                Locale('fr'), // French
-              ],
-              
-              // STEP 6: THEME SETUP - Light and Dark Mode
-              // ThemeMode.system means the app automatically switches based on device settings
-              themeMode: ThemeMode.system,
-              
-              // Light theme - used when device is in light mode
-              theme: AaliyahAppTheme.lightTheme.copyWith(
-                textTheme: GoogleFonts.poppinsTextTheme(AaliyahAppTheme.lightTheme.textTheme),
-              ),
-              
-              // Dark theme - used when device is in dark mode
-              // Uses lighter colors for better contrast on dark backgrounds
-              darkTheme: AaliyahAppTheme.darkTheme.copyWith(
-                textTheme: GoogleFonts.poppinsTextTheme(AaliyahAppTheme.darkTheme.textTheme),
-              ),
-              
-              builder: (context, child) {
-                return child!;
-              },
-              
-              // STEP 7: NAVIGATION SETUP - Define app routes
-              initialRoute: '/',  // App starts at AuthWrapper (checks if user is logged in)
-              routes: {
-                '/': (context) => const AuthWrapper(),        // Decides: show login or home
-                '/login': (context) => const LoginScreen(),   // Login page
-                '/signup': (context) => const SignupScreen(), // Registration page
-                '/home': (context) => const NavigationMenu(), // Main app (after login)
-              },
-            ),
-          );
+                return MaterialApp(
+                  title: 'Aaliyah\'s Collection',
+                  debugShowCheckedModeBanner: false,
+                  showSemanticsDebugger: accessController.showSemanticsDebugger,
+                  locale: accessController.locale,
+                
+                  // STEP 5: INTERNATIONALIZATION
+                  localizationsDelegates: const [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: const [
+                    Locale('en'),
+                    Locale('ar'),
+                    Locale('es'),
+                    Locale('fr'),
+                  ],
+                  
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                  
+                  builder: (context, child) {
+                    return child!;
+                  },
+                  
+                  // STEP 7: NAVIGATION SETUP
+                  initialRoute: '/',
+                  routes: {
+                    '/': (context) => const AuthWrapper(),
+                    '/login': (context) => const LoginScreen(),
+                    '/signup': (context) => const SignupScreen(),
+                    '/home': (context) => const NavigationMenu(),
+                  },
+                );
+              }
+            );
+          }
+        ),
+      );
         },
       ),
     );

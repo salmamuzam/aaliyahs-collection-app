@@ -1,7 +1,9 @@
-import 'package:aaliyahs_collection_estore/data/services/api/api_client.dart';
-import 'package:aaliyahs_collection_estore/data/services/api/api_response.dart';
-import 'package:aaliyahs_collection_estore/util/constants/api_strings.dart';
-import 'package:aaliyahs_collection_estore/util/constants/api_endpoints.dart';
+import 'package:aaliyahs_collection_estore/utils/http/dio_client.dart';
+import 'package:aaliyahs_collection_estore/utils/http/http_method.dart';
+import 'package:aaliyahs_collection_estore/utils/http/api_client.dart';
+import 'package:aaliyahs_collection_estore/utils/http/api_response.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/api_strings.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,12 +30,12 @@ class AuthRepository {
     String passwordConfirmation,
   ) async {
     final data = {
-      "first_name": firstname,
-      "last_name": lastname,
-      "username": username,
-      "email": email,
-      "password": password,
-      "password_confirmation": passwordConfirmation,
+      'first_name': firstname,
+      'last_name': lastname,
+      'username': username,
+      'email': email,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
     };
     
     return await _apiClient.request(
@@ -49,12 +51,12 @@ class AuthRepository {
     String? twoFactorCode,
   }) async {
     final Map<String, dynamic> data = {
-      "login": login,
-      "password": password,
+      'login': login,
+      'password': password,
     };
 
     if (twoFactorCode != null) {
-      data["two_factor_code"] = twoFactorCode;
+      data['two_factor_code'] = twoFactorCode;
     }
 
     final response = await _apiClient.request<Map<String, dynamic>>(
@@ -71,8 +73,8 @@ class AuthRepository {
         
         // 🔐 SECURE STORAGE: Save credentials for biometrics
         try {
-          debugPrint("🔐 [AUTH REPO]: Saving biometric credentials...");
-          debugPrint("🔐 [AUTH REPO]: Email to save: $login");
+          debugPrint('🔐 [AUTH REPO]: Saving biometric credentials...');
+          debugPrint('🔐 [AUTH REPO]: Email to save: $login');
           
           await _storage.write(key: 'bio_email', value: login);
           await _storage.write(key: 'bio_password', value: password);
@@ -82,14 +84,14 @@ class AuthRepository {
           final verifyPassword = await _storage.read(key: 'bio_password');
           
           if (verifyEmail == login && verifyPassword == password) {
-            debugPrint("🔐 [AUTH REPO]: ✅ Biometric credentials saved and verified successfully!");
-            debugPrint("🔐 [AUTH REPO]: Stored email: $verifyEmail");
+            debugPrint('🔐 [AUTH REPO]: ✅ Biometric credentials saved and verified successfully!');
+            debugPrint('🔐 [AUTH REPO]: Stored email: $verifyEmail');
           } else {
-            debugPrint("🔐 [AUTH REPO]: ⚠️ Warning: Credential verification failed!");
-            debugPrint("🔐 [AUTH REPO]: Expected email: $login, Got: $verifyEmail");
+            debugPrint('🔐 [AUTH REPO]: ⚠️ Warning: Credential verification failed!');
+            debugPrint('🔐 [AUTH REPO]: Expected email: $login, Got: $verifyEmail');
           }
         } catch (e) {
-          debugPrint("🔐 [AUTH REPO]: ❌ Error saving biometric credentials: $e");
+          debugPrint('🔐 [AUTH REPO]: ❌ Error saving biometric credentials: $e');
         }
         
         _apiClient.setToken(token);
@@ -147,7 +149,7 @@ class AuthRepository {
       final dbUrl = dotenv.env['FIREBASE_DB_URL'];
       if (dbUrl == null) return;
 
-      final url = "${dbUrl}users/${user.uid}.json";
+      final url = '${dbUrl}users/${user.uid}.json';
       final data = {
         'uid': user.uid,
         'email': user.email,
@@ -164,7 +166,7 @@ class AuthRepository {
         payload: data,
       );
     } catch (e) {
-      debugPrint("User Sync Error: $e");
+      debugPrint('User Sync Error: $e');
     }
   }
 
@@ -182,7 +184,7 @@ class AuthRepository {
       if (_googleSignIn.currentUser != null) await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
       
-      return ApiResponse(success: true);
+      return ApiResponse();
     } finally {
       await _storage.delete(key: 'token');
       _apiClient.removeToken();

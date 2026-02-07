@@ -1,0 +1,327 @@
+[
+  {
+    "id": 58,
+    "name": "Coffee Open Abaya",
+    "description": "Introduce our coffee brown open abaya to your modest wardrobe for a stylish and versatile piece ideal for everyday wear and special occasions alike. This brown open abaya comes complete with a matching hijab and belt for a complete look in a warm, earthy shade suitable for all seasons.",
+    "price": "20400.00",
+    "images": [
+      "assets/images/shop/products/abayas/1768028194_6961f822f1f25.jpg",
+      "assets/images/shop/products/abayas/1768028195_6961f82303d15.jpg",
+      "assets/images/shop/products/abayas/1768028195_6961f823046dd.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 50,
+    "name": "Relaxed Fit Cap",
+    "description": "If you’re looking for a suitable under hijab cap, these chic and stylish criss-cross relaxed fit hijab caps are the perfect solution.",
+    "price": "6900.00",
+    "images": [
+      "assets/images/shop/products/accessories/1767236180_6955e2549f7f7.jpg",
+      "assets/images/shop/products/accessories/1767236180_6955e254a0e63.jpg",
+      "assets/images/shop/products/accessories/1767236180_6955e254a1bbf.jpg"
+    ],
+    "category_id": 33,
+    "category": "Accessory"
+  },
+  {
+    "id": 49,
+    "name": "Full Coverage Hijab Caps",
+    "description": "Made from superior quality jersey, our full-coverage hijab caps are well worth the investment, as they won't stretch out or wear out over time. Covering the head and neck for maximum coverage and the most secure fit, this hijab cap is must-have accessory for every hijabi's wardrobe.",
+    "price": "6000.00",
+    "images": [
+      "assets/images/shop/products/accessories/1767236031_6955e1bf5ba7f.jpg",
+      "assets/images/shop/products/accessories/1767236031_6955e1bf5cecf.jpg",
+      "assets/images/shop/products/accessories/1767236031_6955e1bf5db4f.jpg"
+    ],
+    "category_id": 33,
+    "category": "Accessory"
+  },
+  {
+    "id": 48,
+    "name": "Georgette Chiffon - Noir",
+    "description": "\"Noir Eclipse\" – Bold, mysterious, and effortlessly chic, Noir Eclipse features the perfect fusion of deep charcoal mauve and striking black tie-dye patterns. The design evokes the dark beauty of an eclipse, where light and shadow intertwine.",
+    "price": "6400.00",
+    "images": [
+      "assets/images/shop/products/hijabs/1767235865_6955e1196e94f.jpg",
+      "assets/images/shop/products/hijabs/1767235865_6955e11970818.jpg",
+      "assets/images/shop/products/hijabs/1767235865_6955e11971418.jpg"
+    ],
+    "category_id": 26,
+    "category": "Hijab"
+  },
+  {
+    "id": 47,
+    "name": "Premium Viscose - Black",
+    "description": "Our Premium Viscose Hijabs are truly exceptional. They are crafted with the utmost care and attention to detail, ensuring a level of quality that is unmatched. The luxurious feel of the fabric against your skin is simply divine.",
+    "price": "6000.00",
+    "images": [
+      "assets/images/shop/products/hijabs/1767235640_6955e038e4e69.jpg",
+      "assets/images/shop/products/hijabs/1767235640_6955e038e5e79.jpg",
+      "assets/images/shop/products/hijabs/1767235640_6955e038e6ba1.jpg"
+    ],
+    "category_id": 26,
+    "category": "Hijab"
+  },
+  {
+    "id": 46,
+    "name": "Modal Printed - Aurora Mirage",
+    "description": "Crafted from sumptuous premium modal, Aurora Mirage wraps you in a whisper-soft embrace that feels as light as a celestial breeze. Incredibly light and breathable, it drapes effortlessly while keeping you cool.",
+    "price": "6900.00",
+    "images": [
+      "assets/images/shop/products/hijabs/1767235538_6955dfd24feb1.jpg",
+      "assets/images/shop/products/hijabs/1767235538_6955dfd2515eb.jpg",
+      "assets/images/shop/products/hijabs/1767235538_6955dfd2520cd.jpg"
+    ],
+    "category_id": 26,
+    "category": "Hijab"
+  },
+  {
+    "id": 45,
+    "name": "Crinkle Chiffon - Saffron Brown",
+    "description": "Luxurious, premium soft crinkle chiffon hijab which is a staple piece in every modest wardrobe. The flowy soft fabric makes it ideal for draping and pleating for special occasions or simply throw over for everyday wear.",
+    "price": "6000.00",
+    "images": [
+      "assets/images/shop/products/hijabs/1767235347_6955df13a2869.jpg",
+      "assets/images/shop/products/hijabs/1767235347_6955df13a3eeb.jpg",
+      "assets/images/shop/products/hijabs/1767235347_6955df13a4790.jpg"
+    ],
+    "category_id": 26,
+    "category": "Hijab"
+  },
+  {
+    "id": 44,
+    "name": "Maxi Modal - Urban",
+    "description": "Unlike synthetic fabrics such as polyester and acrylic, Modal is naturally breathable, making it cooler and more comfortable to wear on hot days. Our Maxi Modal Hijabs are expertly crafted from tightly woven yarns.",
+    "price": "6900.00",
+    "images": [
+      "assets/images/shop/products/hijabs/1767235194_6955de7abbf2d.jpg",
+      "assets/images/shop/products/hijabs/1767235194_6955de7abd320.jpg",
+      "assets/images/shop/products/hijabs/1767235194_6955de7abde22.jpg"
+    ],
+    "category_id": 26,
+    "category": "Hijab"
+  },
+  {
+    "id": 26,
+    "name": "Mirage Chiffon - Smoked Orchid",
+    "description": "The Luxury Mirage Chiffon Layered Open Abaya in Smoked Orchid is where effortless elegance meets captivating detail. Layers of delicate chiffon cascade in rich plum tones, gently softened by a whisper of tie-dye.",
+    "price": "42500.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767180467_695508b30c025.jpg",
+      "assets/images/shop/products/abayas/1767180467_695508b30cf0b.jpg",
+      "assets/images/shop/products/abayas/1767180467_695508b30d970.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 27,
+    "name": "Floral Blazer - Dusky Rose",
+    "description": "The Premium Floral Mirage Blazer Open Abaya – Dusky Rose is a graceful balance of structured elegance and soft, feminine allure. Tailored in a sleek blazer silhouette, this limited-edition piece redefines modest wear.",
+    "price": "34000.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767180632_69550958a3d84.jpg",
+      "assets/images/shop/products/abayas/1767180632_69550958a51da.jpg",
+      "assets/images/shop/products/abayas/1767180632_69550958a5a1b.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 28,
+    "name": "Textured Floral - Powder Blue",
+    "description": "Step into a world of refined beauty with our Premium Textured Floral Cascading Embellished Open Abaya in Dusky Powder Blue. Adorned with delicate, hand-stitched floral embellishments that cascade gracefully.",
+    "price": "42500.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767180850_69550a328defb.jpg",
+      "assets/images/shop/products/abayas/1767180850_69550a328fe55.jpg",
+      "assets/images/shop/products/abayas/1767180850_69550a32906a7.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 29,
+    "name": "Nidha Inner Slip - English Rose",
+    "description": "The Junior Girls Premium Nidha Inner Slip Dress in English Rose is the ideal piece to pair with our open abayas, offering comfort, modesty, and a subtle pop of elegance.",
+    "price": "12800.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767180995_69550ac38d233.jpg",
+      "assets/images/shop/products/dresses/1767180995_69550ac38e142.jpg",
+      "assets/images/shop/products/dresses/1767180995_69550ac38e852.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 33,
+    "name": "Floral Motif - Midnight Rose",
+    "description": "Transform your princess with our stunning 3D Floral Motif Embellished Abaya Dress in Midnight Rose. Whispers of timeless elegance with bronzed gold embroidery against the soft glow of blooming flowers on our deep red silky dress.",
+    "price": "25500.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767181647_69550d4f295d3.jpg",
+      "assets/images/shop/products/dresses/1767181647_69550d4f2b34b.jpg",
+      "assets/images/shop/products/dresses/1767181647_69550d4f2c233.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 34,
+    "name": "Satin Inner Slip Dress - English Rose",
+    "description": "Get ready to elevate your style with our Premium Satin Inner Slip Dress! Made with soft luxurious satin, this dress features a flattering v neckline.",
+    "price": "19200.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767181883_69550e3b003ad.jpg",
+      "assets/images/shop/products/dresses/1767181883_69550e3b01112.jpg",
+      "assets/images/shop/products/dresses/1767181883_69550e3b01886.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 35,
+    "name": "Satin Inner Slip - Blush",
+    "description": "The Premium Misty Mauve Blush Satin Inner Slip Dress brings together elegance and ease in one fluid silhouette.",
+    "price": "19200.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767182090_69550f0a3eb35.jpg",
+      "assets/images/shop/products/dresses/1767182090_69550f0a3fa1d.jpg",
+      "assets/images/shop/products/dresses/1767182090_69550f0a401ed.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 36,
+    "name": "Nidha Inner Slip - Brown",
+    "description": "Stay chic and comfortable with our Premium Nidha Inner Slip Dress in Mahogany Brown. Our luxurious dress also boasts a chic v neckline for added style.",
+    "price": "19200.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767182233_69550f99c40a5.jpg",
+      "assets/images/shop/products/dresses/1767182233_69550f99c5365.jpg",
+      "assets/images/shop/products/dresses/1767182233_69550f99c5cd0.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 37,
+    "name": "Satin Inner Slip - Black",
+    "description": "Get ready to elevate your style with our Premium Satin Inner Slip Dress! Made with soft luxurious satin, this dress features a flattering v neckline and a lining to ensure it's less transparent.",
+    "price": "19200.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767182570_695510ea4a2a9.jpg",
+      "assets/images/shop/products/dresses/1767182570_695510ea4b572.jpg",
+      "assets/images/shop/products/dresses/1767182570_695510ea4bee4.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 38,
+    "name": "Dahlia Floral Print - Red",
+    "description": "Transform your princess into a radiant beauty with our Dahlia Floral Print Abaya Dress. Featuring delicate pearl and gold thread embroidery with 3D floral motifs across the neckline and chest.",
+    "price": "23400.00",
+    "images": [
+      "assets/images/shop/products/dresses/1767182860_6955120ce4692.jpg",
+      "assets/images/shop/products/dresses/1767182860_6955120ce625a.jpg",
+      "assets/images/shop/products/dresses/1767182860_6955120ce6e63.jpg"
+    ],
+    "category_id": 25,
+    "category": "Dress"
+  },
+  {
+    "id": 24,
+    "name": "Jersey with Front Zip - Black",
+    "description": "Introducing the Premium Jersey Closed Abaya with Front Zip in Black, designed for ultimate comfort and effortless style.",
+    "price": "23400.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767179874_695506624f2e1.jpg",
+      "assets/images/shop/products/abayas/1767179874_6955066250128.jpg",
+      "assets/images/shop/products/abayas/1767179874_6955066250732.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 25,
+    "name": "Khimar Set - Navy",
+    "description": "Crafted from luxurious soft crush fabric, our abaya with khimar set offers all-day breathability and an airy, lightweight feel that's easy to style.",
+    "price": "27700.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767180197_695507a58494c.jpg",
+      "assets/images/shop/products/abayas/1767180197_695507a585ba1.jpg",
+      "assets/images/shop/products/abayas/1767180197_695507a5862de.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 19,
+    "name": "Premium Pleated - Sage Grey",
+    "description": "The Premium Pleated Detailing Open Abaya in Sage Grey is the epitome of understated elegance. With pleats subtly placed at the front, this abaya offers a minimalist yet feminine design.",
+    "price": "38300.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767178608_6955017050f55.jpg",
+      "assets/images/shop/products/abayas/1767178608_6955017053469.jpg",
+      "assets/images/shop/products/abayas/1767178608_6955017054900.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 20,
+    "name": "Farasha with Elastic - Maroon",
+    "description": "A classic modest batwing abaya suitable for all shapes and sizes. Perfect for everyday wear and school/university.",
+    "price": "23400.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767178834_695502520e3b3.jpg",
+      "assets/images/shop/products/abayas/1767178834_695502520f6fd.jpg",
+      "assets/images/shop/products/abayas/1767178834_695502520fe42.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 21,
+    "name": "Butterfly Cut Chiffon - Rose",
+    "description": "This Closed Abaya with Butterfly Cut Chiffon Overlay in Blushing Rose is a perfect blend of simplicity and sophistication.",
+    "price": "31900.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767179060_69550334e2451.jpg",
+      "assets/images/shop/products/abayas/1767179060_69550334e37d9.jpg",
+      "assets/images/shop/products/abayas/1767179060_69550334e3e00.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 22,
+    "name": "Premium Bisht - Bronzed Truffle",
+    "description": "The Premium Open Bisht - Bronzed Truffle is a refined and modest statement of sophistication.",
+    "price": "29800.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767179222_695503d6a97ff.jpg",
+      "assets/images/shop/products/abayas/1767179222_695503d6aaf6c.jpg",
+      "assets/images/shop/products/abayas/1767179222_695503d6ab97f.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  },
+  {
+    "id": 23,
+    "name": "Textured Embellished Cuff - Sage",
+    "description": "Step into sophistication with our Premium Textured Embellished Cuff Open Abaya in sage.",
+    "price": "46800.00",
+    "images": [
+      "assets/images/shop/products/abayas/1767179578_6955053a269b1.jpg",
+      "assets/images/shop/products/abayas/1767179578_6955053a27716.jpg",
+      "assets/images/shop/products/abayas/1767179578_6955053a27d3e.jpg"
+    ],
+    "category_id": 24,
+    "category": "Abaya"
+  }
+]
