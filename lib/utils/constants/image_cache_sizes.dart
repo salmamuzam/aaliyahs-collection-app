@@ -13,8 +13,8 @@ class ImageCacheSizes {
   
   /// Product card thumbnail (grid view)
   /// Typical display: 150-200dp
-  /// Cache: 400px (sufficient for 2x retina)
-  static const int productThumbnail = 400;
+  /// Cache: 700px (sufficient for 3.5x retina)
+  static const int productThumbnail = 700;
 
   /// Product detail main image
   /// Typical display: Full screen width

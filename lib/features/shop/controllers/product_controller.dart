@@ -152,6 +152,13 @@ class ProductController extends ChangeNotifier {
     fetchShopProducts(categoryIds: _selectedCategoryIds.toList());
   }
 
+  void clearAllFilters() {
+    _selectedCategoryIds.clear();
+    _searchQuery = '';
+    _sortOption = defaultSort;
+    notifyListeners();
+  }
+
   // ============================================================================
   // FILTERED PRODUCTS - Apply Search Filter
   // ============================================================================
@@ -318,15 +325,23 @@ class ProductController extends ChangeNotifier {
      // Enrichment logic omitted for brevity, but IDs are loaded from Local File
   }
 
-  Future<void> fetchShopProducts({List<int>? categoryIds}) async {
+  Future<void> fetchShopProducts({List<int>? categoryIds, bool refresh = false}) async {
+    // If we're already loading and not forcing a refresh, ignore
+    if (isLoading && !refresh) return;
+    
     _setLoading(true);
     _errorMessage = '';
+    
+    // Reset data source flag when starting a fetch
+    _isUsingLocalData = false; 
+
     if (categoryIds != null) {
       _selectedCategoryIds.clear();
       _selectedCategoryIds.addAll(categoryIds);
     }
+    
+    // Always clear existing products and reset pagination on a fresh/forced fetch
     _shopProducts = [];  
-    _isUsingLocalData = false;
     _nextPage = 1;
     _hasMore = true;
     
@@ -339,13 +354,10 @@ class ProductController extends ChangeNotifier {
     }
 
     try {
-      if (categoryIds != null && categoryIds.isNotEmpty) {
-        _selectedCategoryIds.clear();
-        _selectedCategoryIds.addAll(categoryIds);
-        
-        debugPrint('🌐 [ONLINE] Fetching Shop Products for categories $categoryIds from Laravel API...');
+      if (_selectedCategoryIds.isNotEmpty) {
+        debugPrint('🌐 [ONLINE] Fetching Shop Products for categories ${_selectedCategoryIds.toList()} from Laravel API...');
         final response = await _productRepository.getShopProducts(
-          categoryIds: categoryIds, 
+          categoryIds: _selectedCategoryIds.toList(), 
           page: 1,
           sort: _sortOption
         );
@@ -355,10 +367,7 @@ class ProductController extends ChangeNotifier {
           _updatePagination(response.data!);
         }
       } else {
-        _selectedCategoryIds.clear();
         debugPrint('🌐 [ONLINE] Fetching all Shop Products (Page 1) from Laravel API...');
-        
-        // Fetch all products with pagination enabled
         final response = await _productRepository.getShopProducts(
           page: 1,
           sort: _sortOption
@@ -370,7 +379,6 @@ class ProductController extends ChangeNotifier {
           _hasMore = true; // Enable pagination for 'All'
         }
       }
-      
     } catch (e) {
       _errorMessage = e.toString();
       debugPrint('Exception in fetchShopProducts: $e');

@@ -9,9 +9,7 @@ import 'package:toastification/toastification.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/review_model.dart';
 import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/products/product_cards/product_card_vertical.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/product_detail_screen.dart';
+
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_detail_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
@@ -514,84 +512,6 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
     }).join(' ');
   }
 
-  Widget _buildRelatedProducts(BuildContext context, bool isDarkMode) {
-    return Consumer<ProductController>(
-      builder: (context, controller, _) {
-        // Show Skeleton if loading (Polished Interaction)
-        if (controller.isLoading) {
-           return Padding(
-             padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-             child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Container(height: 20, width: 150, color: Colors.grey.withValues(alpha: 0.1)),
-                 const SizedBox(height: 12),
-                 SizedBox(
-                   height: 290,
-                   child: ListView.separated(
-                     scrollDirection: Axis.horizontal,
-                     itemCount: 3,
-                     separatorBuilder: (_, __) => const SizedBox(width: 15),
-                     itemBuilder: (_, __) => Container(
-                       width: 160,
-                       decoration: BoxDecoration(
-                         color: Colors.grey.withValues(alpha: 0.1),
-                         borderRadius: BorderRadius.circular(15),
-                       ),
-                     ),
-                   ),
-                 )
-               ],
-             ),
-           );
-        }
 
-        // Filter: Same Category, Not Current Product, limit to 5
-        final related = controller.shopProductModels
-            .where((p) => p.categoryId == widget.product.categoryId && p.id != widget.product.id)
-            .take(5)
-            .toList();
-
-        if (related.isEmpty) return const SizedBox.shrink();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-              child: Text(
-                'You might also like',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 290, // Fixed height for horizontal card list
-              child: ListView.separated(
-               padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-                scrollDirection: Axis.horizontal,
-                itemCount: related.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 15),
-                itemBuilder: (context, index) {
-                   final p = related[index];
-                   return SizedBox(
-                     width: 160, // Fixed width for nice aspect ratio
-                     child: ProductCardVertical(
-                       product: p, 
-                       heroPrefix: 'related_${widget.product.id}', // Unique key to avoid conflicts
-                       onPress: () => Navigator.push(
-                         context, 
-                         MaterialPageRoute(builder: (context) => ProductDetailScreen(product: p))
-                       )
-                     ),
-                   );
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 

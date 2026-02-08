@@ -10,6 +10,10 @@ import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_loader.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
+import 'package:flutter/services.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -207,22 +211,84 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
   Widget _buildEmptyState() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.history, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
-          const SizedBox(height: 24),
-          const Text(
-            'No past orders',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon/Illustration Container with glassmorphism effect
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.history_rounded,
+                      size: 80,
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    Image.asset(
+                      emptyOrdersIllustration,
+                      height: 140,
+                    ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Text Content
+              Text(
+                'No Orders Yet',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'You haven\'t placed any orders yet. Start exploring our latest collections to find something you love.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonal(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                    foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                  ),
+                  child: const Text(
+                    'Start Shopping',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          const Text(
-            "When you buy something, it'll show up here",
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-        ],
+        ),
       ),
     );
   }

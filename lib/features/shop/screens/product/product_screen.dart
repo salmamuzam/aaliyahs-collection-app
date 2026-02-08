@@ -16,6 +16,7 @@ import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_vertical_category_list.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_sort_dropdown_wrapper.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
+import 'package:quickalert/quickalert.dart';
 
 class ProductScreen extends StatefulWidget {
   final int? initialCategoryId;
@@ -90,19 +91,29 @@ class _ProductScreenState extends State<ProductScreen> {
     }
   }
 
-  void _loadInitialData() {
+  Future<void> _loadInitialData() async {
     final provider = Provider.of<ProductController>(context, listen: false);
     if (widget.isBestSelling) {
-      provider.fetchAllBestSellingProducts();
+      await provider.fetchAllBestSellingProducts();
     } else if (widget.initialCategoryId != null) {
       // Explicitly requested category
-      provider.fetchShopProducts(categoryIds: [widget.initialCategoryId!]);
+      await provider.fetchShopProducts(categoryIds: [widget.initialCategoryId!]);
     } else if (provider.selectedCategoryIds.isEmpty && provider.shopProductModels.isEmpty) {
       // Only fetch default "All" if no filters exist and no cache
-      provider.fetchShopProducts();
+      await provider.fetchShopProducts();
     }
-    // If selectedCategoryIds is NOT empty, it means Home already set a filter, 
-    // and fetchShopProducts was already called there, so we don't call it again here.
+
+    // M3 Feature: UX improvement for offline fallback
+    if (mounted && provider.isUsingLocalData) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.loading,
+        title: 'You are Offline!',
+        text: 'Loading Local Data',
+        disableBackBtn: true,
+        autoCloseDuration: const Duration(milliseconds: 2500),
+      );
+    }
   }
 
   Future<void> _listen() async {

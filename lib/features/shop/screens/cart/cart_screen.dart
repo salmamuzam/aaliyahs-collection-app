@@ -211,77 +211,79 @@ class _CartScreenState extends State<CartScreen> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon/Illustration Container with glassmorphism effect
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(
-                    Icons.shopping_bag_outlined,
-                    size: 80,
-                    color: colorScheme.primary.withValues(alpha: 0.1),
-                  ),
-                  Image.asset(
-                    emptyCartIllustration,
-                    height: 140,
-                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 48),
-            
-            // Text Content
-            Text(
-              'Your Cart is Empty',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Looks like you haven\'t added anything yet. Start shopping to find your next favorite items.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.5,
-                  ),
-            ),
-            const SizedBox(height: 48),
-            
-            
-            // Action Button
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonal(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
-                },
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
-                  foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon/Illustration Container with glassmorphism effect
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
                 ),
-                child: const Text(
-                  'Continue Shopping',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.shopping_bag_outlined,
+                      size: 80,
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    Image.asset(
+                      emptyCartIllustration,
+                      height: 140,
+                    ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                  ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              
+              // Text Content
+              Text(
+                'Your Cart is Empty',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Looks like you haven\'t added anything yet. Start shopping to find your next favorite items.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+              ),
+              const SizedBox(height: 32),
+              
+              
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonal(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                    foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                  ),
+                  child: const Text(
+                    'Continue Shopping',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/custom_colors.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
@@ -74,6 +75,18 @@ class _HomeScreenState extends State<HomeScreen> {
       userController.fetchUserProfile(),
       productController.fetchHomeData(token: userController.token),
     ]);
+
+    // M3 Feature: UX improvement for offline fallback
+    if (mounted && productController.isUsingLocalData) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.loading,
+        title: 'You are Offline!',
+        text: 'Loading Local Data',
+        disableBackBtn: true,
+        autoCloseDuration: const Duration(milliseconds: 2500),
+      );
+    }
   }
 
   @override
@@ -99,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         slivers: [
                           _buildHeaderSection(),
-                          _buildOfflineIndicator(),
+                          
                           _buildCategorySection(),
                           _buildBestSellersHeaderSection(),
                           _buildBestSellersGridSection(),
@@ -137,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               physics: const AlwaysScrollableScrollPhysics(),
                               slivers: [
                                 _buildHeaderSection(),
-                                _buildOfflineIndicator(),
+                                
                                 _buildBestSellersHeaderSection(),
                                 _buildBestSellersGridSection(),
                                 SliverToBoxAdapter(child: SizedBox(height: DeviceUtils.m3Padding(8))),
@@ -264,50 +277,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOfflineIndicator() {
-    return Consumer<ProductController>(
-      builder: (context, provider, _) {
-        if (!provider.isUsingLocalData) return const SliverToBoxAdapter(child: SizedBox.shrink());
-        
-        // M3 Advanced: Access custom caution color role from theme extension
-        final customColors = Theme.of(context).extension<AaliyahCustomColors>();
-        final cautionColor = customColors?.caution ?? Colors.amber;
-        final cautionContainer = customColors?.cautionContainer ?? Colors.amber.withValues(alpha: 0.1);
-        final onCautionContainer = customColors?.onCautionContainer ?? Colors.orange;
-
-        return SliverToBoxAdapter(
-          child: Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: DeviceUtils.m3Margin, 
-              vertical: DeviceUtils.m3Padding(2)
-            ),
-            padding: EdgeInsets.symmetric(
-              vertical: DeviceUtils.m3Padding(2), 
-              horizontal: DeviceUtils.m3Padding(3)
-            ),
-            decoration: BoxDecoration(
-              color: cautionContainer,
-              borderRadius: BorderRadius.circular(DeviceUtils.m3Padding(2)),
-              border: Border.all(color: cautionColor.withValues(alpha: 0.5)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.cloud_off, size: 16, color: cautionColor),
-                SizedBox(width: DeviceUtils.m3Padding(2)),
-                Expanded(
-                  child: Text(
-                    'Offline mode. Showing cached content.',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: onCautionContainer),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildCategoryNavigationPane() {
     return Consumer<ProductController>(

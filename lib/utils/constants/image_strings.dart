@@ -41,3 +41,6 @@ const String aaliyahDressImage3 = 'assets/images/shop/products/dresses/dazed_dre
 // Illustrations
 const String emptyCartIllustration = 'assets/images/shop/content/empty_cart_illustration.png';
 const String emptyFavoritesIllustration = 'assets/images/shop/content/empty_wishlist_illustration.png';
+const String emptyNotificationsIllustration = 'assets/images/shop/content/empty_notification_illustration.png';
+const String emptyOrdersIllustration = 'assets/images/shop/content/empty_order_illustration.png';
+const String emptyProductsIllustration = 'assets/images/shop/content/empty_product_illustration.png';

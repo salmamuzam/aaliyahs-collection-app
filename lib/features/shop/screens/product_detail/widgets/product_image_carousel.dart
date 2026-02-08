@@ -107,17 +107,11 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
       onTap: () {},
       child: img.isEmpty
           ? const Icon(Icons.image_not_supported_outlined, size: 80, color: Colors.grey)
-          : img.startsWith('http') 
-              ? SmartImage(
-                  imageUrl: img,
-                  alignment: Alignment.topCenter,
-                )
-              : Image.asset(
-                  img,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image_outlined, size: 50, color: Colors.grey),
-                ),
+          : SmartImage(
+              imageUrl: img,
+              alignment: Alignment.topCenter,
+              errorWidget: const Icon(Icons.broken_image_outlined, size: 50, color: Colors.grey),
+            ),
     );
   }
 

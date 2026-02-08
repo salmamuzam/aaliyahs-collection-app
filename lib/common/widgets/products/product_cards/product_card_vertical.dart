@@ -298,36 +298,28 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
               color: Colors.grey.shade100,
               child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
             )
-          : widget.product.image.startsWith('http')
-              ? SmartImage(
-                  imageUrl: widget.product.image,
-                  alignment: Alignment.topCenter,
-                  cacheWidth: ImageCacheSizes.productThumbnail,
-                  cacheHeight: ImageCacheSizes.productThumbnail,
-                  placeholder: Shimmer.fromColors(
-                    baseColor: const Color(0xffe6e6e6),
-                    highlightColor: const Color(0xfff9f9f9),
-                    child: Container(
-                      height: 200,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium),
-                      ),
-                    ),
+          : SmartImage(
+              imageUrl: widget.product.image,
+              alignment: Alignment.topCenter,
+              cacheWidth: ImageCacheSizes.productThumbnail,
+              cacheHeight: ImageCacheSizes.productThumbnail,
+              placeholder: Shimmer.fromColors(
+                baseColor: const Color(0xffe6e6e6),
+                highlightColor: const Color(0xfff9f9f9),
+                child: Container(
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium),
                   ),
-                  errorWidget: Container(
-                    color: Colors.grey.shade100,
-                    child: const Icon(Icons.error_outline, color: Colors.red),
-                  ),
-                )
-              : Image.asset(
-                  widget.product.image,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                  cacheWidth: ImageCacheSizes.productThumbnail,
-                  cacheHeight: ImageCacheSizes.productThumbnail,
                 ),
+              ),
+              errorWidget: Container(
+                color: Colors.grey.shade100,
+                child: const Icon(Icons.error_outline, color: Colors.red),
+              ),
+            ),
     );
   }
 }

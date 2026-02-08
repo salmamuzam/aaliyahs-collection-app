@@ -63,15 +63,14 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   void _showConnectivityAlert(bool isOnline) async {
     final productProvider = Provider.of<ProductController>(context, listen: false);
-    final colorScheme = Theme.of(context).colorScheme;
 
     if (!isOnline) {
       // 1. Show OFFLINE LOADING automatically
       QuickAlert.show(
         context: context,
         type: QuickAlertType.loading,
-        title: 'OFFLINE',
-        text: 'You are offline! Fetching local data!',
+        title: 'You are Offline!',
+        text: 'Loading Local Data',
         disableBackBtn: true,
       );
       
@@ -79,48 +78,30 @@ class _NavigationMenuState extends State<NavigationMenu> {
       await productProvider.fetchHomeData();
       
       // Close the loading alert
-      if (mounted) Navigator.pop(context);
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
     } else {
-      // 2. Show ONLINE CONFIRMATION
+      // 2. Show ONLINE LOADING automatically
       QuickAlert.show(
         context: context,
-        type: QuickAlertType.confirm,
-        title: 'ONLINE',
-        text: 'You are online! Do you want to load live data?',
-        confirmBtnText: 'Yes',
-        cancelBtnText: 'No',
-        confirmBtnColor: colorScheme.primary,
-        onConfirmBtnTap: () async {
-          Navigator.pop(context); // Close confirm dialog
-          
-          // Show loading while syncing
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.loading,
-            title: 'SYNCING',
-            text: 'Loading live data...',
-            disableBackBtn: true,
-          );
-
-          await productProvider.fetchHomeData();
-
-          if (mounted) {
-            Navigator.pop(context); // Close loading dialog
-            
-            // Shows success briefly
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'BACK ONLINE',
-              text: 'Data updated successfully!',
-              autoCloseDuration: const Duration(seconds: 2),
-            );
-          }
-        },
-        onCancelBtnTap: () {
-          Navigator.pop(context); // Close and remain with local data
-        },
+        type: QuickAlertType.loading,
+        title: 'You are Online!',
+        text: 'Loading Live Data',
+        disableBackBtn: true,
       );
+      
+      // Fetch live data (internally handles error fallback)
+      await productProvider.fetchHomeData();
+      
+      // Force Shop refresh if specifically requested to ensure live results show immediately
+      await productProvider.fetchShopProducts(refresh: true);
+      
+      // Close the loading alert
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+        // Requirement: Removed 'Welcome Back' success popup per user request
+      }
     }
   }
 

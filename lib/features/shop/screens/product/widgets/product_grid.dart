@@ -9,6 +9,8 @@ import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart'
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_loader.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
+import 'package:flutter/services.dart';
 
 class ProductGrid extends StatelessWidget {
   final ScrollController scrollController;
@@ -103,7 +105,7 @@ class ProductGrid extends StatelessWidget {
         padding: EdgeInsets.all(DeviceUtils.m3Margin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: Responsive.getGridColumnCount(context),
-          childAspectRatio: 0.65,
+          childAspectRatio: Responsive.getGridAspectRatio(context),
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
@@ -125,19 +127,86 @@ class ProductGrid extends StatelessWidget {
 
   Widget _buildEmptyWidget(BuildContext context, String searchQuery) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            searchQuery.isNotEmpty 
-              ? 'No results for "$searchQuery"' 
-              : 'No products found',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon/Illustration Container with glassmorphism effect
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 64,
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    Image.asset(
+                      emptyProductsIllustration,
+                      height: 100,
+                    ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Text Content
+              Text(
+                searchQuery.isNotEmpty ? 'No Results for "$searchQuery"' : 'No Products Found',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                searchQuery.isNotEmpty 
+                  ? 'Try adjusting your filters or search terms.' 
+                  : 'No products available in this category.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Action Button - Reset Filters / Explore
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonal(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    final provider = Provider.of<ProductController>(context, listen: false);
+                    provider.clearAllFilters(); // Assuming this method exists or similar logic to reset
+                    provider.fetchShopProducts(); // Fetch all products
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                    foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                  ),
+                  child: const Text(
+                    'Explore All Products',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

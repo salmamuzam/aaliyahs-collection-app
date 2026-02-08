@@ -124,7 +124,11 @@ flutter:
     - assets/images/shop/products/accessories/
     - assets/images/shop/products/hijabs/
     - assets/images/shop/products/dresses/
-    - assets/images/shop/content/
+    - assets/images/shop/content/empty_cart_illustration.png
+    - assets/images/shop/content/empty_wishlist_illustration.png
+    - assets/images/shop/content/empty_notification_illustration.png
+    - assets/images/shop/content/empty_order_illustration.png
+    - assets/images/shop/content/empty_product_illustration.png
     - assets/images/personalization/profile/
     - assets/data/shop/
     - assets/data/personalization/

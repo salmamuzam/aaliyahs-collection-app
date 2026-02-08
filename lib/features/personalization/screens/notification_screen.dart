@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:toastification/toastification.dart';
+import 'package:flutter/services.dart';
+import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
 
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/models/notification_model.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
-import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/divider_theme.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 
 class NotificationScreen extends StatelessWidget {
@@ -68,29 +72,83 @@ class NotificationScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 120,
-            width: 120,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            padding: EdgeInsets.all(DeviceUtils.m3Padding(6)),
-            child: Icon(Icons.notifications_none_rounded, size: 60, color: colorScheme.primary),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon/Illustration Container with glassmorphism effect
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_outlined,
+                      size: 80,
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    Image.asset(
+                      emptyNotificationsIllustration,
+                      height: 140,
+                    ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Text Content
+              Text(
+                'No Notifications Yet',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'We\'ll let you know when there are updates on your orders.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonal(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    backgroundColor: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+                    foregroundColor: isDarkMode ? colorScheme.onPrimaryContainer : colorScheme.onPrimary,
+                  ),
+                  child: const Text(
+                    'Start Shopping',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: DeviceUtils.m3Padding(6)),
-          const Text('No Notifications!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: DeviceUtils.m3Padding(2)),
-          Text(
-            "You don't have any notifications yet.\nWe'll notify you when something arrives.",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -169,80 +227,117 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
             ),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Icon
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: iconConfig['color'] as Color,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(iconConfig['icon'] as IconData, color: Colors.white, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      
-                      // Content
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Icon Column
+                        Column(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _getDisplayTitle(widget.notification.title),
-                                    style: TextStyle(
-                                      fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
-                                      fontSize: 14,
-                                      color: colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ),
-                                if (!isRead)
-                                  Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: BoxDecoration(
-                                      color: colorScheme.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 12,
-                              children: [
-                                Text(
-                                  timeago.format(widget.notification.timestamp),
-                                  style: TextStyle(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                if (!_isExpanded && widget.notification.orderItems != null && widget.notification.orderItems!.isNotEmpty)
-                                  _buildCollapsedSummary(context),
-                              ],
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: iconConfig['color'] as Color,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(iconConfig['icon'] as IconData, color: Colors.white, size: 20),
                             ),
                           ],
                         ),
-                      ),
-                      
-                      // Expand icon
-                      AnimatedRotation(
-                        turns: _isExpanded ? 0.5 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: colorScheme.onSurfaceVariant,
+                        const SizedBox(width: 12),
+                        
+                        // Content Column
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _getDisplayTitle(widget.notification),
+                                      style: TextStyle(
+                                        fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                                        fontSize: 12,
+                                        color: colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  if (!isRead)
+                                    Container(
+                                      height: 7,
+                                      width: 7,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                timeago.format(widget.notification.timestamp),
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              if (!_isExpanded && widget.notification.orderItems != null && widget.notification.orderItems!.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                _buildCollapsedSummary(context),
+                              ],
+
+                              if (!_isExpanded) const SizedBox(height: 4),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        
+                        // Action Column (Arrow UP, Bin DOWN)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Arrow at the top
+                              AnimatedRotation(
+                                turns: _isExpanded ? 0.5 : 0,
+                                duration: const Duration(milliseconds: 300),
+                                child: Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: colorScheme.onSurfaceVariant,
+                                  size: 20,
+                                ),
+                              ),
+                              
+                              // Bin at the bottom (aligned with summary row)
+                              if (!_isExpanded)
+                                IconButton(
+                                  onPressed: () {
+                                    Provider.of<NotificationController>(context, listen: false)
+                                        .removeNotification(widget.notification);
+                                    
+                                    toastification.show(
+                                      context: context,
+                                      type: ToastificationType.success,
+                                      style: ToastificationStyle.fillColored,
+                                      title: const Text('Success!'),
+                                      description: const Text('Your notification has been cleared!'),
+                                      autoCloseDuration: const Duration(seconds: 3),
+                                    );
+                                  },
+                                  icon: Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red.withValues(alpha: 0.6)),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: 'Clear notification',
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 
@@ -265,7 +360,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
     final total = widget.notification.totalAmount ?? 0;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
@@ -274,13 +369,35 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
           width: 0.5,
         ),
       ),
-      child: Text(
-        '$itemCount ${itemCount == 1 ? 'item' : 'items'} • LKR ${total.toStringAsFixed(2)}',
-        style: TextStyle(
-          fontSize: 10,
-          color: colorScheme.primary,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$itemCount ${itemCount == 1 ? 'item' : 'items'}',
+            style: TextStyle(
+              fontSize: 10,
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '•',
+            style: TextStyle(
+              fontSize: 10,
+              color: colorScheme.primary.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'LKR ${total.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 10,
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -299,64 +416,20 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Message body
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.notification.body,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 12,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const SizedBox(height: 16),
           
           if (widget.notification.orderItems != null && widget.notification.orderItems!.isNotEmpty) ...[
             // Order Items Section
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
-                    size: 16,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Order Items',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurfaceVariant,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Order Items',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
             
@@ -370,7 +443,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
             
             // Payment Summary Section
             Padding(
@@ -400,29 +473,6 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
             const SizedBox(height: 16),
           ],
           
-          // Actions
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Provider.of<NotificationController>(context, listen: false)
-                      .removeNotification(widget.notification);
-                },
-                icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                label: const Text('Clear Notification'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -477,7 +527,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
               ),
             ),
           ),
-          SizedBox(width: DeviceUtils.m3Padding(3)),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,14 +536,14 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
                   item.categoryName,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(6),
@@ -520,41 +570,21 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
     return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.receipt_long_rounded,
-                size: 20,
-                color: colorScheme.primary,
+            Text(
+              'Payment',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Payment Method',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    payment ?? 'N/A',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            Text(
+              payment ?? 'N/A',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -576,7 +606,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
               Text(
                 'Total Amount',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
@@ -585,7 +615,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
                 "LKR ${total?.toStringAsFixed(2) ?? '0.00'}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 12,
                   color: colorScheme.primary,
                 ),
               ),
@@ -606,14 +636,22 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
     return {'icon': Icons.notifications_rounded, 'color': Colors.blue};
   }
 
-  String _getDisplayTitle(String title) {
-    // Extract order number from titles like "Aaliyah's Collection - Order #12345"
+  String _getDisplayTitle(NotificationModel notification) {
+    // 1. If we have a direct orderId field, use it
+    if (notification.orderId != null && notification.orderId!.isNotEmpty) {
+      return 'Order No. ${notification.orderId}';
+    }
+
+    // 2. Fallback to existing logic: Extract from title like "Aaliyah's Collection - Order #12345"
+    final title = notification.title;
     if (title.contains(' - Order')) {
       final parts = title.split(' - ');
       if (parts.length > 1) {
-        return parts[1]; // Returns "Order #12345"
+        return parts[1].replaceAll('#', 'No. '); // Returns "Order No. 12345"
       }
     }
+    
+    // 3. Last fallback
     return title;
   }
 }
