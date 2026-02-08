@@ -220,10 +220,10 @@ class _ProductScreenState extends State<ProductScreen> {
       children: [
         // M3 Official SearchBar
         // M3 Official SearchBar (Now in AppBar - adding subtle spacing instead)
-        SizedBox(height: DeviceUtils.m3Padding(2)),
+        SizedBox(height: DeviceUtils.m3Padding(5)),
         
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: SectionHeading(
             title: 'Browse By Category',
           ),
