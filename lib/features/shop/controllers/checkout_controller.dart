@@ -3,6 +3,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/cart_item.dart';
 import 'package:aaliyahs_collection_estore/data/repositories/order_repository.dart';
+import 'package:aaliyahs_collection_estore/data/services/notification_service.dart';
+import 'dart:async';
 
 // ============================================================================
 // CHECKOUT CONTROLLER - Manages the Multi-Step Checkout Process
@@ -186,12 +188,49 @@ class CheckoutController extends ChangeNotifier {
 
       // 2. Stripe Processing if selected
       if (_selectedPaymentIndex == 1) {
-         // This is a simplified call - in real app would use processStripePayment with callbacks
          debugPrint('CheckoutController: Processing Stripe Payment...');
+         bool paymentSuccess = false;
+         String? paymentError;
+         
+         final completer = Completer<void>();
+         
+         await OrderRepository().processStripePayment(
+           amount: totalAmount, 
+           currency: 'LKR', // Or dynamic currency
+           onSuccess: () {
+             paymentSuccess = true;
+             completer.complete();
+           },
+           onError: (error) {
+             paymentSuccess = false;
+             paymentError = error;
+             completer.complete();
+           },
+         );
+         
+         await completer.future;
+         
+         if (!paymentSuccess) {
+           showToast('Payment Failed', paymentError ?? 'Stripe payment was cancelled or failed.', true);
+           _isLoading = false;
+           notifyListeners();
+           return null;
+         }
+         
+         // Update status to Paid if Stripe was successful
+         orderData['status'] = 'Processing'; 
+         orderData['payment_id'] = 'STRIPE_${DateTime.now().millisecondsSinceEpoch}';
       }
 
-      // 3. Store in Firestore
+      // 3. Store in Firestore (Only reached if Cash on Delivery OR Stripe Success)
       final orderId = await OrderRepository().storeOrderInFirestore(orderData: orderData);
+      
+      if (orderId != null) {
+        NotificationService.showOrderNotification(
+          title: 'Order Placed Successfully!', 
+          body: 'Your order #${orderId.substring(0, 5).toUpperCase()} has been received.'
+        );
+      }
       
       _isLoading = false;
       notifyListeners();

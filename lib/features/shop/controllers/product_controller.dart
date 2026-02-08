@@ -137,7 +137,7 @@ class ProductController extends ChangeNotifier {
     } else {
       _selectedCategoryIds.add(categoryId);
     }
-    fetchShopProducts(categoryIds: _selectedCategoryIds.toList());
+    fetchShopProducts(categoryIds: _selectedCategoryIds.toList(), refresh: true);
   }
 
   void toggleAllCategories(bool? selected) {

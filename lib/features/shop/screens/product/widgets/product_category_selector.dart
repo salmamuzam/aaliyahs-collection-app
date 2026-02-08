@@ -11,7 +11,7 @@ class ProductCategorySelector extends StatelessWidget {
     return Selector<ProductController, _CategorySelectionState>(
       selector: (context, provider) => _CategorySelectionState(
         provider.categories,
-        provider.selectedCategoryIds,
+        Set<int>.from(provider.selectedCategoryIds), // Copy to ensure Selector detects changes
       ),
       builder: (context, state, child) {
         final categories = state.categories;
