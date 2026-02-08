@@ -4,9 +4,8 @@ import 'dart:io';
 
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 
-import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/images/user_profile_image.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
-import 'package:flutter_initicon/flutter_initicon.dart';
 
 
 class ProfileHeader extends StatelessWidget {
@@ -113,13 +112,14 @@ class ProfileHeader extends StatelessWidget {
               ),
               child: localImageFile != null
                   ? Image.file(localImageFile!, fit: BoxFit.cover)
-                  : (hasProfileImg
-                      ? SmartImage(imageUrl: profileUrl!)
-                      : Initicon(
-                          text: name,
-                          size: 120,
-                          backgroundColor: colorScheme.primaryContainer,
-                        )),
+                  : UserProfileImage(
+                      imageUrl: profileUrl,
+                      name: name,
+                      size: 120,
+                      backgroundColor: isDarkMode ? Colors.grey.shade800 : colorScheme.primaryContainer,
+                      textColor: isDarkMode ? Colors.white : colorScheme.onPrimaryContainer,
+                      fontSize: 48,
+                    ),
             ),
           ),
           

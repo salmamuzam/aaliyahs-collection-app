@@ -71,8 +71,19 @@ class OfflineDataService {
 
     try {
       final uri = Uri.parse(url);
-      final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
-      if (filename.isEmpty) return 'assets/images/shop/products/placeholder_product.png';
+      final filenameWithExtension = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+      
+      // AUTO-CORRECT: Force .webp extension for local lookup, regardless of URL extension
+      // This is crucial because all local assets were converted to .webp
+      final filename = filenameWithExtension.replaceAll(RegExp(r'\.(jpg|jpeg|png)$'), '.webp');
+
+      if (filename.isEmpty) return 'assets/images/shop/products/placeholder_product.webp';
+
+      // 0. SPECIAL CASE: If filename starts with a number (ID-based), it is in the products root
+      // We flattened these during optimization to avoid complex mapping
+      if (RegExp(r'^\d').hasMatch(filename)) {
+        return 'assets/images/shop/products/$filename';
+      }
 
       // 1. Check common categories in URL
       if (url.contains('/banners/')) return 'assets/images/shop/banners/$filename';
@@ -94,7 +105,7 @@ class OfflineDataService {
 
       return 'assets/images/shop/products/$filename';
     } catch (_) {
-      return 'assets/images/shop/products/placeholder_product.png';
+      return 'assets/images/shop/products/placeholder_product.webp';
     }
   }
 
@@ -103,18 +114,18 @@ class OfflineDataService {
     switch (category.toLowerCase()) {
       case 'abaya':
       case 'abayas':
-        return 'assets/images/shop/products/placeholder_abaya.png';
+        return 'assets/images/shop/products/placeholder_abaya.webp';
       case 'dress':
       case 'dresses':
-        return 'assets/images/shop/products/placeholder_dress.png';
+        return 'assets/images/shop/products/placeholder_dress.webp';
       case 'hijab':
       case 'hijabs':
-        return 'assets/images/shop/products/placeholder_hijab.png';
+        return 'assets/images/shop/products/placeholder_hijab.webp';
       case 'accessory':
       case 'accessories':
-        return 'assets/images/shop/products/placeholder_accessory.png';
+        return 'assets/images/shop/products/placeholder_accessory.webp';
       default:
-        return 'assets/images/shop/products/placeholder_product.png';
+        return 'assets/images/shop/products/placeholder_product.webp';
     }
   }
 }

@@ -8,9 +8,13 @@ class ProductCategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProductController>(
-      builder: (context, provider, child) {
-        final categories = provider.categories;
+    return Selector<ProductController, _CategorySelectionState>(
+      selector: (context, provider) => _CategorySelectionState(
+        provider.categories,
+        provider.selectedCategoryIds,
+      ),
+      builder: (context, state, child) {
+        final categories = state.categories;
         if (categories.isEmpty) return const SizedBox.shrink();
 
         return SingleChildScrollView(
@@ -23,15 +27,15 @@ class ProductCategorySelector extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 12.0),
                 child: Semantics(
                   button: true,
-                  selected: provider.selectedCategoryIds.isEmpty,
+                  selected: state.selectedIds.isEmpty,
                   label: 'Show all products',
                   hint: 'Double tap to clear filters and show all items',
                   child: FilterChip(
                     label: const Text('All Collections'),
-                    selected: provider.selectedCategoryIds.isEmpty,
+                    selected: state.selectedIds.isEmpty,
                     onSelected: (selected) {
                       if (selected) {
-                        provider.toggleAllCategories(false); // Passing false clears all specific filters
+                        context.read<ProductController>().toggleAllCategories(false); 
                       }
                     },
                   ),
@@ -39,7 +43,7 @@ class ProductCategorySelector extends StatelessWidget {
               ),
               // Individual Category Filter Chips
               ...categories.map((category) {
-                final isSelected = provider.selectedCategoryIds.contains(category.id);
+                final isSelected = state.selectedIds.contains(category.id);
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Semantics(
@@ -51,7 +55,7 @@ class ProductCategorySelector extends StatelessWidget {
                       selected: isSelected,
                       onSelected: (_) {
                         if (category.id != null) {
-                          provider.toggleCategorySelection(category.id!);
+                          context.read<ProductController>().toggleCategorySelection(category.id!);
                         }
                       },
                     ),
@@ -64,4 +68,26 @@ class ProductCategorySelector extends StatelessWidget {
       },
     );
   }
+}
+
+/// Private helper class to represent the state needed for the Category Selector.
+/// Using a separate class with an ']==' operator allows Selector to efficiently 
+/// check if the UI actually needs to rebuild.
+class _CategorySelectionState {
+  final List<dynamic> categories;
+  final Set<int> selectedIds;
+
+  _CategorySelectionState(this.categories, this.selectedIds);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is _CategorySelectionState &&
+        other.categories.length == categories.length &&
+        other.selectedIds.length == selectedIds.length &&
+        other.selectedIds.containsAll(selectedIds);
+  }
+
+  @override
+  int get hashCode => categories.hashCode ^ selectedIds.hashCode;
 }

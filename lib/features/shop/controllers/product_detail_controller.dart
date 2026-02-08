@@ -5,6 +5,8 @@ import 'package:aaliyahs_collection_estore/features/shop/models/review_model.dar
 import 'package:aaliyahs_collection_estore/utils/http/api_response.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
 
 class ProductDetailController extends ChangeNotifier {
   final ProductRepository _productRepository = ProductRepository();
@@ -23,29 +25,58 @@ class ProductDetailController extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   ColorScheme? get contentColorScheme => _contentColorScheme;
 
-  void initialize(ProductModel initialProduct) {
-    _product = null; // Clear existing to force fresh load from GitHub
+  void initialize(ProductModel initialProduct, {required Function(ProductModel) onAddToRecent}) {
+    _product = initialProduct; // Set immediately to show content before full fetch
     _reviews = [];
     _selectedImageIndex = 0;
     _isLoading = true;
     _errorMessage = '';
-    _contentColorScheme = null; // Reset for new product
+    _contentColorScheme = null; 
     
-    // Use initial ID to fetch fresh data
+    // Add to Recently Viewed immediately
+    onAddToRecent(initialProduct);
+
+    // Initial Theme Generation (Optimistic)
+    if (initialProduct.image.isNotEmpty) {
+       // We can't generate the scheme here easily without context/brightness 
+       // so we will let the view trigger it or use a default brightness.
+       // For now, let's leave theme generation trigger to the view but make it smarter.
+    }
+    
+    // Fetch fresh details
     _fetchFullDetails(initialProduct.id);
   }
 
   /// M3: Generates a ColorScheme based on the product image (Content-based Color)
-  Future<void> generateColorScheme(ImageProvider imageProvider, Brightness brightness) async {
+  Future<void> updateContentTheme(ProductModel product, Brightness brightness) async {
+    if (product.image.isEmpty) return;
+    
     try {
+      ImageProvider imageProvider;
+      if (product.image.startsWith('http')) {
+        imageProvider = CachedNetworkImageProvider(product.image);
+      } else {
+        imageProvider = AssetImage(product.image);
+      }
+
+      // Optimization: extract from tiny version
+      imageProvider = ResizeImage(imageProvider, width: 100);
+
       final scheme = await ColorScheme.fromImageProvider(
         provider: imageProvider,
         brightness: brightness,
-      );
+      ).timeout(const Duration(seconds: 3));
+
       _contentColorScheme = scheme;
       notifyListeners();
+    } on TimeoutException {
+      // debugPrint('Theme generation timed out for product');
     } catch (e) {
-      debugPrint('Error generating content color scheme: $e');
+      if (e.toString().contains('Stream has been disposed')) {
+         // Ignore framework Disposal quirks
+      } else {
+         debugPrint('Error generating content color scheme: $e');
+      }
     }
   }
 
@@ -98,7 +129,7 @@ class ProductDetailController extends ChangeNotifier {
   String get currentUserImage {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && !user.isAnonymous) return user.photoURL ?? '';
-    return 'assets/images/content/user/Lcv2PxH76j466mkS7YwOBbnBXqEkIuwjd7nrNS9z.png'; // Fallback
+    return 'assets/images/personalization/profile/user_profile.webp'; // Fallback
   }
 
   ReviewModel? get currentUserReview {

@@ -15,6 +15,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:async';
 
 // ============================================================================
 // PRODUCT CARD VERTICAL - Displays a Product in a Card Layout
@@ -91,32 +93,43 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
   }
 
   Future<void> _extractColor(Brightness brightness) async {
+    if (!mounted) return;
+    
     try {
       ImageProvider imageProvider;
       if (widget.product.image.startsWith('http')) {
-        imageProvider = NetworkImage(widget.product.image);
+        imageProvider = CachedNetworkImageProvider(widget.product.image);
       } else {
         imageProvider = AssetImage(widget.product.image);
       }
 
+      // Optimization: Extract from a tiny version to save memory/time
+      // and prevent 'Stream has been disposed' errors on large/slow images
+      imageProvider = ResizeImage(imageProvider, width: 100);
+
+      // Add a hard timeout to prevent hanging extractions
       final scheme = await ColorScheme.fromImageProvider(
         provider: imageProvider,
         brightness: brightness,
-      );
+      ).timeout(const Duration(seconds: 2));
       
       if (mounted) {
         setState(() => _contentScheme = scheme);
       }
+    } on TimeoutException {
+      // debugPrint('Color extraction timed out for ${widget.product.name}');
     } catch (e) {
-      debugPrint('Error extracting color for product card: $e');
+      // Catch all to prevent 'Bad state' crashes from unhandled image stream errors
+      if (e.toString().contains('Stream has been disposed')) {
+         // Silently ignore this specific framework quirk
+      } else {
+         debugPrint('Error extracting color for product card: $e');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get favorite controller to check if product is favorited
-    final provider = Provider.of<FavoriteController>(context);
-
     // Check if app is in dark mode
     final colorScheme = Theme.of(context).colorScheme;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -240,27 +253,32 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                   textDirection: Directionality.of(context),
                   top: 10,
                   end: 10,
-                  child: Tooltip(
-                    message: widget.isWishlist ? 'Remove' : (provider.isExists(widget.product) ? 'Remove favorite' : 'Add favorite'),
-                    child: IconButton.filledTonal(
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        provider.toggleFavorite(widget.product);
-                      },
-                      icon: Icon(
-                        widget.isWishlist 
-                          ? Icons.delete_outline_rounded 
-                          : (provider.isExists(widget.product) ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-                        size: 18,
-                        color: widget.isWishlist 
-                          ? colorScheme.error 
-                          : (provider.isExists(widget.product) ? effectiveScheme.primary : effectiveScheme.onSurfaceVariant),
-                      ),
-                      style: IconButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: (isDarkMode ? colorScheme.surface : effectiveScheme.surfaceContainerHighest).withValues(alpha: 0.9),
-                      ),
-                    ),
+                  child: Selector<FavoriteController, bool>(
+                    selector: (context, favController) => favController.isExists(widget.product),
+                    builder: (context, isFavorited, child) {
+                      return Tooltip(
+                        message: widget.isWishlist ? 'Remove' : (isFavorited ? 'Remove favorite' : 'Add favorite'),
+                        child: IconButton.filledTonal(
+                          onPressed: () {
+                            HapticFeedback.mediumImpact();
+                            context.read<FavoriteController>().toggleFavorite(widget.product);
+                          },
+                          icon: Icon(
+                            widget.isWishlist 
+                              ? Icons.delete_outline_rounded 
+                              : (isFavorited ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                            size: 18,
+                            color: widget.isWishlist 
+                              ? colorScheme.error 
+                              : (isFavorited ? effectiveScheme.primary : effectiveScheme.onSurfaceVariant),
+                          ),
+                          style: IconButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            backgroundColor: (isDarkMode ? colorScheme.surface : effectiveScheme.surfaceContainerHighest).withValues(alpha: 0.9),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
 

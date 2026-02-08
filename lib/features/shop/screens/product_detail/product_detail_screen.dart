@@ -32,8 +32,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize controller and handle side effects (Recently Viewed)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductDetailController>().initialize(widget.product);
+      final productController = context.read<ProductController>();
+      context.read<ProductDetailController>().initialize(
+        widget.product,
+        onAddToRecent: (product) => productController.addToRecentlyViewed(product),
+      );
     });
   }
 
@@ -41,23 +46,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProductDetailController>(
       builder: (context, controller, child) {
-        if (controller.isLoading || controller.product == null) {
+        // Show Shimmer only if we have NO product data at all (rare, as we pass it in)
+        if (controller.product == null) {
           return const ProductDetailShimmer();
         }
 
         final productToDisplay = controller.product!;
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-           context.read<ProductController>().addToRecentlyViewed(productToDisplay);
-        });
-
         final isCompact = DeviceUtils.isCompact;
-        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        final brightness = Theme.of(context).brightness;
 
-        // M3 Content-based Dynamic Color: Trigger generation when product is loaded
+        // M3 Content-based Dynamic Color: Trigger generation ONCE when product loads
         if (controller.contentColorScheme == null && !controller.isLoading) {
+          // Defer to next frame to avoid build-phase updates
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _updateContentTheme(controller, productToDisplay, isDarkMode ? Brightness.dark : Brightness.light);
+            controller.updateContentTheme(productToDisplay, brightness);
           });
         }
 
@@ -144,7 +146,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           return Theme(
             data: AaliyahAppTheme.createTheme(
               controller.contentColorScheme!, 
-              isDarkMode ? Brightness.dark : Brightness.light
+              brightness
             ),
             child: scaffold,
           );
@@ -153,19 +155,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         return scaffold;
       },
     );
-  }
-
-  void _updateContentTheme(ProductDetailController controller, ProductModel product, Brightness brightness) {
-    if (product.image.isEmpty) return;
-    
-    ImageProvider imageProvider;
-    if (product.image.startsWith('http')) {
-      imageProvider = NetworkImage(product.image);
-    } else {
-      imageProvider = AssetImage(product.image);
-    }
-    
-    controller.generateColorScheme(imageProvider, brightness);
   }
 
   Widget _buildTabletHeader(BuildContext context, ProductModel product) {
@@ -183,10 +172,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             Semantics(
               label: 'Back',
               button: true,
-              child: _buildFloatingBtn(
-                context: context,
-                icon: Icons.arrow_back_rounded, 
-                onTap: () => Navigator.pop(context),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_rounded),
+                tooltip: 'Back',
               ),
             ),
             const Spacer(),
@@ -196,39 +185,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 return Semantics(
                   label: isFav ? 'Remove from favorites' : 'Add to favorites',
                   button: true,
-                  child: _buildFloatingBtn(
-                    context: context,
-                    icon: isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    onTap: () {
+                  child: IconButton(
+                    onPressed: () {
                       HapticFeedback.mediumImpact();
                       favProvider.toggleFavorite(product);
                     },
-                    iconColor: isFav ? colorScheme.primary : null,
+                    icon: Icon(isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                    color: isFav ? colorScheme.primary : null,
+                    tooltip: isFav ? 'Remove from favorites' : 'Add to favorites',
                   ),
                 );
               },
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Consumer<CartController>(
               builder: (context, cartProvider, _) {
                 final count = cartProvider.cart.length;
                 return Semantics(
-                  label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
+                  label: count > 0 ? 'Shopping cart, $count items' : 'Shopping cart, empty',
                   button: true,
                   child: AddToCartIcon(
                     key: _cartKey,
                     badgeOptions: const BadgeOptions(active: false),
-                    icon: _buildFloatingBtn(
-                      context: context,
-                      icon: Icons.shopping_bag_outlined,
-                      onTap: () => Navigator.push(
+                    icon: IconButton.filledTonal(
+                      onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const CartScreen()),
                       ),
-                      badge: count > 0 ? Badge(
+                      icon: Badge(
+                        isLabelVisible: count > 0,
                         label: Text(count > 999 ? '999+' : count.toString()),
-                        alignment: AlignmentDirectional.topEnd,
-                      ) : null,
+                        child: const Icon(Icons.shopping_bag_outlined),
+                      ),
+                      tooltip: 'Shopping cart',
                     ),
                   ),
                 );
@@ -252,59 +241,71 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       backgroundColor: colorScheme.surface,
       leadingWidth: 70,
       leading: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 20),
+        padding: const EdgeInsetsDirectional.only(start: 16, top: 8, bottom: 8),
         child: Semantics(
           label: 'Back',
           button: true,
-          child: _buildFloatingBtn(
-            context: context,
-            icon: backIcon, 
-            onTap: () => Navigator.pop(context),
+          child: IconButton.filledTonal( // M3 Standard: Filled Tonal for overlay actions
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(backIcon),
+            style: IconButton.styleFrom(
+               backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.9), // Glass-like effect
+            ),
+            tooltip: 'Back',
           ),
         ),
       ),
       actions: [
-        Consumer<FavoriteController>(
-          builder: (context, favProvider, _) {
-            final bool isFav = favProvider.isExists(product);
-            return Semantics(
-              label: isFav ? 'Remove from wishlist' : 'Add to wishlist',
-              button: true,
-              child: _buildFloatingBtn(
-                context: context,
-                icon: isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  favProvider.toggleFavorite(product);
-                },
-                iconColor: isFav ? colorScheme.primary : null,
-              ),
-            );
-          },
-        ),
-        const SizedBox(width: 10),
         Padding(
-          padding: const EdgeInsetsDirectional.only(end: 20),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Consumer<FavoriteController>(
+            builder: (context, favProvider, _) {
+              final bool isFav = favProvider.isExists(product);
+              return Semantics(
+                label: isFav ? 'Remove from wishlist' : 'Add to wishlist',
+                button: true,
+                child: IconButton.filledTonal(
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    favProvider.toggleFavorite(product);
+                  },
+                  icon: Icon(isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                  color: isFav ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                  style: IconButton.styleFrom(
+                    backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
+                  ),
+                  tooltip: isFav ? 'Remove from wishlist' : 'Add to wishlist',
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(end: 16, top: 8, bottom: 8),
           child: Consumer<CartController>(
             builder: (context, cartProvider, _) {
               final count = cartProvider.cart.length;
               return Semantics(
-                label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
+                label: count > 0 ? 'Shopping cart, $count items' : 'Shopping cart, empty',
                 button: true,
                 child: AddToCartIcon(
                   key: _cartKey,
                   badgeOptions: const BadgeOptions(active: false),
-                  icon: _buildFloatingBtn(
-                    context: context,
-                    icon: Icons.shopping_bag_outlined,
-                    onTap: () => Navigator.push(
+                  icon: IconButton.filledTonal(
+                    onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const CartScreen()),
                     ),
-                    badge: count > 0 ? Badge(
+                    icon: Badge(
+                      isLabelVisible: count > 0,
                       label: Text(count > 999 ? '999+' : count.toString()),
-                      alignment: AlignmentDirectional.topEnd,
-                    ) : null,
+                      child: const Icon(Icons.shopping_bag_outlined),
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
+                    ),
+                    tooltip: 'Shopping cart',
                   ),
                 ),
               );
@@ -330,41 +331,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           _runAddToCartAnimation!(_cartKey);
         }
       },
-    );
-  }
-
-  Widget _buildFloatingBtn({
-    required BuildContext context, 
-    required IconData icon, 
-    required VoidCallback onTap, 
-    Color? iconColor,
-    Badge? badge,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final iconWidget = Icon(icon, color: iconColor ?? colorScheme.onSurface, size: 20);
-    
-    return SizedBox(
-      width: 48,
-      height: 48,
-      child: Material(
-        // M3 Elevation: Level 1 for secondary floating elements
-        elevation: 1,
-        color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.9),
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
-          child: Center(
-            child: badge != null 
-              ? Badge(
-                  label: badge.label,
-                  alignment: badge.alignment ?? AlignmentDirectional.topEnd,
-                  child: iconWidget,
-                )
-              : iconWidget,
-          ),
-        ),
-      ),
     );
   }
 }

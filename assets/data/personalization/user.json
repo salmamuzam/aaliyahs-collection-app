@@ -5,7 +5,7 @@
     "last_name": "Muzammil",
     "username": "its.salma",
     "email": "salma@gmail.com",
-    "profile_picture": "assets/images/profile/salma.jpg"
+    "profile_picture": "assets/images/personalization/profile/salma.webp"
   },
   {
     "id": 2,
@@ -13,7 +13,7 @@
     "last_name": "Shiam",
     "username": "its.aaliyah",
     "email": "aaliyah@gmail.com",
-    "profile_picture": "assets/images/profile/fathima.jpg"
+    "profile_picture": "assets/images/personalization/profile/fathima.webp"
   },
   {
     "id": 3,
@@ -37,7 +37,7 @@
     "last_name": "Muzammil",
     "username": "its.raasim",
     "email": "raasim@gmail.com",
-    "profile_picture": "assets/images/profile/raasim.jpg"
+    "profile_picture": "assets/images/personalization/profile/raasim.webp"
   },
   {
     "id": 6,
@@ -45,7 +45,7 @@
     "last_name": "Hisham",
     "username": "hisham12",
     "email": "hisham@gmail.com",
-    "profile_picture": "assets/images/profile/mohammed.jpg"
+    "profile_picture": "assets/images/personalization/profile/mohammed.webp"
   },
   {
     "id": 7,
@@ -53,7 +53,7 @@
     "last_name": "Sarah",
     "username": "sarah",
     "email": "sarah@gmail.com",
-    "profile_picture": "assets/images/profile/fathima.jpg"
+    "profile_picture": "assets/images/personalization/profile/fathima.webp"
   },
   {
     "id": 8,
@@ -61,7 +61,7 @@
     "last_name": "Muzam",
     "username": "sahira",
     "email": "sahira@gmail.com",
-    "profile_picture": "assets/images/profile/sahira.jpg"
+    "profile_picture": "assets/images/personalization/profile/sahira.webp"
   },
   {
     "id": 9,
@@ -69,7 +69,7 @@
     "last_name": "Muzammil",
     "username": "muzam",
     "email": "muzam@gmail.com",
-    "profile_picture": "assets/images/profile/mohammed.jpg"
+    "profile_picture": "assets/images/personalization/profile/mohammed.webp"
   },
   {
     "id": 10,
@@ -77,7 +77,7 @@
     "last_name": "Akram",
     "username": "its.jasmine",
     "email": "jasmine@gmail.com",
-    "profile_picture": "assets/images/profile/jasmine.jpg"
+    "profile_picture": "assets/images/personalization/profile/jasmine.webp"
   },
   {
     "id": 12,
@@ -85,7 +85,7 @@
     "last_name": "Sabeer",
     "username": "its.sarah",
     "email": "sabeer@gmail.com",
-    "profile_picture": "assets/images/profile/sarah.jpg"
+    "profile_picture": "assets/images/personalization/profile/sarah.webp"
   },
   {
     "id": 13,
@@ -93,7 +93,7 @@
     "last_name": "m",
     "username": "meow",
     "email": "meow@gmail.com",
-    "profile_picture": "assets/images/profile/meow.jpg"
+    "profile_picture": "assets/images/personalization/profile/meow.webp"
   },
   {
     "id": 14,
@@ -101,7 +101,7 @@
     "last_name": "abc",
     "username": "its.abc",
     "email": "abc@gmail.com",
-    "profile_picture": "assets/images/profile/abc.jpg"
+    "profile_picture": "assets/images/personalization/profile/abc.webp"
   },
   {
     "id": 15,
@@ -109,7 +109,7 @@
     "last_name": "aaa",
     "username": "its.aaa",
     "email": "aac@gmail.com",
-    "profile_picture": "assets/images/profile/aa.jpg"
+    "profile_picture": "assets/images/personalization/profile/aa.webp"
   },
   {
     "id": 18,
@@ -117,7 +117,7 @@
     "last_name": "Perera",
     "username": "its.paloma",
     "email": "paloma@gmail.com",
-    "profile_picture": "assets/images/profile/paloma.jpg"
+    "profile_picture": "assets/images/personalization/profile/paloma.webp"
   },
   {
     "id": 19,
@@ -125,6 +125,6 @@
     "last_name": "Rizvi",
     "username": "its.maryam",
     "email": "maryam@gmail.com",
-    "profile_picture": "assets/images/profile/maryam.jpg"
+    "profile_picture": "assets/images/personalization/profile/maryam.webp"
   }
 ]

@@ -11,11 +11,11 @@ import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_layout.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/texts/section_heading.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_category_selector.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_grid.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_vertical_category_list.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/widgets/product_sort_dropdown_wrapper.dart';
-import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 import 'package:quickalert/quickalert.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -218,61 +218,37 @@ class _ProductScreenState extends State<ProductScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        // Full Width Search Bar Row
+        // M3 Official SearchBar
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: AnimatedContainer(
-            duration: AMotion.durationStationaryEmphasized,
-            curve: AMotion.easingEmphasized,
-            height: 50,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainer,
-              borderRadius: _isListening 
-                  ? const BorderRadius.only(
-                      topLeft: Radius.circular(TUIConstants.shapeRadiusXL),
-                      topRight: Radius.circular(TUIConstants.shapeRadiusSmall),
-                      bottomLeft: Radius.circular(TUIConstants.shapeRadiusSmall),
-                      bottomRight: Radius.circular(TUIConstants.shapeRadiusXL),
-                    )
-                  : BorderRadius.circular(25),
-              border: Border.all(
-                color: _isListening ? colorScheme.primary : colorScheme.outlineVariant,
-                width: _isListening ? 2.0 : 1.5,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: SearchBar(
+            controller: _searchController,
+            onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
+            hintText: _isListening ? 'Listening...' : 'Search modest fashion...',
+            leading: Icon(Icons.search_rounded, color: colorScheme.onSurfaceVariant),
+            trailing: [
+              IconButton(
+                onPressed: _listen,
+                icon: Icon(
+                  _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                  color: _isListening ? colorScheme.error : colorScheme.onSurfaceVariant,
+                ),
+                tooltip: 'Voice Search',
               ),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                Icon(Icons.search_rounded, size: 20, color: colorScheme.onSurfaceVariant),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
-                    decoration: InputDecoration(
-                      hintText: _isListening ? 'Listening...' : 'Search products...',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.only(top: 1),
-                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16),
-                    ),
-                    style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
-                  ),
-                ),
-                IconButton(
-                  onPressed: _listen,
-                  icon: Icon(
-                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: _isListening ? colorScheme.error : colorScheme.onSurfaceVariant,
-                    size: 22,
-                  ),
-                ),
-              ],
-            ),
+            ],
+            elevation: WidgetStateProperty.all(0),
+            side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant, width: 1.5)),
+            backgroundColor: WidgetStateProperty.all(colorScheme.surfaceContainer),
+            padding: const WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 16.0)),
+         ),
+        ),
+        
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SectionHeading(
+            title: 'Browse By Category',
           ),
         ),
-        _buildSectionHeader('Browse By Category'),
         const ProductCategorySelector(),
         const SortDropdownWrapper(),
         Expanded(
@@ -367,30 +343,6 @@ class _ProductScreenState extends State<ProductScreen> {
             _runAddToCartAnimation!(key);
           }
         },
-      ),
-    );
-  }
-
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Semantics(
-          header: true,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

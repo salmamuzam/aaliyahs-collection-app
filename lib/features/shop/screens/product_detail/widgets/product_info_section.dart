@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_detail_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/images/user_profile_image.dart';
 
 class ProductInfoSection extends StatefulWidget {
   final ProductModel product;
@@ -107,7 +108,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
               tabs: [
                 const Tab(text: 'Description'),
                 Tab(text: 'Reviews ($reviewCount)'),
-                const Tab(text: 'Write Review'),
+                Tab(text: controller.currentUserReview != null ? 'My Review' : 'Write Review'),
               ],
             ),
           ),
@@ -212,18 +213,13 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(
+                          UserProfileImage(
+                            imageUrl: review.userImage,
+                            name: review.userName,
+                            size: 36, // Radius 18 * 2
+                            fontSize: 14,
                             backgroundColor: colorScheme.secondaryContainer,
-                            radius: 18,
-                            backgroundImage: (review.userImage != null && review.userImage!.startsWith('assets/'))
-                                ? AssetImage(review.userImage!) as ImageProvider 
-                                : (review.userImage != null ? NetworkImage(review.userImage!) : null),
-                            onBackgroundImageError: (exception, stackTrace) {
-                              debugPrint('Profile Image Load Error: $exception');
-                            },
-                            child: (review.userImage == null) 
-                                ? Icon(Icons.person, size: 20, color: colorScheme.onSecondaryContainer)
-                                : null,
+                            textColor: colorScheme.onSecondaryContainer,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -339,9 +335,20 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(existingReview == null ? 'Share Your Experience' : 'Edit Your Review', 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface),
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(existingReview == null ? 'Write a Review' : 'Update Your Review', 
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface),
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  if (existingReview != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text('You have already reviewed this product.', 
+                          style: TextStyle(fontSize: 12, color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
             ),
             if (existingReview != null)
               IconButton(

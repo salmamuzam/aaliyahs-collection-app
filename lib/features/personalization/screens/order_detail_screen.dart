@@ -256,16 +256,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
-        child: imageUrl.startsWith('http')
-            ? SmartImage(
-                imageUrl: imageUrl, 
-                alignment: Alignment.topCenter,
-              )
-            : Image.asset(
-                imageUrl, 
-                fit: BoxFit.cover, 
-                alignment: Alignment.topCenter,
-              ),
+        child: SmartImage(
+          imageUrl: imageUrl, 
+          width: 90,
+          height: 90,
+          alignment: Alignment.topCenter,
+        ),
       ),
     );
   }

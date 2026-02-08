@@ -5,12 +5,14 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_
 class CheckoutBottomButton extends StatelessWidget {
   final int currentStep;
   final int selectedPaymentIndex;
+  final bool isLoading;
   final VoidCallback onPressed;
 
   const CheckoutBottomButton({
     super.key,
     required this.currentStep,
     required this.selectedPaymentIndex,
+    required this.isLoading,
     required this.onPressed,
   });
 
@@ -34,11 +36,17 @@ class CheckoutBottomButton extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: onPressed,
-                child: Text(
-                  label,
-                  style: const TextStyle(fontSize: 16),
-                ),
+                onPressed: isLoading ? null : onPressed,
+                child: isLoading 
+                  ? const SizedBox(
+                      height: 20, 
+                      width: 20, 
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                    )
+                  : Text(
+                      label,
+                      style: const TextStyle(fontSize: 16),
+                    ),
               ),
             ),
             const SizedBox(height: 12),

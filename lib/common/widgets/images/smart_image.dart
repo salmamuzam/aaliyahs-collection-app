@@ -85,14 +85,13 @@ class _SmartImageState extends State<SmartImage> {
       }
 
       // 2. Specialized Product Folder Check
-      // We try to determine the subfolder. If the URL doesn't specify, we'll try to guess
-      // or just return a default products/ path.
-      final String? folder = _determineProductFolder(url);
+      // Convert to lowercase for reliable matching
+      final String? folder = _determineProductFolder(url) ?? _determineProductFolder(filename);
       if (folder != null) {
         return 'assets/images/shop/products/$folder/$filename';
       }
-
-      // 3. Last Resort: Check if it's a category image (common in the log)
+      
+      // 3. Fallback to generic markers
       if (filename.startsWith('1766') || filename.contains('category')) {
           return 'assets/images/shop/categories/$filename';
       }
@@ -105,10 +104,12 @@ class _SmartImageState extends State<SmartImage> {
   }
 
   String? _determineProductFolder(String url) {
-    if (url.contains('abaya')) return 'abayas';
-    if (url.contains('dress')) return 'dresses';
-    if (url.contains('hijab')) return 'hijabs';
-    if (url.contains('access')) return 'accessories';
+    // Check keywords in the URL or filename
+    final lowerUrl = url.toLowerCase();
+    if (lowerUrl.contains('abaya')) return 'abayas';
+    if (lowerUrl.contains('dress')) return 'dresses';
+    if (lowerUrl.contains('hijab')) return 'hijabs';
+    if (lowerUrl.contains('access')) return 'accessories';
     return null;
   }
 
@@ -131,7 +132,17 @@ class _SmartImageState extends State<SmartImage> {
           ? _getAssetPathFromUrl(trimmedUrl)
           : trimmedUrl;
 
-      // debugPrint('📦 SmartImage: Loading as Asset: $assetPath');
+      // 🕵️‍♀️ TRACE CALLER for User Debugging
+      final trace = StackTrace.current.toString().split('\n');
+      String caller = 'Unknown';
+      for (var line in trace) {
+        if (!line.contains('SmartImage') && !line.contains('package:flutter')) {
+          caller = line.trim();
+          break; // Found the first non-SmartImage, non-Flutter call
+        }
+      }
+
+      debugPrint('📦 SmartImage [OFFLINE] | Path: $assetPath | Caller: $caller');
 
       return Image.asset(
         assetPath,
@@ -139,8 +150,11 @@ class _SmartImageState extends State<SmartImage> {
         height: widget.height,
         fit: widget.fit,
         alignment: widget.alignment,
-        cacheWidth: optimalCacheWidth,
-        cacheHeight: optimalCacheHeight,
+        // CRITICAL FIX: Don't constrain cache size for local assets to prevent "smudging"
+        // Let Flutter decode at natural resolution or widget size
+        // cacheWidth: optimalCacheWidth, 
+        // cacheHeight: optimalCacheHeight,
+        filterQuality: FilterQuality.high, // Ensure high quality scaling
         errorBuilder: (context, error, stackTrace) {
           // debugPrint('❌ SmartImage: Asset Load Failure: $assetPath - $error');
           // FINAL FALLBACK: Use a generic placeholder or the provided errorWidget

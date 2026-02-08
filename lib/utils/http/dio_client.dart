@@ -29,11 +29,35 @@ class DioClient implements ApiClient {
     );
 
     if (kDebugMode) {
-      _client.interceptors.add(LogInterceptor(
-        request: false,
-        requestHeader: false,
-        responseHeader: false,
-        logPrint: (obj) => debugPrint('🌐 DIO: $obj'),
+      _client.interceptors.add(InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final uri = options.uri.toString();
+          String prefix = '🌐';
+          if (uri.contains('github')) {
+            prefix = '🟣 GITHUB';
+          } else if (uri.contains('api')) {
+            prefix = '🔵 LARAVEL';
+          }
+          
+          debugPrint('$prefix REQUEST: $uri');
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+           final uri = response.requestOptions.uri.toString();
+           String prefix = '✅';
+           if (uri.contains('github')) {
+             prefix = '🟣 GITHUB';
+           } else {
+             prefix = '🔵 LARAVEL';
+           }
+           
+           debugPrint('$prefix SUCCESS: $uri');
+           return handler.next(response); // continue
+        },
+        onError: (DioException e, handler) {
+           debugPrint('🔴 API ERROR: ${e.response?.statusCode} | ${e.requestOptions.uri}');
+           return handler.next(e); // continue
+        }
       ));
     }
   }

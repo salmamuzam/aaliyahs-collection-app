@@ -38,7 +38,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _handleNavSelection() {
-    if (_navigationController.reselectedIndex == 3 && _scrollController.hasClients) {
+    if (_navigationController.reselectedIndex == 2 && _scrollController.hasClients) {
       _scrollController.animateTo(
         0, 
         duration: const Duration(milliseconds: 500), 

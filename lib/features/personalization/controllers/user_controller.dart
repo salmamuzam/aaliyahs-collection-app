@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Manages user profile data, session tokens, and account-related operations.
 class UserController extends ChangeNotifier {
@@ -33,14 +34,22 @@ class UserController extends ChangeNotifier {
   Future<void> fetchUserProfile() async {
     _setLoading(true);
     try {
-      // 🚀 NEW: Check Firebase first (Google Sign-In)
+      // 🚀 Proactive offline check
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult.contains(ConnectivityResult.none)) {
+        debugPrint('🔌 [OFFLINE] No internet. Loading from local user.json fallback...');
+        await _loadUserFromLocalJSON();
+        _setLoading(false);
+        return;
+      }
+
+      // 🚀 Check Firebase first (Google Sign-In)
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null && !firebaseUser.isAnonymous) {
         debugPrint('🔥 Found Firebase User: ${firebaseUser.email}');
         _user = UserModel.fromFirebaseUser(firebaseUser);
         notifyListeners();
-        // We still continue to try fetching from Laravel if there's a token, 
-        // to get specific app-level settings, but we show Firebase info as a baseline.
+        // We still continue to try fetching from Laravel if there's a token
       } else {
         // Try to load from Cache first (Offline Support)
         await _loadUserFromCache();

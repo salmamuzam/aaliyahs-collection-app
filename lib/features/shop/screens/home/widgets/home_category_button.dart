@@ -96,32 +96,26 @@ class CategoryButton extends StatelessWidget {
                                       color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                                     ),
                                   )
-                                : category.iconURL.startsWith('http')
-                                    ? SmartImage(
-                                        imageUrl: category.iconURL,
-                                        placeholder: Shimmer.fromColors(
-                                          baseColor: colorScheme.surfaceContainerHighest,
-                                          highlightColor: colorScheme.surfaceContainer,
-                                          child: Container(
-                                            height: 68,
-                                            width: 68,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: adaptiveRadius,
-                                            ),
-                                          ),
+                                : SmartImage(
+                                    imageUrl: category.iconURL,
+                                    placeholder: Shimmer.fromColors(
+                                      baseColor: colorScheme.surfaceContainerHighest,
+                                      highlightColor: colorScheme.surfaceContainer,
+                                      child: Container(
+                                        height: 68,
+                                        width: 68,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: adaptiveRadius,
                                         ),
-                                        errorWidget: Icon(
-                                          Icons.category_rounded, 
-                                          size: 24,
-                                          color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-                                        ),
-                                      )
-                                    : Image.asset(
-                                        category.iconURL,
-                                        fit: BoxFit.cover,
-                                        cacheWidth: 200,
                                       ),
+                                    ),
+                                    errorWidget: Icon(
+                                      Icons.category_rounded, 
+                                      size: 24,
+                                      color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

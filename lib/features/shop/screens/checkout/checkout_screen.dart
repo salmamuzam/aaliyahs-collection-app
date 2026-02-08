@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:toastification/toastification.dart';
 
 import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/models/notification_item_model.dart';
 
-import 'package:aaliyahs_collection_estore/data/repositories/order_repository.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/checkout_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/order_success_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
@@ -31,59 +29,41 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final TextEditingController _streetController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _provinceController = TextEditingController();
-  final TextEditingController _postalCodeController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController(text: 'Sri Lanka');
   final _formKey = GlobalKey<FormState>();
 
-  int _currentStep = 0;
-  int _selectedPaymentIndex = 0;
-  bool _isLocating = false;
-  DateTime? _selectedDeliveryDate;
-  TimeOfDay? _selectedDeliveryTime;
-
-  // Address Step Error Tracking
-  bool _streetHasError = false;
-  bool _cityHasError = false;
-  bool _postalHasError = false;
-  bool _provinceHasError = false;
-  bool _dateHasError = false;
-  bool _timeHasError = false;
-
   @override
-  void dispose() {
-    _streetController.dispose();
-    _cityController.dispose();
-    _provinceController.dispose();
-    _postalCodeController.dispose();
-    _countryController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    // Ensure controller is reset when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CheckoutController>().reset();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final cartController = Provider.of<CartController>(context);
+    final checkoutController = context.watch<CheckoutController>();
     final isCompact = DeviceUtils.isCompact;
     final isMedium = DeviceUtils.isMedium;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, checkoutController),
       body: Form(
         key: _formKey,
         child: (isCompact || isMedium)
             ? Column(
                 children: [
-                   CheckoutProgressBar(currentStep: _currentStep),
+                   CheckoutProgressBar(currentStep: checkoutController.currentStep),
                   Expanded(
-                    child: _buildStepContent(cartController),
+                    child: _buildStepContent(cartController, checkoutController),
                   ),
                   CheckoutBottomButton(
-                    currentStep: _currentStep,
-                    selectedPaymentIndex: _selectedPaymentIndex,
-                    onPressed: () => _handleNextAction(cartController),
+                    currentStep: checkoutController.currentStep,
+                    selectedPaymentIndex: checkoutController.selectedPaymentIndex,
+                    isLoading: checkoutController.isLoading,
+                    onPressed: () => _handleNextAction(cartController, checkoutController),
                   ),
                 ],
               )
@@ -94,14 +74,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Expanded(
                     child: Column(
                       children: [
-                        CheckoutProgressBar(currentStep: _currentStep),
+                        CheckoutProgressBar(currentStep: checkoutController.currentStep),
                         Expanded(
-                          child: _buildStepContent(cartController),
+                          child: _buildStepContent(cartController, checkoutController),
                         ),
                         CheckoutBottomButton(
-                          currentStep: _currentStep,
-                          selectedPaymentIndex: _selectedPaymentIndex,
-                          onPressed: () => _handleNextAction(cartController),
+                          currentStep: checkoutController.currentStep,
+                          selectedPaymentIndex: checkoutController.selectedPaymentIndex,
+                          isLoading: checkoutController.isLoading,
+                          onPressed: () => _handleNextAction(cartController, checkoutController),
                         ),
                       ],
                     ),
@@ -116,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   
                   // Supporting Pane: Order Summary (Fixed 360dp for expanded)
                   Container(
-                    width: DeviceUtils.paneStandardWidth, // 360dp for expanded
+                    width: DeviceUtils.paneStandardWidth, 
                     padding: EdgeInsets.all(DeviceUtils.m3Margin),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,11 +112,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         Expanded(
                           child: CheckoutSummaryStep(
                             cartController: cartController,
-                            street: _streetController.text,
-                            city: _cityController.text,
-                            postalCode: _postalCodeController.text,
-                            province: _provinceController.text,
-                            country: _countryController.text,
+                            street: checkoutController.streetController.text,
+                            city: checkoutController.cityController.text,
+                            postalCode: checkoutController.postalCodeController.text,
+                            province: checkoutController.provinceController.text,
+                            country: checkoutController.countryController.text,
                             isInPane: true,
                           ),
                         ),
@@ -148,13 +129,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, CheckoutController controller) {
     return AaliyahSmallAppBar(
       title: 'Checkout',
       leading: IconButton(
         onPressed: () {
-          if (_currentStep > 0) {
-            setState(() => _currentStep--);
+          if (controller.currentStep > 0) {
+            controller.previousStep();
           } else {
             Navigator.pop(context);
           }
@@ -164,298 +145,194 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildStepContent(CartController cartController) {
-    switch (_currentStep) {
+  Widget _buildStepContent(CartController cart, CheckoutController checkout) {
+    switch (checkout.currentStep) {
       case 0:
         return CheckoutAddressStep(
-          streetController: _streetController,
-          cityController: _cityController,
-          provinceController: _provinceController,
-          postalCodeController: _postalCodeController,
-          countryController: _countryController,
-          isLocating: _isLocating,
-          onLocateMe: _getCurrentLocation,
-          selectedDate: _selectedDeliveryDate,
-          onDateSelected: (date) => setState(() => _selectedDeliveryDate = date),
-          selectedTime: _selectedDeliveryTime,
-          onTimeSelected: (time) => setState(() => _selectedDeliveryTime = time),
-          streetHasError: _streetHasError,
-          cityHasError: _cityHasError,
-          postalHasError: _postalHasError,
-          provinceHasError: _provinceHasError,
-          dateHasError: _dateHasError,
-          timeHasError: _timeHasError,
+          streetController: checkout.streetController,
+          cityController: checkout.cityController,
+          provinceController: checkout.provinceController,
+          postalCodeController: checkout.postalCodeController,
+          countryController: checkout.countryController,
+          isLocating: checkout.isLocating,
+          onLocateMe: () => checkout.getCurrentLocation((t, m) => _showToast(t, m)),
+          selectedDate: checkout.selectedDeliveryDate,
+          onDateSelected: (date) => checkout.setSelectedDate(date),
+          selectedTime: checkout.selectedDeliveryTime,
+          onTimeSelected: (time) => checkout.setSelectedTime(time),
+          streetHasError: checkout.streetHasError,
+          cityHasError: checkout.cityHasError,
+          postalHasError: checkout.postalHasError,
+          provinceHasError: checkout.provinceHasError,
+          dateHasError: checkout.dateHasError,
+          timeHasError: checkout.timeHasError,
         );
       case 1:
         return CheckoutPaymentStep(
-          selectedPaymentIndex: _selectedPaymentIndex,
-          onPaymentSelected: (index) => setState(() => _selectedPaymentIndex = index),
+          selectedPaymentIndex: checkout.selectedPaymentIndex,
+          onPaymentSelected: (index) => checkout.setPaymentIndex(index),
         );
       case 2:
         return CheckoutSummaryStep(
-          cartController: cartController,
-          street: _streetController.text,
-          city: _cityController.text,
-          postalCode: _postalCodeController.text,
-          province: _provinceController.text,
-          country: _countryController.text,
+          cartController: cart,
+          street: checkout.streetController.text,
+          city: checkout.cityController.text,
+          postalCode: checkout.postalCodeController.text,
+          province: checkout.provinceController.text,
+          country: checkout.countryController.text,
         );
       default:
         return const SizedBox.shrink();
     }
   }
 
-  void _handleNextAction(CartController cartController) {
-    if (_currentStep == 0) {
-      _validateAddressStep();
-    } else if (_currentStep < 2) {
-      setState(() => _currentStep++);
+  void _handleNextAction(CartController cart, CheckoutController checkout) {
+    if (checkout.currentStep == 0) {
+      _validateAndProceed(checkout);
+    } else if (checkout.currentStep < 2) {
+      checkout.nextStep();
     } else {
-      _placeOrder(cartController);
+      _finalizeOrder(cart, checkout);
     }
   }
 
-  void _validateAddressStep() {
-    // Reset all errors first
-    setState(() {
-      _streetHasError = false;
-      _cityHasError = false;
-      _postalHasError = false;
-      _provinceHasError = false;
-      _dateHasError = false;
-      _timeHasError = false;
-    });
+  void _validateAndProceed(CheckoutController checkout) {
+    checkout.resetErrors();
 
-    // 1. Validate Street Address
-    final streetErr = AaliyahValidator.validateStreetAddress(_streetController.text);
+    // 1. Street
+    final streetErr = AaliyahValidator.validateStreetAddress(checkout.streetController.text);
     if (streetErr != null) {
-      setState(() => _streetHasError = true);
-      _showValidationError(streetErr);
+      checkout.setStreetError(true);
+      _showToastFromError(streetErr);
       return;
     }
 
-    // 2. Validate City
-    final cityErr = AaliyahValidator.validateCity(_cityController.text);
+    // 2. City
+    final cityErr = AaliyahValidator.validateCity(checkout.cityController.text);
     if (cityErr != null) {
-      setState(() => _cityHasError = true);
-      _showValidationError(cityErr);
+      checkout.setCityError(true);
+      _showToastFromError(cityErr);
       return;
     }
 
-    // 3. Validate Postal Code
-    final postalErr = AaliyahValidator.validatePostalCode(_postalCodeController.text);
+    // 3. Postal Code
+    final postalErr = AaliyahValidator.validatePostalCode(checkout.postalCodeController.text);
     if (postalErr != null) {
-      setState(() => _postalHasError = true);
-      _showValidationError(postalErr);
+      checkout.setPostalError(true);
+      _showToastFromError(postalErr);
       return;
     }
 
-    // 4. Validate Province
-    final provinceErr = AaliyahValidator.validateProvince(_provinceController.text);
+    // 4. Province
+    final provinceErr = AaliyahValidator.validateProvince(checkout.provinceController.text);
     if (provinceErr != null) {
-      setState(() => _provinceHasError = true);
-      _showValidationError(provinceErr);
+      checkout.setProvinceError(true);
+      _showToastFromError(provinceErr);
       return;
     }
 
-    // 5. Validate Delivery Date
-    if (_selectedDeliveryDate == null) {
-      setState(() => _dateHasError = true);
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        title: const Text(aaliyahEmptyFieldTitle),
-        description: const Text('Please select Preferred Delivery Date!'),
-        autoCloseDuration: const Duration(seconds: 4),
-      );
+    // 5. Delivery Date
+    if (checkout.selectedDeliveryDate == null) {
+      checkout.setDateError(true);
+      _showToast(aaliyahEmptyFieldTitle, 'Please select Preferred Delivery Date!');
       return;
     }
 
-    // 6. Validate Delivery Time
-    if (_selectedDeliveryTime == null) {
-      setState(() => _timeHasError = true);
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.fillColored,
-        title: const Text(aaliyahEmptyFieldTitle),
-        description: const Text('Please select Preferred Delivery Time!'),
-        autoCloseDuration: const Duration(seconds: 4),
-      );
+    // 6. Delivery Time
+    if (checkout.selectedDeliveryTime == null) {
+      checkout.setTimeError(true);
+      _showToast(aaliyahEmptyFieldTitle, 'Please select Preferred Delivery Time!');
       return;
     }
 
-    // All valid
-    setState(() {
-      _currentStep++;
-    });
+    checkout.nextStep();
   }
 
-  void _showValidationError(String errorMsg) {
+  void _showToastFromError(String errorMsg) {
     String errorMessage = errorMsg;
     String title = 'Validation Error';
 
-    // Check if the error message follows the "Title! Description!" format
     if (errorMessage.contains('! ')) {
       final List<String> parts = errorMessage.split('! ');
       title = '${parts[0]}!';
       errorMessage = parts.sublist(1).join('! ');
-      
-      if (title == 'Empty Field!') {
-        title = aaliyahEmptyFieldTitle;
-      }
+      if (title == 'Empty Field!') title = aaliyahEmptyFieldTitle;
     }
+    _showToast(title, errorMessage);
+  }
 
+  void _showToast(String title, String message, {bool isError = true}) {
     toastification.show(
       context: context,
-      type: ToastificationType.error,
+      type: isError ? ToastificationType.error : ToastificationType.success,
       style: ToastificationStyle.fillColored,
       title: Text(title),
-      description: Text(errorMessage),
+      description: Text(message),
       autoCloseDuration: const Duration(seconds: 4),
     );
   }
 
-  Future<void> _getCurrentLocation() async {
-    setState(() => _isLocating = true);
-    try {
-      final LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        throw 'Location permissions are denied';
-      }
-
-      final Position position = await Geolocator.getCurrentPosition();
-      final List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-
-      if (placemarks.isNotEmpty) {
-        final placemark = placemarks[0];
-        setState(() {
-          _streetController.text = "${placemark.street ?? ''} ${placemark.subLocality ?? ''}".trim();
-          _cityController.text = placemark.locality ?? '';
-          _postalCodeController.text = placemark.postalCode ?? '';
-          _provinceController.text = placemark.administrativeArea ?? '';
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          title: const Text('Location Error'),
-          description: Text(e.toString()),
-        );
-      }
-    } finally {
-      setState(() => _isLocating = false);
-    }
-  }
-
-  Future<void> _placeOrder(CartController cartController) async {
-    if (_selectedPaymentIndex == 1) {
-      _makePayment(cartController.totalPrice());
-      return;
-    }
-
-    final String? orderId = await _storeOrder('Cash on Delivery', cartController.totalPrice());
-    _notifyOrderSuccess(cartController, orderId, 'Cash on Delivery');
-    _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}', 'Cash on Delivery');
-  }
-
-  Future<void> _makePayment(double amount) async {
-    final orderRepository = OrderRepository();
-    await orderRepository.processStripePayment(
-      amount: amount,
-      currency: 'LKR',
-      onSuccess: () async {
-        if (!mounted) return;
-        final cartController = Provider.of<CartController>(context, listen: false);
-        final orderId = await _storeOrder('Stripe', cartController.totalPrice());
-        _notifyOrderSuccess(cartController, orderId, 'Stripe');
-        _showSuccessAndNavigate(cartController, orderId ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}', 'Stripe');
-      },
-      onError: (err) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Payment Error: $err')));
-        }
-      },
-    );
-  }
-
-  void _notifyOrderSuccess(CartController cartController, String? orderId, String method) {
-    if (!mounted) return;
+  Future<void> _finalizeOrder(CartController cart, CheckoutController checkout) async {
+    final user = context.read<UserController>().user;
     
+    // 1. Place order via controller
+    final orderId = await checkout.placeOrder(
+      items: cart.cart,
+      totalAmount: cart.totalPrice(),
+      userInfo: {
+        'firstName': user?.firstName ?? 'Customer',
+        'lastName': user?.lastName ?? '',
+        'email': (user?.email ?? 'anonymous').toLowerCase(),
+      },
+      showToast: (t, m, e) => _showToast(t, m, isError: e),
+    );
 
-    final String displayOrderId = orderId ?? '00000';
+    if (orderId != null) {
+      // 2. Notify Success
+      _notifySuccess(cart, orderId, checkout.selectedPaymentIndex == 0 ? 'Cash on Delivery' : 'Stripe');
+      
+      // 3. Navigate
+      _navigateSuccess(cart, checkout, orderId);
+    }
+  }
 
-    final List<NotificationOrderItem> notifItems = cartController.cart.map((e) => NotificationOrderItem(
+  void _notifySuccess(CartController cart, String orderId, String method) {
+    final List<NotificationOrderItem> notifItems = cart.cart.map((e) => NotificationOrderItem(
       categoryName: e.categoryName ?? e.displayName,
       productImage: e.image,
       quantity: e.quantity,
       price: e.priceDouble,
     )).toList();
 
-    Provider.of<NotificationController>(context, listen: false).addNotification(
-      "Aaliyah's Collection", // Brand Name as Title
-      'Your order #$displayOrderId has been placed successfully!', 
+    context.read<NotificationController>().addNotification(
+      "Aaliyah's Collection",
+      'Your order #$orderId has been placed successfully!', 
       orderId: orderId,
-      totalAmount: cartController.totalPrice(),
+      totalAmount: cart.totalPrice(),
       paymentMethod: method,
       orderItems: notifItems,
     );
   }
 
-
-  Future<String?> _storeOrder(String paymentMethod, double amount) async {
-    final cartController = Provider.of<CartController>(context, listen: false);
-    final user = Provider.of<UserController>(context, listen: false).user;
-
-    final Map<String, dynamic> orderData = {
-      'date': DateTime.now().toIso8601String(),
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'amount': amount,
-      'payment_method': paymentMethod,
-      'status': 'Pending',
-      'preferred_delivery_date': _selectedDeliveryDate?.toIso8601String() ?? 'As soon as possible',
-      'preferred_delivery_time': _selectedDeliveryTime != null 
-          ? "${_selectedDeliveryTime!.hour}:${_selectedDeliveryTime!.minute.toString().padLeft(2, '0')}" 
-          : 'As soon as possible',
-      'customer': {
-        'firstName': user?.firstName ?? 'Customer',
-        'lastName': user?.lastName ?? '',
-        'email': (user?.email ?? 'anonymous').toLowerCase(),
-        'address': _streetController.text,
-        'city': _cityController.text,
-        'state': _provinceController.text,
-        'postalCode': _postalCodeController.text,
-        'country': _countryController.text,
-      },
-      'items': cartController.cart.map((item) => {
-            'productId': item.id,
-            'title': item.displayName,
-            'quantity': item.quantity,
-            'price': item.price,
-            'image': item.image,
-            'category': item.categoryName ?? '',
-            'description': item.description ?? '',
-          }).toList(),
-    };
-    return await OrderRepository().storeOrderInFirestore(orderData: orderData);
-  }
-
-  void _showSuccessAndNavigate(CartController cartController, String orderId, String paymentMethod) {
-    final String amount = cartController.formattedTotalPrice;
-    final List<dynamic> items = cartController.cart.map((item) => {
+  void _navigateSuccess(CartController cart, CheckoutController checkout, String orderId) {
+    final String amount = cart.formattedTotalPrice;
+    final List<dynamic> items = cart.cart.map((item) => {
       'title': item.displayName,
       'quantity': item.quantity,
       'price': item.price,
     }).toList();
-    final String email = Provider.of<UserController>(context, listen: false).user?.email ?? 'customer@example.com';
+    final String email = context.read<UserController>().user?.email ?? 'customer@example.com';
+    final paymentMethod = checkout.selectedPaymentIndex == 0 ? 'Cash on Delivery' : 'Stripe';
     
-    cartController.clearCart();
+    // Store variables before clearing
+    final address = checkout.streetController.text;
+    final city = checkout.cityController.text;
+    final state = checkout.provinceController.text;
+    final date = checkout.selectedDeliveryDate;
+    final time = checkout.selectedDeliveryTime;
 
-    if (!mounted) return;
-
+    cart.clearCart();
+    
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
@@ -465,11 +342,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           items: items,
           email: email,
           paymentMethod: paymentMethod,
-          address: _streetController.text,
-          city: _cityController.text,
-          state: _provinceController.text,
-          deliveryDate: _selectedDeliveryDate,
-          deliveryTime: _selectedDeliveryTime,
+          address: address,
+          city: city,
+          state: state,
+          deliveryDate: date,
+          deliveryTime: time,
         ),
       ),
       (route) => false,

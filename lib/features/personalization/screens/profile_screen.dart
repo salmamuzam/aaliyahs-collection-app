@@ -56,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _handleNavSelection() {
-    if (_navigationController.reselectedIndex == 4 && _scrollController.hasClients) {
+    if (_navigationController.reselectedIndex == 3 && _scrollController.hasClients) {
       _scrollController.animateTo(
         0, 
         duration: const Duration(milliseconds: 500), 
@@ -181,51 +181,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AaliyahSmallAppBar(
+        title: 'Profile',
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const NavigationMenu()),
+            );
+            // Set to Home page after navigation
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Provider.of<NavigationController>(context, listen: false).setIndex(0);
+            });
+          },
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to home',
+        ),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: DeviceUtils.maxContentWidth),
-          child: CustomScrollView(
+          child: SingleChildScrollView(
             key: const PageStorageKey<String>('profile_scroll'),
             controller: _scrollController,
-            slivers: [
-              // M3 Compact: Small App Bar instead of Large
-              SliverToBoxAdapter(
-                child: AaliyahSmallAppBar(
-                  title: 'Profile',
-                  leading: IconButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const NavigationMenu()),
-                      );
-                      // Set to Home page after navigation
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        Provider.of<NavigationController>(context, listen: false).setIndex(0);
-                      });
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: 'Back to home',
-                  ),
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-                  child: Column(
-                    children: [
-                      SizedBox(height: DeviceUtils.getVerticalSize(20)),
-                      ProfileHeader(localImageFile: _imageFile, onEditImage: _showImagePickerOptions),
-                      SizedBox(height: DeviceUtils.getVerticalSize(30)),
-                      _buildEditProfileButton(),
-                      SizedBox(height: DeviceUtils.getVerticalSize(40)),
-                      _buildMenuItems(),
-                      SizedBox(height: DeviceUtils.getVerticalSize(40)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
+            child: Column(
+              children: [
+                SizedBox(height: DeviceUtils.getVerticalSize(20)),
+                ProfileHeader(localImageFile: _imageFile, onEditImage: _showImagePickerOptions),
+                SizedBox(height: DeviceUtils.getVerticalSize(30)),
+                _buildEditProfileButton(),
+                SizedBox(height: DeviceUtils.getVerticalSize(40)),
+                _buildMenuItems(),
+                SizedBox(height: DeviceUtils.getVerticalSize(40)),
+              ],
+            ),
           ),
         ),
       ),

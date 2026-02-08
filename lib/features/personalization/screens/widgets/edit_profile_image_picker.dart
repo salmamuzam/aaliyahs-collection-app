@@ -4,9 +4,8 @@ import 'dart:io';
 
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
-import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/images/user_profile_image.dart';
 
 class EditProfileImagePicker extends StatelessWidget {
   final File? localImageFile;
@@ -25,7 +24,6 @@ class EditProfileImagePicker extends StatelessWidget {
     return Consumer<UserController>(
       builder: (context, userController, child) {
         final user = userController.user;
-        final bool hasProfileImg = user != null && user.profilePhotoUrl.isNotEmpty;
 
         return Stack(
           children: [
@@ -39,13 +37,14 @@ class EditProfileImagePicker extends StatelessWidget {
               onTap: onPickImage,
               child: localImageFile != null
                   ? Image.file(localImageFile!, fit: BoxFit.cover)
-                  : (hasProfileImg
-                       ? SmartImage(imageUrl: user.profilePhotoUrl)
-                      : Initicon(
-                          text: user?.name ?? 'Guest',
-                          size: 120,
-                          backgroundColor: isDarkMode ? aaliyahPrimaryColor.withValues(alpha: 0.8) : aaliyahPrimaryColor,
-                        )),
+                  : UserProfileImage(
+                      imageUrl: user?.profilePhotoUrl,
+                      name: user?.name ?? 'Guest',
+                      size: 120,
+                      fontSize: 40,
+                      backgroundColor: isDarkMode ? aaliyahPrimaryColor.withValues(alpha: 0.8) : aaliyahPrimaryColor,
+                      textColor: Colors.white,
+                    ),
             ),
             Positioned(
               bottom: 5,

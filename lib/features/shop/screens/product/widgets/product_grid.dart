@@ -64,7 +64,7 @@ class ProductGrid extends StatelessWidget {
           cacheExtent: 1500, // Optimization #3: Pre-render items outside viewport for smooth scrolling
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: Responsive.getGridColumnCount(context),
-            childAspectRatio: Responsive.getGridAspectRatio(context),
+            mainAxisExtent: 290, // Fixed height for consistency with Best Sellers
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
           ),

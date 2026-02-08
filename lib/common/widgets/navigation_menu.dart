@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
-import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/notification_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/connectivity_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
@@ -14,7 +13,6 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_
 import 'package:quickalert/quickalert.dart';
 
 import 'package:aaliyahs_collection_estore/features/shop/screens/cart/cart_screen.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/favorites/favorites_screen.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/home_screen.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product/product_screen.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/profile_screen.dart';
@@ -108,7 +106,6 @@ class _NavigationMenuState extends State<NavigationMenu> {
   List<Widget> get _screens => [
     HomeScreen(onAddToCartAnimation: (key) => runAddToCartAnimation(key)),
     const ProductScreen(),
-    const FavoriteScreen(),
     const CartScreen(),
     const ProfileScreen(),
   ];
@@ -351,7 +348,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
                         'ACCOUNT',
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: nav.selectedIndex == 4 ? colorScheme.secondary : colorScheme.onSurfaceVariant,
+                          color: nav.selectedIndex == 3 ? colorScheme.secondary : colorScheme.onSurfaceVariant,
                           letterSpacing: 1.1,
                         ),
                       ),
@@ -368,15 +365,15 @@ class _NavigationMenuState extends State<NavigationMenu> {
                           duration: const Duration(milliseconds: 200),
                           key: const ValueKey('expanded_user'),
                           decoration: BoxDecoration(
-                            color: nav.selectedIndex == 4 ? colorScheme.secondaryContainer : Colors.transparent,
+                            color: nav.selectedIndex == 3 ? colorScheme.secondaryContainer : Colors.transparent,
                             borderRadius: BorderRadius.circular(28), // Matches indicator shape
                           ),
                           child: Semantics(
                             label: 'Profile, account settings',
-                            selected: nav.selectedIndex == 4,
+                            selected: nav.selectedIndex == 3,
                             button: true,
                             child: InkWell(
-                              onTap: () => nav.setIndex(4),
+                              onTap: () => nav.setIndex(3),
                               borderRadius: BorderRadius.circular(28),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -384,7 +381,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
                                 children: [
                                   CircleAvatar(
                                     radius: 18,
-                                    backgroundColor: nav.selectedIndex == 4 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
+                                    backgroundColor: nav.selectedIndex == 3 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
                                     backgroundImage: (userProvider.user?.profilePicture ?? '').isNotEmpty 
                                       ? ((userProvider.user!.profilePicture.startsWith('assets/'))
                                           ? AssetImage(userProvider.user!.profilePicture) as ImageProvider
@@ -392,9 +389,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
                                       : null,
                                     child: (userProvider.user?.profilePicture ?? '').isEmpty 
                                       ? Icon(
-                                          nav.selectedIndex == 4 ? Icons.person_rounded : Icons.person_outline_rounded, 
+                                          nav.selectedIndex == 3 ? Icons.person_rounded : Icons.person_outline_rounded, 
                                           size: 20,
-                                          color: nav.selectedIndex == 4 ? colorScheme.secondaryContainer : colorScheme.primary,
+                                          color: nav.selectedIndex == 3 ? colorScheme.secondaryContainer : colorScheme.primary,
                                         ) 
                                       : null,
                                   ),
@@ -405,8 +402,8 @@ class _NavigationMenuState extends State<NavigationMenu> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        fontWeight: nav.selectedIndex == 4 ? FontWeight.bold : FontWeight.normal,
-                                        color: nav.selectedIndex == 4 ? colorScheme.onSecondaryContainer : colorScheme.onSurface,
+                                        fontWeight: nav.selectedIndex == 3 ? FontWeight.bold : FontWeight.normal,
+                                        color: nav.selectedIndex == 3 ? colorScheme.onSecondaryContainer : colorScheme.onSurface,
                                       ),
                                     ),
                                   ),
@@ -420,14 +417,14 @@ class _NavigationMenuState extends State<NavigationMenu> {
                           key: const ValueKey('compact_user'),
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: nav.selectedIndex == 4 ? colorScheme.secondaryContainer : Colors.transparent,
+                            color: nav.selectedIndex == 3 ? colorScheme.secondaryContainer : Colors.transparent,
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            onPressed: () => nav.setIndex(4),
+                            onPressed: () => nav.setIndex(3),
                             icon: CircleAvatar(
                               radius: 12,
-                              backgroundColor: nav.selectedIndex == 4 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
+                              backgroundColor: nav.selectedIndex == 3 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
                                 backgroundImage: (userProvider.user?.profilePicture ?? '').isNotEmpty 
                                   ? ((userProvider.user!.profilePicture.startsWith('assets/'))
                                       ? AssetImage(userProvider.user!.profilePicture) as ImageProvider
@@ -435,9 +432,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
                                   : null,
                               child: (userProvider.user?.profilePicture ?? '').isEmpty 
                                 ? Icon(
-                                    nav.selectedIndex == 4 ? Icons.person_rounded : Icons.person_outline_rounded, 
+                                    nav.selectedIndex == 3 ? Icons.person_rounded : Icons.person_outline_rounded, 
                                     size: 14,
-                                    color: nav.selectedIndex == 4 ? colorScheme.secondaryContainer : colorScheme.primary,
+                                    color: nav.selectedIndex == 3 ? colorScheme.secondaryContainer : colorScheme.primary,
                                   ) 
                                 : null,
                             ),
@@ -468,20 +465,11 @@ class _NavigationMenuState extends State<NavigationMenu> {
           ),
           _buildRailDestination(
             isExtended: isExtended,
-            icon: Icons.favorite_border_rounded, 
-            selectedIcon: Icons.favorite_rounded, 
-            label: 'Wishlist', 
-            semanticLabel: 'Wishlist, saved items',
-            showBadge: nav.selectedIndex != 2 && Provider.of<FavoriteController>(context).favorites.isNotEmpty,
-            badgeCount: Provider.of<FavoriteController>(context).favorites.length,
-          ),
-          _buildRailDestination(
-            isExtended: isExtended,
             icon: Icons.shopping_bag_outlined, 
             selectedIcon: Icons.shopping_bag_rounded, 
             label: 'Cart', 
             semanticLabel: 'Cart, view my bag',
-            showBadge: nav.selectedIndex != 3 && Provider.of<CartController>(context).cart.isNotEmpty,
+            showBadge: nav.selectedIndex != 2 && Provider.of<CartController>(context).cart.isNotEmpty,
             badgeCount: Provider.of<CartController>(context).cart.length,
             isCart: true,
           ),
@@ -513,11 +501,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
               SizedBox(width: 8.w),
               _buildHorizontalNavDestination(nav, 1, Icons.storefront_outlined, Icons.storefront_rounded, 'Shop', 'Shop, browse products', colorScheme),
               SizedBox(width: 8.w),
-              _buildHorizontalNavDestination(nav, 2, Icons.favorite_border_rounded, Icons.favorite_rounded, 'Wishlist', 'Wishlist, saved items', colorScheme),
+              _buildHorizontalNavDestination(nav, 2, Icons.shopping_bag_outlined, Icons.shopping_bag_rounded, 'Cart', 'Cart, view my bag', colorScheme),
               SizedBox(width: 8.w),
-              _buildHorizontalNavDestination(nav, 3, Icons.shopping_bag_outlined, Icons.shopping_bag_rounded, 'Cart', 'Cart, view my bag', colorScheme),
-              SizedBox(width: 8.w),
-              _buildHorizontalNavDestination(nav, 4, Icons.person_outline_rounded, Icons.person_rounded, 'Profile', 'Profile, account settings', colorScheme),
+              _buildHorizontalNavDestination(nav, 3, Icons.person_outline_rounded, Icons.person_rounded, 'Profile', 'Profile, account settings', colorScheme),
             ],
           ),
         ),
@@ -574,9 +560,8 @@ class _NavigationMenuState extends State<NavigationMenu> {
         destinations: [
           _buildNavDestination(nav, 0, Icons.home_outlined, Icons.home_rounded, 'Home', 'Home, explore collection', colorScheme),
           _buildNavDestination(nav, 1, Icons.storefront_outlined, Icons.storefront_rounded, 'Shop', 'Shop, browse products', colorScheme),
-          _buildNavDestination(nav, 2, Icons.favorite_border_rounded, Icons.favorite_rounded, 'Wishlist', 'Wishlist, saved items', colorScheme),
-          _buildNavDestination(nav, 3, Icons.shopping_bag_outlined, Icons.shopping_bag_rounded, 'Cart', 'Cart, view my bag', colorScheme),
-          _buildNavDestination(nav, 4, Icons.person_outline_rounded, Icons.person_rounded, 'Profile', 'Profile, account settings', colorScheme),
+          _buildNavDestination(nav, 2, Icons.shopping_bag_outlined, Icons.shopping_bag_rounded, 'Cart', 'Cart, view my bag', colorScheme),
+          _buildNavDestination(nav, 3, Icons.person_outline_rounded, Icons.person_rounded, 'Profile', 'Profile, account settings', colorScheme),
         ],
       ),
     );
@@ -649,26 +634,10 @@ class _NavigationMenuState extends State<NavigationMenu> {
         },
       );
     } else if (index == 2) {
-      return Consumer<FavoriteController>(
-        builder: (context, provider, _) {
-          final count = provider.favorites.length;
-          final showBadge = nav.selectedIndex != 2 && count > 0;
-          return Semantics(
-            label: showBadge ? 'My Wishlist, ${count > 999 ? '999+' : '$count'} items' : 'My Wishlist',
-            child: Badge(
-              isLabelVisible: showBadge,
-              label: Text(count > 999 ? '999+' : count.toString()),
-              alignment: AlignmentDirectional.topEnd,
-              child: buildIcon(icon),
-            ),
-          );
-        },
-      );
-    } else if (index == 3) {
       return Consumer<CartController>(
         builder: (context, provider, _) {
           final count = provider.cart.length;
-          final showBadge = nav.selectedIndex != 3 && count > 0;
+          final showBadge = nav.selectedIndex != 2 && count > 0;
           return Semantics(
             label: showBadge ? 'Shopping Cart, ${count > 999 ? '999+' : '$count'} items' : 'Shopping Cart',
             child: Badge(
@@ -686,7 +655,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   NavigationDestination _buildNavDestination(NavigationController nav, int index, IconData icon, IconData selectedIcon, String label, String semanticLabel, ColorScheme colorScheme) {
     return NavigationDestination(
-      key: (index == 3 && DeviceUtils.isCompact) ? cartKey : null, // Target for Cart Animation
+      key: (index == 2 && DeviceUtils.isCompact) ? cartKey : null, // Target for Cart Animation
       icon: _buildNumberedIcon(nav, index, icon, false, colorScheme),
       selectedIcon: _buildNumberedIcon(nav, index, selectedIcon, true, colorScheme),
       label: label,

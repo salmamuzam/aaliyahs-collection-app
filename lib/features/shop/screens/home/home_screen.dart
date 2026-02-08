@@ -190,9 +190,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeWelcomeContent() {
-    return Consumer<UserController>(
-      builder: (context, userController, child) {
+    return Selector<UserController, String>(
+      selector: (context, userController) {
         final user = userController.user;
+        if (user == null) return 'Guest';
+        return '${user.firstName} ${user.lastName}'.trim();
+      },
+      builder: (context, fullName, child) {
         final textScale = MediaQuery.of(context).textScaler.scale(1.0);
         final colorScheme = Theme.of(context).colorScheme;
         
@@ -201,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Hi, ${user?.firstName ?? 'Guest'} ${user?.lastName ?? ''}",
+              'Hi, $fullName',
               style: (Theme.of(context).extension<AaliyahTypography>()?.editorialSmall ?? 
                       Theme.of(context).textTheme.titleLarge)?.copyWith(
                 fontSize: (20 * textScale).clamp(16.0, 32.0),
@@ -279,9 +283,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget _buildCategoryNavigationPane() {
-    return Consumer<ProductController>(
-      builder: (context, provider, _) {
-        final categories = provider.categories;
+    return Selector<ProductController, List<dynamic>>(
+      selector: (context, provider) => provider.categories,
+      builder: (context, categories, _) {
         final colorScheme = Theme.of(context).colorScheme;
         
         return ListView(
@@ -302,8 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: Icon(Icons.grid_view_rounded, color: colorScheme.primary),
               title: const Text('All Products'),
               onTap: () {
-                Provider.of<ProductController>(context, listen: false).toggleAllCategories(false);
-                Provider.of<NavigationController>(context, listen: false).setIndex(1);
+                context.read<ProductController>().toggleAllCategories(false);
+                context.read<NavigationController>().setIndex(1);
               },
             ),
             
@@ -315,8 +319,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: Icon(Icons.category_outlined, color: colorScheme.onSurfaceVariant),
                 title: Text(category.displayName),
                 onTap: () {
-                  provider.fetchShopProducts(categoryIds: [category.id!]);
-                  Provider.of<NavigationController>(context, listen: false).setIndex(1);
+                  context.read<ProductController>().fetchShopProducts(categoryIds: [category.id!]);
+                  context.read<NavigationController>().setIndex(1);
                 },
               );
             }),

@@ -67,9 +67,12 @@ class ProductRepository {
         method: MethodType.get,
         fromJson: (json) => json,
       );
-      if (response.success) return response;
-      throw Exception('API failed');
+      if (response.success) {
+        return response;
+      }
+      throw Exception('Laravel API failed');
     } catch (e) {
+      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Home');
       final categories = await loadLocalCategories();
       final products = await loadLocalProducts();
       return ApiResponse(data: {
@@ -88,9 +91,12 @@ class ProductRepository {
         method: MethodType.get,
         fromJson: (json) => json,
       );
-      if (response.success) return response;
-      throw Exception('API failed');
+      if (response.success) {
+        return response;
+      }
+      throw Exception('Laravel API failed');
     } catch (e) {
+      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Best Sellers');
       final products = await loadLocalProducts();
       return ApiResponse(data: {
         'data': products.take(6).map((e) => e.toJson()).toList()
@@ -105,9 +111,12 @@ class ProductRepository {
         method: MethodType.get,
         fromJson: (json) => json,
       );
-      if (response.success) return response;
-      throw Exception('API failed');
+      if (response.success) {
+        return response;
+      }
+      throw Exception('Laravel API failed');
     } catch (e) {
+      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/category.json');
       final categories = await loadLocalCategories();
       return ApiResponse(data: {
         'data': categories.map((e) => e.toJson()).toList()
@@ -142,6 +151,7 @@ class ProductRepository {
         fromJson: (json) => ListResponse<ProductModel>.fromMap(json, (pJson) => ProductModel.fromJson(pJson)),
       );
     } catch (e) {
+      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Shop Page');
       var products = await loadLocalProducts();
       if (categoryIds != null && categoryIds.isNotEmpty) {
         products = products.where((p) => p.categoryId != null && categoryIds.contains(p.categoryId!)).toList();
@@ -161,41 +171,6 @@ class ProductRepository {
         meta: {'total': products.length, 'last_page': (products.length / 10).ceil()},
       ));
     }
-  }
-
-  Future<ApiResponse<List<ProductModel>>> getProductsFromGitHub() async {
-    try {
-      final response = await _apiClient.request<List>(
-        path: '${ApiEndpoints.githubApiBase}${ApiEndpoints.githubProductModels}',
-        method: MethodType.get,
-        fromJson: (json) {
-          if (json.containsKey('data') && json['data'] is List) {
-            return (json['data'] as List).cast<dynamic>();
-          }
-          return <dynamic>[];
-        },
-      );
-
-      if (response.success && response.data != null) {
-        final List<ProductModel> products = response.data!.map((p) {
-          final Map<String, dynamic> modifiedJson = Map<String, dynamic>.from(p);
-          final String? category = modifiedJson['category']?.toString().toLowerCase();
-          
-          if (modifiedJson['images'] != null && modifiedJson['images'] is List) {
-            modifiedJson['images'] = (modifiedJson['images'] as List)
-                .map((img) => _fixImagePath(img.toString(), category))
-                .toList();
-          }
-          return ProductModel.fromJson(modifiedJson);
-        }).toList();
-        return ApiResponse<List<ProductModel>>(data: products);
-      }
-    } catch (e) {
-      debugPrint('GitHub API All Products Fetch Failed: $e');
-    }
-    // Fallback to local
-    final products = await loadLocalProducts();
-    return ApiResponse<List<ProductModel>>(data: products);
   }
 
   Future<ApiResponse<ProductModel>> getProductDetails(int id) async {
@@ -219,6 +194,7 @@ class ProductRepository {
           final Map<String, dynamic> modifiedJson = Map<String, dynamic>.from(productJson);
           final String? category = modifiedJson['category']?.toString().toLowerCase();
 
+          // Apply GitHub path fixing specifically for this GitHub-sourced data
           if (modifiedJson['images'] != null && modifiedJson['images'] is List) {
             modifiedJson['images'] = (modifiedJson['images'] as List)
                 .map((img) => _fixImagePath(img.toString(), category))
@@ -229,7 +205,10 @@ class ProductRepository {
           return ApiResponse<ProductModel>(data: ProductModel.fromJson(modifiedJson));
         }
       }
-    } catch (e) { debugPrint('GitHub API Detail Fetch Failed: $e'); }
+    } catch (e) { 
+      debugPrint('🔴 DETAIL FETCH ERROR: Falling back to local for ID $id'); 
+    }
+    
     final localProducts = await loadLocalProducts();
     try {
       final product = localProducts.firstWhere((p) => p.id.toString() == id.toString());
@@ -268,20 +247,15 @@ class ProductRepository {
   }
 
   String _fixImagePath(String path, String? category) {
-    if (!path.startsWith('assets/')) {
-      return path;
-    }
+    if (path.startsWith('http')) return path;
+    if (path.startsWith('assets/')) return path;
     
     String fixedPath = path;
-    
-    // 🔍 SMART CHECK: Extract the portion after 'products/' to see if it already has a subfolder
     const String prefix = 'assets/images/shop/products/';
+    
     if (path.startsWith(prefix)) {
       String subPath = path.substring(prefix.length);
-      
-      // If there's no slash in the subPath, it means the category folder is missing
       if (!subPath.contains('/') && category != null) {
-        // Handle common plurals used in folders
         String pluralCat = category;
         if (category == 'abaya') {
           pluralCat = 'abayas';
@@ -297,6 +271,6 @@ class ProductRepository {
       }
     }
     
-    return 'https://salmamuzam.github.io/ecommerce_api/$fixedPath';
+    return '${ApiEndpoints.githubApiBase}$fixedPath';
   }
 }

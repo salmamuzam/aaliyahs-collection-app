@@ -183,6 +183,14 @@ class DeviceUtils {
     if (isExpanded) return paneStandardWidth; // 360dp
     return paneMaxWidth; // 412dp for large/extra-large
   }
+  /// Returns clear column count for responsive grids (2 for mobile, 4 for tablet/landscape)
+  static int getResponsiveGridCount(BuildContext context) {
+    if (isDesktop) return 5;
+    if (isTabletOrLarger) return 4;
+    double width = MediaQuery.of(context).size.width;
+    if (width > 600) return 3; // Landscape Mobile
+    return 2; // Portrait Mobile
+  }
 }
 
 enum WindowSizeClass {

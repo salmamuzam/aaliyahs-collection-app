@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
@@ -32,11 +34,11 @@ class HomeBestSellersGrid extends StatelessWidget {
           } else {
             content = SliverGrid(
               key: const ValueKey('best_sellers_grid'),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 220, 
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: Responsive.getGridColumnCount(context),
+                mainAxisSpacing: DeviceUtils.m3Padding(3),
+                crossAxisSpacing: DeviceUtils.m3Padding(3),
                 mainAxisExtent: 290,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 16,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

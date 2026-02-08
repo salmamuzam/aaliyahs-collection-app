@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,6 +19,7 @@ import 'package:aaliyahs_collection_estore/features/personalization/controllers/
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_detail_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/checkout_controller.dart';
 
 import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/signup/signup_screen.dart';
@@ -56,6 +56,7 @@ class AaliyahApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductDetailController()),  // Manages individual product details
         ChangeNotifierProvider(create: (_) => AccessibilityController()),  // Manages accessibility preferences
         ChangeNotifierProvider(create: (_) => NavigationController()),    // Manages global navigation state
+        ChangeNotifierProvider(create: (_) => CheckoutController()),       // Manages multi-step checkout
       ],
       
       // WHY 10 CONTROLLERS? Each handles a specific responsibility (separation of concerns)
@@ -115,8 +116,8 @@ class AaliyahApp extends StatelessWidget {
 
                 // Apply Font Scaling & Style
                 // We use base theme text theme as a reference for text scaling
-                lightTheme = lightTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(lightTheme.textTheme));
-                darkTheme = darkTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(darkTheme.textTheme));
+                // lightTheme = lightTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(lightTheme.textTheme));
+                // darkTheme = darkTheme.copyWith(textTheme: GoogleFonts.poppinsTextTheme(darkTheme.textTheme));
               
                 return MaterialApp(
                   title: 'Aaliyah\'s Collection',
