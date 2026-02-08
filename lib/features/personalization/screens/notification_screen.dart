@@ -74,12 +74,13 @@ class NotificationScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Center(
+    return Align(
+      alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // Icon/Illustration Container with glassmorphism effect
               Container(
@@ -107,7 +108,7 @@ class NotificationScreen extends StatelessWidget {
               
               // Text Content
               Text(
-                'No Notifications Yet',
+                'No Notifications!',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -116,7 +117,7 @@ class NotificationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'We\'ll let you know when there are updates on your orders.',
+                'Place an Order to Receive Notifications',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,
