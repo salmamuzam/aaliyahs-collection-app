@@ -5,7 +5,7 @@ import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/form/auth_text_field.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
-import 'package:toastification/toastification.dart';
+
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -16,6 +16,7 @@ class ForgetPasswordScreen extends StatefulWidget {
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -72,6 +73,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             
                             // Group 02: Form
                             Form(
+                              key: _formKey,
                               child: Column(
                                 children: [
                                   AuthTextField(
@@ -79,37 +81,32 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                     label: aaliyahEmail,
                                     prefixIcon: Icons.email_outlined,
                                     keyboardType: TextInputType.emailAddress,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your email address.';
+                                      }
+                                      // Check for valid email format
+                                      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                      if (!emailRegex.hasMatch(value)) {
+                                        return aaliyahInvalidEmailSubTitle; 
+                                      }
+                                      return null;
+                                    },
                                   ),
                                   const SizedBox(height: 25), // Padding after email field
                                   SizedBox(
                                     width: double.infinity,
                                     child: FilledButton(
                                       onPressed: () {
-                                        if (_emailController.text.isEmpty) {
-                                          _showErrorToast(
-                                            'Empty Field!', 
-                                            'Please enter your email address.',
+                                        if (_formKey.currentState!.validate()) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Reset link sent to your email')),
                                           );
-                                          return;
-                                        }
-
-                                        // Check for valid email format
-                                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                                        if (!emailRegex.hasMatch(_emailController.text)) {
-                                          _showErrorToast(
-                                            aaliyahInvalidEmailTitle,
-                                            aaliyahInvalidEmailSubTitle,
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const LoginScreen()),
                                           );
-                                          return;
                                         }
-
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Reset link sent to your email')),
-                                        );
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                                        );
                                       },
                                       child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                                     ),
@@ -169,14 +166,5 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     );
   }
 
-  void _showErrorToast(String title, String message) {
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.fillColored,
-      title: Text(title),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 4),
-    );
-  }
+
 }

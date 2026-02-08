@@ -38,12 +38,12 @@ class HomeBestSellersGrid extends StatelessWidget {
                 crossAxisCount: Responsive.getGridColumnCount(context),
                 mainAxisSpacing: DeviceUtils.m3Padding(3),
                 crossAxisSpacing: DeviceUtils.m3Padding(3),
-                mainAxisExtent: 400,
+                mainAxisExtent: 288,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final product = bestSellers[index];
-                return ProductCardVertical(
+                  return ProductCardVertical(
                     product: product,
                     heroPrefix: 'bestSelling_',
                     onPress: () => _navigateToDetail(context, product),
@@ -74,7 +74,7 @@ class HomeBestSellersGrid extends StatelessWidget {
           itemCount: 4,
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 220, 
-            mainAxisExtent: 400,
+            mainAxisExtent: 288,
             mainAxisSpacing: 12,
             crossAxisSpacing: 16,
           ),

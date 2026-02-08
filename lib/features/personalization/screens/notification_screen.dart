@@ -507,20 +507,21 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                height: 70,
-                width: 70,
+                height: 80,
+                width: 60,
                 color: colorScheme.surfaceContainerHighest,
                 child: item.productImage.startsWith('http')
                     ? SmartImage(
                         imageUrl: item.productImage,
-                        height: 70,
-                        width: 70,
+                        height: 80,
+                        width: 60,
+                        fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
                       )
                     : Image.asset(
                         item.productImage,
-                        height: 70,
-                        width: 70,
+                        height: 80,
+                        width: 60,
                         fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
                       ),

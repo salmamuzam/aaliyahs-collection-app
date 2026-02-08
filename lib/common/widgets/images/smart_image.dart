@@ -111,9 +111,12 @@ class _SmartImageState extends State<SmartImage> {
   @override
   Widget build(BuildContext context) {
     // Calculate optimal cache dimensions based on device pixel ratio
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final optimalCacheWidth = widget.cacheWidth ?? (widget.width != null ? (widget.width! * devicePixelRatio).toInt() : null);
-    final optimalCacheHeight = widget.cacheHeight ?? (widget.height != null ? (widget.height! * devicePixelRatio).toInt() : null);
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio; 
+    // Ensure we don't try to multiply Infinity by pixel ratio
+    final optimalCacheWidth = widget.cacheWidth ?? 
+      (widget.width != null && widget.width!.isFinite ? (widget.width! * devicePixelRatio).toInt() : null);
+    final optimalCacheHeight = widget.cacheHeight ?? 
+      (widget.height != null && widget.height!.isFinite ? (widget.height! * devicePixelRatio).toInt() : null);
 
     final String trimmedUrl = widget.imageUrl.trim();
     final bool isNetworkUrl = trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://');

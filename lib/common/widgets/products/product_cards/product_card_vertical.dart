@@ -167,12 +167,11 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                 child: Padding(
                   padding: const EdgeInsets.all(6),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        key: widgetKey,
-                        child: AspectRatio(
-                          aspectRatio: 0.65, // Taller/Slimmer aspect ratio for fashion
+                      Expanded(
+                        child: Container(
+                          key: widgetKey,
                           child: widget.product.id != 0 
                             ? Hero(
                                 tag: "${widget.heroPrefix ?? ''}ProductModel_${widget.product.id ?? widget.product.name}_0",
@@ -185,62 +184,60 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                       
                       SizedBox(height: DeviceUtils.m3Padding(4)),
 
-                      Flexible(
-                        child: ExcludeSemantics(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                widget.product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
-                                style: Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized.copyWith(
-                                  color: effectiveScheme.onSurface,
-                                  height: 1.2,
-                                ),
-                                maxLines: 2, // Reduce max lines to preventative overflow with taller image
-                                minFontSize: 8,
-                                overflow: TextOverflow.ellipsis,
+                      ExcludeSemantics(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min, // Ensure it only takes needed space
+                          children: [
+                            AutoSizeText(
+                              widget.product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
+                              style: Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized.copyWith(
+                                color: effectiveScheme.onSurface,
+                                height: 1.2,
                               ),
-                              
-                              SizedBox(height: DeviceUtils.m3Padding(4)),
-                              
-                              // Price
-                              Text(
-                                "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
-                                style: GoogleFonts.robotoMono(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: effectiveScheme.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              maxLines: 2, // Reduce max lines to preventative overflow with taller image
+                              minFontSize: 8,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            
+                            SizedBox(height: DeviceUtils.m3Padding(4)),
+                            
+                            // Price
+                            Text(
+                              "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: effectiveScheme.primary,
                               ),
-                              
-                              const SizedBox(height: 6),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            
+                            const SizedBox(height: 8),
 
-                              // Add to Cart Button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 32,
-                                child: FilledButton(
-                                  onPressed: () {
-                                    HapticFeedback.mediumImpact();
-                                    CartController.of(context, listen: false).addToCart(widget.product);
-                                    if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
-                                  },
-                                  style: FilledButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    backgroundColor: effectiveScheme.primary,
-                                    foregroundColor: effectiveScheme.onPrimary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            // Add to Cart Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 32,
+                              child: FilledButton(
+                                onPressed: () {
+                                  HapticFeedback.mediumImpact();
+                                  CartController.of(context, listen: false).addToCart(widget.product);
+                                  if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
+                                },
+                                style: FilledButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  backgroundColor: effectiveScheme.primary,
+                                  foregroundColor: effectiveScheme.onPrimary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text('Add to Cart'),
+                                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                                 ),
+                                child: const Text('Add to Cart'),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -319,6 +316,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
             )
           : SmartImage(
               imageUrl: widget.product.image,
+              width: double.infinity,
               alignment: Alignment.topCenter,
               fit: BoxFit.cover, // Ensures image covers area without distortion
               // cacheWidth/Height removed to allow full resolution / SmartImage optimal calc

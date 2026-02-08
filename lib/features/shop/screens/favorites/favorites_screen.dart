@@ -204,7 +204,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       padding: EdgeInsets.all(DeviceUtils.m3Margin),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: Responsive.getGridColumnCount(context),
-        mainAxisExtent: 400, // Fixed height to handle tall product cards without overflow
+        mainAxisExtent: DeviceUtils.getVerticalSize(288), // Consistent with other product grids
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),

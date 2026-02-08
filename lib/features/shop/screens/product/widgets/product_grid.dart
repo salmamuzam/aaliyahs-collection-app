@@ -64,7 +64,7 @@ class ProductGrid extends StatelessWidget {
           cacheExtent: 1500, // Optimization #3: Pre-render items outside viewport for smooth scrolling
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: Responsive.getGridColumnCount(context),
-            mainAxisExtent: DeviceUtils.getVerticalSize(400), // Increased height to fix overflow with 0.65 AR
+            mainAxisExtent: DeviceUtils.getVerticalSize(288), // Optimized height for balanced view
             mainAxisSpacing: DeviceUtils.m3Padding(4),
             crossAxisSpacing: DeviceUtils.m3HSpace(4),
           ),
@@ -106,7 +106,7 @@ class ProductGrid extends StatelessWidget {
         padding: EdgeInsets.all(DeviceUtils.m3Margin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: Responsive.getGridColumnCount(context),
-          mainAxisExtent: DeviceUtils.getVerticalSize(400), // Match main grid height
+          mainAxisExtent: DeviceUtils.getVerticalSize(288), // Match main grid height
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
