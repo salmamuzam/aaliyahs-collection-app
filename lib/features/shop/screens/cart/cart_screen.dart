@@ -191,12 +191,13 @@ class _CartScreenState extends State<CartScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Center(
-      child: SingleChildScrollView(
+    return Align(
+        alignment: Alignment.topCenter,
+        child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // Icon/Illustration Container with glassmorphism effect
               Container(
@@ -224,7 +225,7 @@ class _CartScreenState extends State<CartScreen> {
               
               // Text Content
               Text(
-                'Your Cart is Empty',
+                'Empty Cart!',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -233,7 +234,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Looks like you haven\'t added anything yet. Start shopping to find your next favorite items.',
+                'Browse Our Collections',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,

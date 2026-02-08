@@ -136,10 +136,10 @@ class AaliyahValidator {
 
   static String? validatePostalCode(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Empty Field! Please enter your postal code!';
+      return 'Please enter your postal code!';
     }
     if (!RegExp(r'^\d+$').hasMatch(value)) {
-      return 'Invalid Format! Please enter only numbers!';
+      return 'Please enter only numbers!';
     }
     return null;
   }
@@ -147,7 +147,7 @@ class AaliyahValidator {
   // Street Address
   static String? validateStreetAddress(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Empty Field! Please enter your address!';
+      return 'Please enter your address!';
     }
     if (value.length <= 3) {
       return 'Too Short! Please enter more than 3 characters!';
@@ -158,7 +158,7 @@ class AaliyahValidator {
   // City
   static String? validateCity(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Empty Field! Please enter your city!';
+      return 'Please enter your city!';
     }
     if (value.length < 2) {
       return 'Too Short! Please enter at least 2 characters!';
@@ -169,7 +169,7 @@ class AaliyahValidator {
   // Province
   static String? validateProvince(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Empty Field! Please enter your province!';
+      return 'Please enter your province!';
     }
     if (value.length <= 3) {
       return 'Too Short! Please enter more than 3 characters!';

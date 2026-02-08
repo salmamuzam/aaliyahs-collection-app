@@ -18,10 +18,6 @@ class CheckoutAddressStep extends StatelessWidget {
   final Function(TimeOfDay) onTimeSelected;
   
   // Field-specific error states
-  final bool streetHasError;
-  final bool cityHasError;
-  final bool postalHasError;
-  final bool provinceHasError;
   final bool dateHasError;
   final bool timeHasError;
 
@@ -38,10 +34,6 @@ class CheckoutAddressStep extends StatelessWidget {
     required this.onDateSelected,
     required this.selectedTime,
     required this.onTimeSelected,
-    this.streetHasError = false,
-    this.cityHasError = false,
-    this.postalHasError = false,
-    this.provinceHasError = false,
     this.dateHasError = false,
     this.timeHasError = false,
   });
@@ -70,7 +62,6 @@ class CheckoutAddressStep extends StatelessWidget {
             icon: Icons.home_rounded,
             validator: AaliyahValidator.validateStreetAddress,
             textInputAction: TextInputAction.next,
-            hasError: streetHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
@@ -79,7 +70,6 @@ class CheckoutAddressStep extends StatelessWidget {
             icon: Icons.location_city_rounded,
             validator: AaliyahValidator.validateCity,
             textInputAction: TextInputAction.next,
-            hasError: cityHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
@@ -88,7 +78,6 @@ class CheckoutAddressStep extends StatelessWidget {
             icon: Icons.markunread_mailbox_rounded,
             validator: AaliyahValidator.validatePostalCode,
             textInputAction: TextInputAction.next,
-            hasError: postalHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(
@@ -97,7 +86,6 @@ class CheckoutAddressStep extends StatelessWidget {
             icon: Icons.map_rounded,
             validator: AaliyahValidator.validateProvince,
             textInputAction: TextInputAction.done,
-            hasError: provinceHasError,
           ),
           const SizedBox(height: 16),
           CheckoutAddressField(label: 'Country', controller: countryController, icon: Icons.flag_rounded, enabled: false),
@@ -134,75 +122,88 @@ class CheckoutAddressStep extends StatelessWidget {
       label: 'Preferred Delivery Date',
       value: formattedDate,
       hint: 'Double tap to open calendar and select a delivery date',
-      child: InkWell(
-        onTap: () async {
-          final DateTime now = DateTime.now();
-          final DateTime? picked = await showDatePicker(
-            context: context,
-            initialDate: selectedDate ?? now,
-            firstDate: now, 
-            lastDate: now.add(const Duration(days: 30)),
-            helpText: 'Select Delivery Date',
-            confirmText: 'Continue',
-            cancelText: 'Dismiss',
-            fieldLabelText: 'Delivery Date',
-            fieldHintText: 'DD/MM/YYYY',
-          );
-          if (picked != null) onDateSelected(picked);
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () async {
+              final DateTime now = DateTime.now();
+              final DateTime? picked = await showDatePicker(
+                context: context,
+                initialDate: selectedDate ?? now,
+                firstDate: now, 
+                lastDate: now.add(const Duration(days: 30)),
+                helpText: 'Select Delivery Date',
+                confirmText: 'Continue',
+                cancelText: 'Dismiss',
+                fieldLabelText: 'Delivery Date',
+                fieldHintText: 'DD/MM/YYYY',
+              );
+              if (picked != null) onDateSelected(picked);
+            },
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: dateHasError ? colorScheme.error : colorScheme.outlineVariant,
-              width: dateHasError ? 2.0 : 1.0,
-            ),
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.calendar_month_rounded, 
-                color: dateHasError ? colorScheme.error : highlightColor,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Preferred Delivery Date',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: dateHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      selectedDate != null ? formattedDate : 'Select a Date',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Format: DD/MM/YYYY',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: dateHasError ? colorScheme.error : colorScheme.outlineVariant,
+                  width: dateHasError ? 2.0 : 1.0,
                 ),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
               ),
-              Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
-            ],
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_month_rounded, 
+                    color: dateHasError ? colorScheme.error : highlightColor,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Preferred Delivery Date',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: dateHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedDate != null ? formattedDate : 'Select a Date',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Format: DD/MM/YYYY',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (dateHasError)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Text(
+                'Please select Preferred Delivery Date!',
+                style: TextStyle(color: colorScheme.error, fontSize: 12),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -218,82 +219,95 @@ class CheckoutAddressStep extends StatelessWidget {
       label: 'Preferred Delivery Time',
       value: formattedTime,
       hint: 'Double tap to select a preferred arrival time',
-      child: InkWell(
-        onTap: () async {
-          final TimeOfDay nowTime = TimeOfDay.now();
-          final TimeOfDay? picked = await showTimePicker(
-            context: context,
-            initialTime: selectedTime ?? nowTime,
-            helpText: 'Select Arrival Time',
-            confirmText: 'Save',
-            cancelText: 'Dismiss',
-          );
-          
-          if (picked != null) {
-            // Check if selected time is in the past only if date is today
-            final DateTime now = DateTime.now();
-            if (selectedDate != null && 
-                selectedDate!.year == now.year && 
-                selectedDate!.month == now.month && 
-                selectedDate!.day == now.day) {
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () async {
+              final TimeOfDay nowTime = TimeOfDay.now();
+              final TimeOfDay? picked = await showTimePicker(
+                context: context,
+                initialTime: selectedTime ?? nowTime,
+                helpText: 'Select Arrival Time',
+                confirmText: 'Save',
+                cancelText: 'Dismiss',
+              );
               
-              if (picked.hour < nowTime.hour || (picked.hour == nowTime.hour && picked.minute < nowTime.minute)) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cannot select past time for today!'))
-                  );
+              if (picked != null) {
+                // Check if selected time is in the past only if date is today
+                final DateTime now = DateTime.now();
+                if (selectedDate != null && 
+                    selectedDate!.year == now.year && 
+                    selectedDate!.month == now.month && 
+                    selectedDate!.day == now.day) {
+                  
+                  if (picked.hour < nowTime.hour || (picked.hour == nowTime.hour && picked.minute < nowTime.minute)) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Cannot select past time for today!'))
+                      );
+                    }
+                    return;
+                  }
                 }
-                return;
+                onTimeSelected(picked);
               }
-            }
-            onTimeSelected(picked);
-          }
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
+            },
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: timeHasError ? colorScheme.error : colorScheme.outlineVariant,
-              width: timeHasError ? 2.0 : 1.0,
-            ),
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.access_time_rounded, 
-                color: timeHasError ? colorScheme.error : highlightColor,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Preferred Delivery Time',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: timeHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      selectedTime != null ? formattedTime : 'Select a Time',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: timeHasError ? colorScheme.error : colorScheme.outlineVariant,
+                  width: timeHasError ? 2.0 : 1.0,
                 ),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
               ),
-              Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
-            ],
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.access_time_rounded, 
+                    color: timeHasError ? colorScheme.error : highlightColor,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Preferred Delivery Time',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: timeHasError ? colorScheme.error : colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedTime != null ? formattedTime : 'Select a Time',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_drop_down_rounded, color: colorScheme.onSurfaceVariant),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (timeHasError)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Text(
+                'Please select Preferred Delivery Time!',
+                style: TextStyle(color: colorScheme.error, fontSize: 12),
+              ),
+            ),
+        ],
       ),
     );
   }

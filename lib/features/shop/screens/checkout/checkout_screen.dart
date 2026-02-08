@@ -160,10 +160,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           onDateSelected: (date) => checkout.setSelectedDate(date),
           selectedTime: checkout.selectedDeliveryTime,
           onTimeSelected: (time) => checkout.setSelectedTime(time),
-          streetHasError: checkout.streetHasError,
-          cityHasError: checkout.cityHasError,
-          postalHasError: checkout.postalHasError,
-          provinceHasError: checkout.provinceHasError,
           dateHasError: checkout.dateHasError,
           timeHasError: checkout.timeHasError,
         );
@@ -199,67 +195,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void _validateAndProceed(CheckoutController checkout) {
     checkout.resetErrors();
 
-    // 1. Street
-    final streetErr = AaliyahValidator.validateStreetAddress(checkout.streetController.text);
-    if (streetErr != null) {
-      checkout.setStreetError(true);
-      _showToastFromError(streetErr);
-      return;
-    }
-
-    // 2. City
-    final cityErr = AaliyahValidator.validateCity(checkout.cityController.text);
-    if (cityErr != null) {
-      checkout.setCityError(true);
-      _showToastFromError(cityErr);
-      return;
-    }
-
-    // 3. Postal Code
-    final postalErr = AaliyahValidator.validatePostalCode(checkout.postalCodeController.text);
-    if (postalErr != null) {
-      checkout.setPostalError(true);
-      _showToastFromError(postalErr);
-      return;
-    }
-
-    // 4. Province
-    final provinceErr = AaliyahValidator.validateProvince(checkout.provinceController.text);
-    if (provinceErr != null) {
-      checkout.setProvinceError(true);
-      _showToastFromError(provinceErr);
-      return;
+    // 1. Text Fields Validation (Handled by Form)
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+    if (!isFormValid) {
+      // Form fields will show their own error messages
+      return; 
     }
 
     // 5. Delivery Date
     if (checkout.selectedDeliveryDate == null) {
       checkout.setDateError(true);
-      _showToast(aaliyahEmptyFieldTitle, 'Please select Preferred Delivery Date!');
       return;
     }
 
     // 6. Delivery Time
     if (checkout.selectedDeliveryTime == null) {
       checkout.setTimeError(true);
-      _showToast(aaliyahEmptyFieldTitle, 'Please select Preferred Delivery Time!');
       return;
     }
 
     checkout.nextStep();
   }
 
-  void _showToastFromError(String errorMsg) {
-    String errorMessage = errorMsg;
-    String title = 'Validation Error';
 
-    if (errorMessage.contains('! ')) {
-      final List<String> parts = errorMessage.split('! ');
-      title = '${parts[0]}!';
-      errorMessage = parts.sublist(1).join('! ');
-      if (title == 'Empty Field!') title = aaliyahEmptyFieldTitle;
-    }
-    _showToast(title, errorMessage);
-  }
 
   void _showToast(String title, String message, {bool isError = true}) {
     toastification.show(
