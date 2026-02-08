@@ -204,7 +204,7 @@ class AaliyahAppTheme {
         backgroundColor: Colors.transparent,
         // surfaceTintColor: Colors.transparent, // Removed to allow M3 default tint/fill
         elevation: 0, // Level 0 resting
-        scrolledUnderElevation: 0, // M3 Expressive: No drop shadow, color fill only
+        // scrolledUnderElevation: 3, // Default M3 elevation is 3.0 when scrolled under
         iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         actionsIconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         titleTextStyle: AaliyahTypography.generateExtension(colorScheme.onSurface, isDark).titleLargeEmphasized,

@@ -6,12 +6,14 @@ class AccessibilityController with ChangeNotifier {
   bool _reduceMotion = false;
   bool _highContrast = false;
   bool _showSemanticsDebugger = false;
+  ThemeMode _themeMode = ThemeMode.system;
 
   Locale? _locale;
 
   bool get reduceMotion => _reduceMotion;
   bool get highContrast => _highContrast;
   bool get showSemanticsDebugger => _showSemanticsDebugger;
+  ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
 
   AccessibilityController() {
@@ -22,6 +24,10 @@ class AccessibilityController with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _reduceMotion = prefs.getBool('reduce_motion') ?? false;
     _highContrast = prefs.getBool('high_contrast') ?? false;
+    
+    // Load ThemeMode (0: system, 1: light, 2: dark)
+    final int themeIndex = prefs.getInt('theme_mode') ?? 0;
+    _themeMode = ThemeMode.values[themeIndex];
     
     final String? langCode = prefs.getString('app_locale');
     if (langCode != null) {
@@ -53,6 +59,13 @@ class AccessibilityController with ChangeNotifier {
     _highContrast = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('high_contrast', value);
+    notifyListeners();
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('theme_mode', mode.index);
     notifyListeners();
   }
 

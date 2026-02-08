@@ -145,9 +145,9 @@ class AaliyahTypography extends ThemeExtension<AaliyahTypography> {
       titleSmallEmphasized: GoogleFonts.robotoFlex(fontSize: 14, fontWeight: FontWeight.w700, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       
       // Body: 1.5 Height
-      bodyLargeEmphasized: GoogleFonts.robotoFlex(fontSize: 16, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
-      bodyMediumEmphasized: GoogleFonts.robotoFlex(fontSize: 14, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
-      bodySmallEmphasized: GoogleFonts.robotoFlex(fontSize: 12, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
+      bodyLargeEmphasized: GoogleFonts.robotoSerif(fontSize: 16, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
+      bodyMediumEmphasized: GoogleFonts.robotoSerif(fontSize: 14, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
+      bodySmallEmphasized: GoogleFonts.robotoSerif(fontSize: 12, fontWeight: FontWeight.w600, color: color, height: 1.5).copyWith(fontFamilyFallback: _fontFallback),
       
       // Label: 1.5 Height
       labelLargeEmphasized: GoogleFonts.robotoFlex(fontSize: 14, fontWeight: FontWeight.w700, color: color, height: 1.5, letterSpacing: 0.1).copyWith(fontFamilyFallback: _fontFallback),

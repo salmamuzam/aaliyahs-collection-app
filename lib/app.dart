@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
+import 'package:aaliyahs_collection_estore/routes/router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:toastification/toastification.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -20,11 +23,8 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/product_det
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/checkout_controller.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/errors/global_error_widget.dart';
 
-import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/signup/signup_screen.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/auth_wrapper.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 
 class AaliyahApp extends StatelessWidget {
@@ -138,21 +138,33 @@ class AaliyahApp extends StatelessWidget {
                     Locale('fr'),
                   ],
                   
+                  themeMode: accessController.themeMode, 
                   theme: lightTheme,
                   darkTheme: darkTheme,
                   
+                  // LAYER 3: Global Error Boundary
+                  // Prevents the "Gray Screen of Death" by showing a premium Error UI
                   builder: (context, child) {
-                    return child!;
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    
+                    // Setup Global Error Boundary builder
+                    ErrorWidget.builder = (FlutterErrorDetails details) {
+                      return GlobalErrorWidget(errorDetails: details);
+                    };
+
+                    return AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: SystemUiOverlayStyle(
+                        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+                        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                      ),
+                      child: child!,
+                    );
                   },
                   
                   // STEP 7: NAVIGATION SETUP
-                  initialRoute: '/',
-                  routes: {
-                    '/': (context) => const AuthWrapper(),
-                    '/login': (context) => const LoginScreen(),
-                    '/signup': (context) => const SignupScreen(),
-                    '/home': (context) => const NavigationMenu(),
-                  },
+                  initialRoute: AppRoutes.initial,
+                  onGenerateRoute: AppRouter.generateRoute,
                 );
               }
             );

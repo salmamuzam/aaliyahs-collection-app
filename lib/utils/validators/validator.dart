@@ -43,6 +43,41 @@ class AaliyahValidator {
     return null;
   }
 
+  static String? validateEmailOrUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email or Username is required!';
+    }
+
+    // If it contains '@', treat it as an email and validate strict format
+    if (value.contains('@')) {
+      final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+      if (!emailRegExp.hasMatch(value)) {
+        return 'Invalid email address!';
+      }
+    } 
+    // Otherwise, treat as username. 
+    // We can add simple constraints here if needed, e.g., min length
+    else if (value.length < 3) {
+      return 'Username must be at least 3 characters!';
+    }
+
+    return null;
+  }
+
+  // 2FA Code
+  static String? validate2FACode(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a valid code!';
+    }
+    if (value.length < 6) {
+      return 'Code must be 6 digits!';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'Code must contain only numbers!';
+    }
+    return null;
+  }
+
   // Password
 
   static String? validatePassword(String? value) {

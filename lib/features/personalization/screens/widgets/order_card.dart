@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:aaliyahs_collection_estore/features/personalization/screens/order_detail_screen.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
 
 class OrderCard extends StatelessWidget {
@@ -29,18 +29,20 @@ class OrderCard extends StatelessWidget {
       label: 'Order $orderId, placed on $orderDateStr. Status: $status.',
       button: true,
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OrderDetailScreen(order: order)),
+        Navigator.pushNamed(
+          context, 
+          AppRoutes.orderDetail, 
+          arguments: order
         );
       },
       child: Card.outlined(
         margin: const EdgeInsets.only(bottom: 16),
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => OrderDetailScreen(order: order)),
+            Navigator.pushNamed(
+              context, 
+              AppRoutes.orderDetail, 
+              arguments: order
             );
           },
         child: Padding(

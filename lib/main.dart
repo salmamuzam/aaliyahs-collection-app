@@ -11,17 +11,41 @@ import 'package:aaliyahs_collection_estore/data/services/image_cache_service.dar
 import 'package:aaliyahs_collection_estore/utils/helpers/performance_monitor.dart';
 import 'package:aaliyahs_collection_estore/app.dart';
 
-
 Future<void> main() async {
+  // LAYER 1: Framework Error Catching
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    // Future: Add Firebase Crashlytics here
+    debugPrint('🔴 FRAMEWORK ERROR: ${details.exception}');
+  };
+
+  // LAYER 2: Asynchronous error catching (Platform/Native/Async)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('🔴 ASYNC ERROR: $error');
+    return true; // Error has been handled
+  };
+
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: 'assets/.env');
+  
+  // Safe initialization
+  try {
+    await dotenv.load(fileName: 'assets/.env');
+  } catch (e) {
+    debugPrint('⚠️ Warning: .env file missing or corrupted. Falling back to defaults.');
+  }
+
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
-    debugPrint('Firebase Error: $e');
+    debugPrint('❌ Firebase Initialization Failed: $e');
   }
 
-  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
+  try {
+    Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
+  } catch (e) {
+    debugPrint('⚠️ Stripe key not found in .env');
+  }
+
   await NotificationService.initialize();
 
 
@@ -45,8 +69,6 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     systemNavigationBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark, // Default for light theme
-    systemNavigationBarIconBrightness: Brightness.dark,
   ));
 
   if (kDebugMode) {

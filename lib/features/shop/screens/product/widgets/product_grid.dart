@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/products/product_cards/product_card_vertical.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/product_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_loader.dart';
@@ -64,9 +64,9 @@ class ProductGrid extends StatelessWidget {
           cacheExtent: 1500, // Optimization #3: Pre-render items outside viewport for smooth scrolling
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: Responsive.getGridColumnCount(context),
-            mainAxisExtent: 290, // Fixed height for consistency with Best Sellers
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
+            mainAxisExtent: DeviceUtils.getVerticalSize(400), // Increased height to fix overflow with 0.65 AR
+            mainAxisSpacing: DeviceUtils.m3Padding(4),
+            crossAxisSpacing: DeviceUtils.m3HSpace(4),
           ),
           itemCount: products.length + (provider.hasMore ? 2 : 0),
           itemBuilder: (context, index) {
@@ -83,9 +83,10 @@ class ProductGrid extends StatelessWidget {
                 product: product,
                 heroPrefix: 'shop_',
                 onPress: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
+                  Navigator.pushNamed(
+                    context, 
+                    AppRoutes.productDetail, 
+                    arguments: product
                   );
                 },
                 onAddToCart: onAddToCart,
@@ -105,7 +106,7 @@ class ProductGrid extends StatelessWidget {
         padding: EdgeInsets.all(DeviceUtils.m3Margin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: Responsive.getGridColumnCount(context),
-          childAspectRatio: Responsive.getGridAspectRatio(context),
+          mainAxisExtent: DeviceUtils.getVerticalSize(400), // Match main grid height
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
@@ -148,17 +149,17 @@ class ProductGrid extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.search_off_rounded,
-                      size: 64,
+                      size: DeviceUtils.getSize(64),
                       color: colorScheme.primary.withValues(alpha: 0.1),
                     ),
                     Image.asset(
                       emptyProductsIllustration,
-                      height: 100,
+                      height: DeviceUtils.getVerticalSize(100),
                     ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn(),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: DeviceUtils.m3Padding(6)),
               
               // Text Content
               Text(

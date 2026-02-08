@@ -248,8 +248,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildItemImage(String imageUrl, bool isDarkMode) {
     return Container(
-      width: 90,
-      height: 90,
+      width: 70,
+      height: 100, // Taller aspect ratio for fashion
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
@@ -258,8 +258,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
         child: SmartImage(
           imageUrl: imageUrl, 
-          width: 90,
-          height: 90,
+          width: 70,
+          height: 100,
+          fit: BoxFit.cover,
           alignment: Alignment.topCenter,
         ),
       ),

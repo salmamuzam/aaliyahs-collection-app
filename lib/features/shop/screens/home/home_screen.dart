@@ -17,6 +17,8 @@ import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/ho
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_category_list.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_best_sellers_grid.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/texts/section_heading.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_layout.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(GlobalKey)? onAddToCartAnimation;
@@ -80,11 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted && productController.isUsingLocalData) {
       QuickAlert.show(
         context: context,
-        type: QuickAlertType.loading,
+        type: QuickAlertType.info,
         title: 'You are Offline!',
-        text: 'Loading Local Data',
+        text: 'Browsing Offline Collection',
         disableBackBtn: true,
-        autoCloseDuration: const Duration(milliseconds: 2500),
+        autoCloseDuration: const Duration(milliseconds: 3000),
       );
     }
   }
@@ -99,69 +101,58 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        // Removed internal AddToCartAnimation wrapper
         child: RefreshIndicator(
-            onRefresh: _fetchData,
-            child: isCompact
-                ? Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: DeviceUtils.maxContentWidth),
-                      child: CustomScrollView(
-                        key: const PageStorageKey<String>('home_compact_scroll'),
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
-                          _buildHeaderSection(),
-                          
-                          _buildCategorySection(),
-                          _buildBestSellersHeaderSection(),
-                          _buildBestSellersGridSection(),
-                          SliverToBoxAdapter(child: SizedBox(height: DeviceUtils.m3Padding(8))),
-                        ],
+          onRefresh: _fetchData,
+          child: AdaptivePaneLayout(
+            maxWidth: DeviceUtils.maxContentWidth,
+            panes: [
+              // PANE 1: Side Navigation (Fixed, Medium+)
+              AdaptivePaneItem(
+                id: 'home_side_nav',
+                config: PaneConfig(
+                  id: 'home_side_nav',
+                  isFixed: true,
+                  fixedWidth: DeviceUtils.recommendedFixedPaneWidth,
+                ),
+                minWindowSize: WindowSizeClass.medium,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    border: Border(
+                      right: BorderSide(
+                        color: ((isDarkMode 
+                                  ? aaliyahCustomColors?.success 
+                                  : aaliyahCustomColors?.successContainer) ?? Colors.transparent).withValues(alpha: 0.1),
                       ),
                     ),
-                  )
-                : Row(
-                    children: [
-                      // Left Pane: Category Navigation (Fixed)
-                      Container(
-                        width: DeviceUtils.recommendedFixedPaneWidth,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerLow,
-                          border: Border(
-                            right: BorderSide(
-                              color: ((isDarkMode 
-                                        ? aaliyahCustomColors?.success 
-                                        : aaliyahCustomColors?.successContainer) ?? Colors.transparent).withValues(alpha: 0.1),
-                            ),
-                          ),
-                        ),
-                        child: _buildCategoryNavigationPane(),
-                      ),
-                      
-                      // Right Pane: Main Content (Flexible)
-                      Expanded(
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: DeviceUtils.maxContentWidth),
-                            child: CustomScrollView(
-                              key: const PageStorageKey<String>('home_expanded_scroll'),
-                              controller: _scrollController,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              slivers: [
-                                _buildHeaderSection(),
-                                
-                                _buildBestSellersHeaderSection(),
-                                _buildBestSellersGridSection(),
-                                SliverToBoxAdapter(child: SizedBox(height: DeviceUtils.m3Padding(8))),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
+                  child: _buildCategoryNavigationPane(),
+                ),
+              ),
+              
+              // PANE 2: Main Content (Flexible, All Sizes)
+              AdaptivePaneItem(
+                id: 'home_main_content',
+                config: const PaneConfig(id: 'home_main_content'),
+                child: CustomScrollView(
+                  key: const PageStorageKey<String>('home_scroll'),
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    _buildHeaderSection(),
+                    
+                    // Only show category section on compact mobile
+                    if (isCompact) _buildCategorySection(),
+                    
+                    _buildBestSellersHeaderSection(),
+                    _buildBestSellersGridSection(),
+                    SliverToBoxAdapter(child: SizedBox(height: DeviceUtils.m3Padding(8))),
+                  ],
+                ),
+              ),
+            ],
           ),
+        ),
       ),
     );
   }

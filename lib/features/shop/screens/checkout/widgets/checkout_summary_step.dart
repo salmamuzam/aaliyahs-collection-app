@@ -144,11 +144,12 @@ class CheckoutSummaryStep extends StatelessWidget {
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 child: SmartImage(
                   imageUrl: image,
-                  width: 70,
-                  height: 70,
+                  width: 60,
+                  height: 80, // Taller aspect ratio
+                  fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
                   errorWidget: const Icon(Icons.error),
                 ),

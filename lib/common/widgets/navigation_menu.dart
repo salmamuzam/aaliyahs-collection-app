@@ -23,7 +23,12 @@ import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 class NavigationMenu extends StatefulWidget {
-  const NavigationMenu({super.key});
+  final int initialIndex;
+
+  const NavigationMenu({
+    super.key,
+    this.initialIndex = 0, // Default to Home (0)
+  });
 
   @override
   State<NavigationMenu> createState() => _NavigationMenuState();
@@ -33,11 +38,20 @@ class _NavigationMenuState extends State<NavigationMenu> {
   bool _isRailCollapsed = false; // M3 Expressive: Manual rail toggle state
   final GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
   Function(GlobalKey) runAddToCartAnimation = (key) {};
+  
+  // Robustness: Maintain reference to listener for proper disposal
+  VoidCallback? _connectivityListener;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // PRO NAVIGATION: Handle Initial Tab Selection
+      final navController = Provider.of<NavigationController>(context, listen: false);
+      if (navController.selectedIndex != widget.initialIndex) {
+        navController.setIndex(widget.initialIndex);
+      }
+
       Provider.of<UserController>(context, listen: false).fetchUserProfile();
       Provider.of<ProductController>(context, listen: false).fetchHomeData(); 
       
@@ -47,16 +61,29 @@ class _NavigationMenuState extends State<NavigationMenu> {
   }
 
 
+  @override
+  void dispose() {
+    // 🛡️ Robustness: Unregister listeners to prevent context leaks
+    if (_connectivityListener != null) {
+      try {
+        Provider.of<ConnectivityController>(context, listen: false).removeListener(_connectivityListener!);
+      } catch (_) {}
+    }
+    super.dispose();
+  }
+
   void _setupConnectivityListener() {
     final connectivity = Provider.of<ConnectivityController>(context, listen: false);
     bool lastStatus = connectivity.isConnected;
 
-    connectivity.addListener(() {
-      if (lastStatus != connectivity.isConnected) {
+    _connectivityListener = () {
+      if (lastStatus != connectivity.isConnected && mounted) {
         lastStatus = connectivity.isConnected;
         _showConnectivityAlert(connectivity.isConnected);
       }
-    });
+    };
+    
+    connectivity.addListener(_connectivityListener!);
   }
 
   void _showConnectivityAlert(bool isOnline) async {

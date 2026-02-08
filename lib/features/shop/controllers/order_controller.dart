@@ -67,4 +67,10 @@ class OrderController extends ChangeNotifier {
       notifyListeners();  // Update UI to hide loading spinner and show orders
     }
   }
+
+  // Clear all orders (used on logout)
+  void clearOrders() {
+    _orders = [];
+    notifyListeners();
+  }
 }

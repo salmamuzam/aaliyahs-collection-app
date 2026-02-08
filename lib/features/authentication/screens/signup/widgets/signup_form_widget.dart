@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_progress_indicator.dart';
 
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/form/auth_text_field.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
 
@@ -162,7 +163,10 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
       child: Consumer<AuthController>(
         builder: (context, authController, child) {
           return FilledButton(
-            onPressed: () => _handleSignUp(),
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              _handleSignUp();
+            },
             child: authController.isLoading
                 ? ExpressiveCircularProgressIndicator(
                     strokeWidth: 3, 
@@ -279,7 +283,7 @@ class _SignUpFormWidgetState extends State<SignUpFormWidget> {
       // Navigate to login page after successful registration
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     } else {
       _showToast(aaliyahRegistrationFailedTitle, result['message'] ?? aaliyahRegistrationFailedSubTitle, ToastificationType.error);
     }

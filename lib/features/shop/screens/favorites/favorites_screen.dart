@@ -8,10 +8,10 @@ import 'package:aaliyahs_collection_estore/features/shop/models/product_model.da
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/products/product_cards/product_card_vertical.dart';
-import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/product_detail_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/helpers/responsive_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart'; 
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
@@ -178,6 +178,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       title: 'My Wishlist',
       titleSpacing: 24.0,
       titlePadding: const EdgeInsets.only(top: 8.0),
+      leading: IconButton(
+        onPressed: () {
+          // If we can pop, do so. Otherwise go to Home tab (Index 0).
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            Provider.of<NavigationController>(context, listen: false).setIndex(0);
+          }
+        },
+        icon: const Icon(Icons.arrow_back_rounded),
+      ),
       actions: [
         const FavoriteAppBarAction(),
         CartAppBarAction(cartKey: _cartKey),
@@ -193,7 +204,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       padding: EdgeInsets.all(DeviceUtils.m3Margin),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: Responsive.getGridColumnCount(context),
-        childAspectRatio: Responsive.getGridAspectRatio(context),
+        mainAxisExtent: 400, // Fixed height to handle tall product cards without overflow
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
@@ -211,9 +222,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             if (_isSelectionMode && product.id != null) {
               _toggleSelection(product.id!);
             } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProductDetailScreen(product: product)),
+              Navigator.pushNamed(
+                context, 
+                AppRoutes.productDetail, 
+                arguments: product
               );
             }
           },
@@ -294,6 +306,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: FilledButton.tonal(
                 onPressed: () {
                   HapticFeedback.lightImpact();
+                  Navigator.of(context).pop();
                   Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
                 },
                 style: FilledButton.styleFrom(

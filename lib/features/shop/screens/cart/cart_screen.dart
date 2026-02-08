@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_layout.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
 
 
 // Modular Cart Widgets
@@ -113,44 +115,13 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartContent(BuildContext context, CartController provider, bool isDarkMode) {
-    final isCompact = DeviceUtils.isCompact;
-    final isMedium = DeviceUtils.isMedium;
-    
-    // Compact & Medium: Supporting pane BELOW
-    if (isCompact || isMedium) {
-      return Column(
-        children: [
-          _buildSelectAllHeader(context, provider),
-          Expanded(
-            child: ListView.separated(
-              controller: _scrollController,
-              padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin, vertical: 12),
-              itemCount: provider.cart.length + 1,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                if (index == provider.cart.length) {
-                  return _buildAddItemsButton(context);
-                }
-                return CartItemCard(
-                  item: provider.cart[index],
-                  index: index,
-                  provider: provider,
-                );
-              },
-            ),
-          ),
-          // Supporting pane below
-          CartBottomSection(provider: provider),
-        ],
-      );
-    }
-    
-    // Expanded+: Supporting pane on RIGHT SIDE (360dp fixed)
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Primary Pane: Cart Items (Flexible)
-        Expanded(
+    return AdaptivePaneLayout(
+      maxWidth: DeviceUtils.maxContentWidth,
+      panes: [
+        // PRIMARY PANE: Cart Items (Flexible)
+        AdaptivePaneItem(
+          id: 'cart_items',
+          config: const PaneConfig(id: 'cart_items'),
           child: Column(
             children: [
               _buildSelectAllHeader(context, provider),
@@ -172,34 +143,44 @@ class _CartScreenState extends State<CartScreen> {
                   },
                 ),
               ),
+              // On mobile, the bottom section is at the bottom of the screen
+              if (DeviceUtils.isCompact) CartBottomSection(provider: provider),
             ],
           ),
         ),
         
-        // Divider
-        VerticalDivider(
-          width: DeviceUtils.paneSpacer,
-          thickness: 1,
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
-        
-        // Supporting Pane: Order Summary (Fixed 360dp for expanded)
-        Container(
-          width: DeviceUtils.paneStandardWidth, // 360dp for expanded
-          padding: EdgeInsets.all(DeviceUtils.m3Margin),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Order Summary',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+        // SUPPORTING PANE: Order Summary (Fixed 360dp, Medium+)
+        AdaptivePaneItem(
+          id: 'cart_summary',
+          config: const PaneConfig(
+            id: 'cart_summary',
+            isFixed: true,
+            fixedWidth: DeviceUtils.paneStandardWidth,
+          ),
+          minWindowSize: WindowSizeClass.medium,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
-              SizedBox(height: DeviceUtils.m3Padding(6)),
-              const Expanded(child: SizedBox.shrink()),
-              CartBottomSection(provider: provider, isInPane: true),
-            ],
+            ),
+            padding: EdgeInsets.all(DeviceUtils.m3Margin),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Order Summary',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: DeviceUtils.m3Padding(6)),
+                const Spacer(),
+                CartBottomSection(provider: provider, isInPane: true),
+              ],
+            ),
           ),
         ),
       ],
@@ -268,6 +249,9 @@ class _CartScreenState extends State<CartScreen> {
                 child: FilledButton.tonal(
                   onPressed: () {
                     HapticFeedback.lightImpact();
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
                     Provider.of<NavigationController>(context, listen: false).setIndex(1); // Go to Shop
                   },
                   style: FilledButton.styleFrom(

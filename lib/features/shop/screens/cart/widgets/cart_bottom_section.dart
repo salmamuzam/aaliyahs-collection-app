@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:aaliyahs_collection_estore/utils/device/connectivity_controller.dart';
 
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/checkout_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
@@ -57,23 +59,29 @@ class CartBottomSection extends StatelessWidget {
   }
 
   Widget _buildCheckoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-          );
-        },
-        child: const Text(
-          'Checkout',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+    return Consumer<ConnectivityController>(
+      builder: (context, connectivity, child) {
+        final bool isOnline = connectivity.isConnected;
+        
+        return SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: isOnline ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+              );
+            } : null, // Disable when offline
+            child: Text(
+              isOnline ? 'Checkout' : 'Checkout Unavailable (Offline)',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

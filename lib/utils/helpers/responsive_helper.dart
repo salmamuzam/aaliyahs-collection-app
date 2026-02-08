@@ -73,10 +73,10 @@ class Responsive extends StatelessWidget {
   // Dynamic Aspect Ratio to prevent overflows on different screen sizes
   static double getGridAspectRatio(BuildContext context) {
     double width = screenWidth(context);
-    if (width > 1200) return 0.58; // Increased space
-    if (width > 800) return 0.53;  // Increased space
-    if (width < 360) return 0.48; // Significantly more space for small screens
-    return 0.50; // Better for standard phones
+    if (width > 1200) return 0.55; // Increased space
+    if (width > 800) return 0.50;  // Increased space
+    if (width < 360) return 0.44; // Significantly more space for small screens
+    return 0.46; // Better for standard phones
   }
 
   // Helper for responsive padding using relative dimensions

@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/signup/signup_screen.dart';
-
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -70,10 +68,7 @@ class WelcomeScreen extends StatelessWidget {
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            ),
+            onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
             style: OutlinedButton.styleFrom(
               padding: DeviceUtils.getPadding(vertical: 16),
               side: BorderSide(color: isDarkMode ? Colors.white70 : colorScheme.primary),
@@ -92,10 +87,7 @@ class WelcomeScreen extends StatelessWidget {
         SizedBox(width: DeviceUtils.getHorizontalSize(15)),
         Expanded(
           child: FilledButton(
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const SignupScreen()),
-            ),
+            onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
             style: FilledButton.styleFrom(
               padding: DeviceUtils.getPadding(vertical: 16),
               backgroundColor: isDarkMode ? Colors.white : colorScheme.primary,

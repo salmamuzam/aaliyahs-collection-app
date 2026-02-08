@@ -109,6 +109,12 @@ class FavoriteController extends ChangeNotifier {
   bool isExists(ProductModel product) => 
     _favorites.any((p) => (product.id != null && p.id == product.id) || p.name == product.name);
 
+  // Clear all favorites (used on logout)
+  Future<void> clearFavorites() async {
+    _favorites.clear();
+    notifyListeners();
+  }
+
   // ============================================================================
   // HELPER METHOD - Access Controller from Widget
   // ============================================================================

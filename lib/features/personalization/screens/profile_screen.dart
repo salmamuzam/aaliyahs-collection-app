@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:flutter/material.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:light/light.dart';
@@ -13,11 +14,13 @@ import 'package:aaliyahs_collection_estore/features/authentication/screens/login
 import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
+import 'package:aaliyahs_collection_estore/features/personalization/controllers/address_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/order_controller.dart';
 
 import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
-import 'package:aaliyahs_collection_estore/features/personalization/screens/order_history_screen.dart';
-import 'package:aaliyahs_collection_estore/features/personalization/screens/my_account_screen.dart';
-
 // Profile Feature Widgets
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_header.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_menu_item.dart';
@@ -201,22 +204,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: DeviceUtils.maxContentWidth),
-          child: SingleChildScrollView(
-            key: const PageStorageKey<String>('profile_scroll'),
-            controller: _scrollController,
-            padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
-            child: Column(
-              children: [
-                SizedBox(height: DeviceUtils.getVerticalSize(20)),
-                ProfileHeader(localImageFile: _imageFile, onEditImage: _showImagePickerOptions),
-                SizedBox(height: DeviceUtils.getVerticalSize(30)),
-                _buildEditProfileButton(),
-                SizedBox(height: DeviceUtils.getVerticalSize(40)),
-                _buildMenuItems(),
-                SizedBox(height: DeviceUtils.getVerticalSize(40)),
-              ],
+            child: RefreshIndicator(
+              onRefresh: () async {
+                final userController = Provider.of<UserController>(context, listen: false);
+                await userController.refreshUser();
+              },
+              child: SingleChildScrollView(
+                key: const PageStorageKey<String>('profile_scroll'),
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
+                child: Column(
+                  children: [
+                    SizedBox(height: DeviceUtils.m3Padding(5)),
+                    ProfileHeader(localImageFile: _imageFile, onEditImage: _showImagePickerOptions),
+                    SizedBox(height: DeviceUtils.m3Padding(8)),
+                    _buildEditProfileButton(),
+                    SizedBox(height: DeviceUtils.m3Padding(10)),
+                    _buildMenuItems(),
+                    SizedBox(height: DeviceUtils.m3Padding(10)),
+                  ],
+                ),
+              ),
             ),
-          ),
         ),
       ),
     );
@@ -226,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return SizedBox(
       height: 56,
       child: FilledButton(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MyAccountScreen())),
+        onPressed: () => Navigator.pushNamed(context, AppRoutes.userAccount),
         child: const Text('Edit profile'),
       ),
     );
@@ -246,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Your orders',
               icon: Icons.shopping_bag_outlined,
               iconColor: iconColor,
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen())),
+              onTap: () => Navigator.pushNamed(context, AppRoutes.order),
             ),
           ),
         ),
@@ -261,6 +271,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.settings_rounded,
               iconColor: iconColor,
               onTap: () => _showSettingsSheet(),
+            ),
+          ),
+        ),
+        SizedBox(height: DeviceUtils.m3Padding(2)),
+        Semantics(
+          label: 'Clear browsing history',
+          button: true,
+          child: _buildSegmentedItem(
+            context,
+            ProfileMenuItem(
+              title: 'Clear browsing history',
+              icon: Icons.history_rounded,
+              iconColor: iconColor,
+              onTap: () async {
+                final productController = context.read<ProductController>();
+                await productController.clearRecentlyViewed();
+                if (mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Browsing history cleared!')),
+                  );
+                }
+              },
             ),
           ),
         ),
@@ -332,11 +364,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           FilledButton(
             onPressed: () async {
-              final authController = Provider.of<AuthController>(dialogContext, listen: false);
-              final userController = Provider.of<UserController>(dialogContext, listen: false);
+              final authController = context.read<AuthController>();
+              final userController = context.read<UserController>();
+              final cartController = context.read<CartController>();
+              final favoriteController = context.read<FavoriteController>();
+              final addressController = context.read<AddressController>();
+              final orderController = context.read<OrderController>();
+              final productController = context.read<ProductController>();
+              
               Navigator.pop(dialogContext);
+              
+              // Multi-layer State Reset
               await authController.logout();
-              userController.clearUser();
+              await userController.clearUser();
+              await cartController.clearCart();
+              await favoriteController.clearFavorites();
+              addressController.clearAddresses();
+              orderController.clearOrders();
+              await productController.clearRecentlyViewed();
               
               if (!mounted) return;
               Navigator.pushAndRemoveUntil(

@@ -188,6 +188,9 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> fetchHomeData({String? token}) async {
+    // 🛡️ Robustness: Prevent concurrent home data fetches
+    if (_isLoading) return;
+
     _setLoading(true);
     _errorMessage = '';
     _isUsingLocalData = false; 
@@ -317,6 +320,12 @@ class ProductController extends ChangeNotifier {
   }
 
   List<ProductModel> get recentlyViewedProductModels => _recentlyViewedProducts;
+  
+  Future<void> clearRecentlyViewed() async {
+    _recentlyViewedProducts.clear();
+    await _dataRepository.clearRecentlyViewed();
+    notifyListeners();
+  }
 
   Future<void> loadRecentlyViewedProductModels() async {
      final ids = await _dataRepository.getRecentlyViewed();

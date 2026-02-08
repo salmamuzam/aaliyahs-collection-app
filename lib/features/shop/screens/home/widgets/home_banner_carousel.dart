@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/image_strings.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
 class HomeBannerCarousel extends StatefulWidget {
   const HomeBannerCarousel({super.key});
@@ -25,7 +26,7 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
       children: [
         CarouselSlider(
           options: CarouselOptions(
-            height: 180,
+            height: DeviceUtils.getVerticalSize(180),
             viewportFraction: 1.0,
             autoPlay: true,
             onPageChanged: (index, reason) {
@@ -65,9 +66,9 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                     ),
                     // Text Content
                     Positioned(
-                      bottom: 20,
-                      left: 20,
-                      right: 20,
+                      bottom: DeviceUtils.m3Padding(5),
+                      left: DeviceUtils.m3HSpace(5),
+                      right: DeviceUtils.m3HSpace(5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -94,7 +95,7 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
             );
           }).toList(),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: DeviceUtils.m3Padding(3)),
         AnimatedIndicator(activeIndex: _activeIndex, count: _bannerImages.length),
       ],
     );

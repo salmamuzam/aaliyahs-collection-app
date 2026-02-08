@@ -144,9 +144,13 @@ class DeviceUtils {
   /// Standard M3 Spacer between panes (usually 24dp).
   static double get m3Spacer => 24.0;
 
-  /// Returns padding in M3 recommended 4dp increments.
-  /// Example: m3Padding(2) returns 8.0, m3Padding(4) returns 16.0
-  static double m3Padding(int multiplier) => multiplier * 4.0;
+  /// Returns padding in M3 recommended 4dp increments, SCALED vertically.
+  /// This ensures that on small phones, vertical gaps shrink to fit content.
+  /// Example: m3Padding(2) returns ~8.0, scaled to the screen height.
+  static double m3Padding(int multiplier) => getVerticalSize(multiplier * 4.0);
+
+  /// Returns padding in M3 recommended 4dp increments, SCALED horizontally.
+  static double m3HSpace(int multiplier) => getHorizontalSize(multiplier * 4.0);
 
   /// Standard M3 Minimum Interactive Target Size (48x48dp).
   static double get m3TargetSize => 48.0;

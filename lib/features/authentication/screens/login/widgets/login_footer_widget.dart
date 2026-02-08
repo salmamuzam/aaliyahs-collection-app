@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:auth_buttons/auth_buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
-
+import 'package:auth_buttons/auth_buttons.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 
 class LoginFooterWidget extends StatelessWidget {
@@ -44,7 +44,7 @@ class LoginFooterWidget extends StatelessWidget {
         description: Text("Signed in as ${result['name']}"),
         autoCloseDuration: const Duration(seconds: 3),
       );
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.navigationMenu, (route) => false);
     } else if (result['status'] == 'cancelled') {
         // User cancelled
     } else {

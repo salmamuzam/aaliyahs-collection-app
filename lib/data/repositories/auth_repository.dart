@@ -38,11 +38,35 @@ class AuthRepository {
       'password_confirmation': passwordConfirmation,
     };
     
-    return await _apiClient.request(
+    final response = await _apiClient.request<Map<String, dynamic>>(
       path: ApiEndpoints.register,
       method: MethodType.post,
       payload: data,
     );
+
+    if (response.success && response.data != null) {
+      final responseData = response.data!;
+      // Extract token from nested 'data' or root
+      final Map<String, dynamic> body = responseData['data'] ?? responseData;
+      
+      if (body['token'] != null) {
+        final token = body['token'];
+        await _storage.write(key: 'token', value: token);
+        
+        // 🔐 SECURE STORAGE: Save credentials for biometrics immediately after register
+        try {
+          await _storage.write(key: 'bio_email', value: email);
+          await _storage.write(key: 'bio_password', value: password);
+          debugPrint('🔐 [AUTH REPO]: Biometric credentials saved after registration');
+        } catch (e) {
+          debugPrint('🔐 [AUTH REPO]: Error saving bio credentials: $e');
+        }
+        
+        _apiClient.setToken(token);
+      }
+    }
+
+    return response;
   }
 
   Future<ApiResponse<Map<String, dynamic>>> login({

@@ -172,7 +172,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                       Container(
                         key: widgetKey,
                         child: AspectRatio(
-                          aspectRatio: 1,
+                          aspectRatio: 0.65, // Taller/Slimmer aspect ratio for fashion
                           child: widget.product.id != 0 
                             ? Hero(
                                 tag: "${widget.heroPrefix ?? ''}ProductModel_${widget.product.id ?? widget.product.name}_0",
@@ -181,6 +181,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                             : _buildProductImage(),
                         ),
                       ),
+
                       
                       SizedBox(height: DeviceUtils.m3Padding(4)),
 
@@ -195,7 +196,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                                   color: effectiveScheme.onSurface,
                                   height: 1.2,
                                 ),
-                                maxLines: 3,
+                                maxLines: 2, // Reduce max lines to preventative overflow with taller image
                                 minFontSize: 8,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -222,7 +223,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                                 height: 32,
                                 child: FilledButton(
                                   onPressed: () {
-                                    HapticFeedback.selectionClick();
+                                    HapticFeedback.mediumImpact();
                                     CartController.of(context, listen: false).addToCart(widget.product);
                                     if (widget.onAddToCart != null) widget.onAddToCart!(widgetKey);
                                   },
@@ -319,13 +320,13 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
           : SmartImage(
               imageUrl: widget.product.image,
               alignment: Alignment.topCenter,
-              cacheWidth: ImageCacheSizes.productThumbnail,
-              cacheHeight: ImageCacheSizes.productThumbnail,
+              fit: BoxFit.cover, // Ensures image covers area without distortion
+              // cacheWidth/Height removed to allow full resolution / SmartImage optimal calc
               placeholder: Shimmer.fromColors(
                 baseColor: const Color(0xffe6e6e6),
                 highlightColor: const Color(0xfff9f9f9),
                 child: Container(
-                  height: 200,
+                  height: 300,
                   width: 200,
                   decoration: BoxDecoration(
                     color: Colors.white,

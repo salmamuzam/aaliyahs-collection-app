@@ -71,4 +71,9 @@ class AddressController extends ChangeNotifier {
       debugPrint('Error deleting address: $e');
     }
   }
+  // Clear all addresses (used on logout)
+  void clearAddresses() {
+    _addresses = [];
+    notifyListeners();
+  }
 }

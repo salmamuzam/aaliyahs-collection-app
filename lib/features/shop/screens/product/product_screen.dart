@@ -9,6 +9,7 @@ import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
+import 'package:aaliyahs_collection_estore/common/widgets/appbar/search_app_bar.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_layout.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/texts/section_heading.dart';
@@ -107,11 +108,11 @@ class _ProductScreenState extends State<ProductScreen> {
     if (mounted && provider.isUsingLocalData) {
       QuickAlert.show(
         context: context,
-        type: QuickAlertType.loading,
+        type: QuickAlertType.info,
         title: 'You are Offline!',
-        text: 'Loading Local Data',
+        text: 'Browsing Offline Collection',
         disableBackBtn: true,
-        autoCloseDuration: const Duration(milliseconds: 2500),
+        autoCloseDuration: const Duration(milliseconds: 3000),
       );
     }
   }
@@ -197,15 +198,15 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   PreferredSizeWidget _buildSearchAppBar(BuildContext context) {
-    return AppBar(
-      title: const Text('Shop'),
-      leading: IconButton(
-        onPressed: () {
-          Provider.of<NavigationController>(context, listen: false).setIndex(0);
-        },
-        icon: const Icon(Icons.arrow_back_rounded),
-        tooltip: 'Back to Home',
-      ),
+    return AaliyahSearchAppBar(
+      controller: _searchController,
+      hintText: 'Search modest fashion...',
+      isListening: _isListening,
+      onMicPress: _listen,
+      onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
+      onBackPress: () {
+        Provider.of<NavigationController>(context, listen: false).setIndex(0);
+      },
       actions: [
         const FavoriteAppBarAction(),
         CartAppBarAction(cartKey: _cartKey),
@@ -215,33 +216,11 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildMobileBody() {
-    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         // M3 Official SearchBar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: SearchBar(
-            controller: _searchController,
-            onChanged: (value) => Provider.of<ProductController>(context, listen: false).setSearchQuery(value),
-            hintText: _isListening ? 'Listening...' : 'Search modest fashion...',
-            leading: Icon(Icons.search_rounded, color: colorScheme.onSurfaceVariant),
-            trailing: [
-              IconButton(
-                onPressed: _listen,
-                icon: Icon(
-                  _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                  color: _isListening ? colorScheme.error : colorScheme.onSurfaceVariant,
-                ),
-                tooltip: 'Voice Search',
-              ),
-            ],
-            elevation: WidgetStateProperty.all(0),
-            side: WidgetStateProperty.all(BorderSide(color: colorScheme.outlineVariant, width: 1.5)),
-            backgroundColor: WidgetStateProperty.all(colorScheme.surfaceContainer),
-            padding: const WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 16.0)),
-         ),
-        ),
+        // M3 Official SearchBar (Now in AppBar - adding subtle spacing instead)
+        SizedBox(height: DeviceUtils.m3Padding(2)),
         
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
@@ -268,7 +247,6 @@ class _ProductScreenState extends State<ProductScreen> {
               );
             },
             child: ProductGrid(
-              key: ValueKey(Provider.of<ProductController>(context).selectedCategoryId),
               scrollController: _scrollController,
               onAddToCart: (key) {
                 if (_runAddToCartAnimation != null) {
@@ -336,7 +314,6 @@ class _ProductScreenState extends State<ProductScreen> {
         );
       },
       child: ProductGrid(
-        key: ValueKey(Provider.of<ProductController>(context).selectedCategoryId),
         scrollController: _scrollController,
         onAddToCart: (key) {
           if (_runAddToCartAnimation != null) {

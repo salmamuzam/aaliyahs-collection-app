@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
+import 'package:aaliyahs_collection_estore/features/shop/models/cart_item.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
@@ -102,17 +103,17 @@ class DBHelper {
 
   // --- CART OPERATIONS ---
 
-  Future<int> insertCart(ProductModel productModel) async {
+  Future<int> insertCart(CartItem item) async {
     try {
       final Database db = await database;
       return await db.insert('cart', {
-        'productId': productModel.id,
-        'name': productModel.name,
-        'description': productModel.description,
-        'price': productModel.price,
-        'image': productModel.image,
-        'CategoryModel': productModel.categoryName,
-        'quantity': productModel.quantity,
+        'productId': item.id,
+        'name': item.name,
+        'description': item.description,
+        'price': item.price.toString(),
+        'image': item.image,
+        'CategoryModel': item.categoryName,
+        'quantity': item.quantity,
       }, conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (e) {
       debugPrint('DB Insert Cart Error: $e');
@@ -120,14 +121,14 @@ class DBHelper {
     }
   }
 
-  Future<int> updateCartQuantity(String name, int quantity) async {
+  Future<int> updateCartQuantity(int productId, int quantity) async {
     try {
       final Database db = await database;
       return await db.update(
         'cart',
         {'quantity': quantity},
-        where: 'name = ?',
-        whereArgs: [name],
+        where: 'productId = ?',
+        whereArgs: [productId],
       );
     } catch (e) {
       debugPrint('DB Update Cart Error: $e');
@@ -135,13 +136,13 @@ class DBHelper {
     }
   }
 
-  Future<int> deleteFromCart(String name) async {
+  Future<int> deleteFromCart(int productId) async {
     try {
       final Database db = await database;
       return await db.delete(
         'cart',
-        where: 'name = ?',
-        whereArgs: [name],
+        where: 'productId = ?',
+        whereArgs: [productId],
       );
     } catch (e) {
       debugPrint('DB Delete Cart Error: $e');
@@ -161,17 +162,17 @@ class DBHelper {
     }
   }
 
-  Future<List<ProductModel>> getCartItems() async {
+  Future<List<CartItem>> getCartItems() async {
     try {
       final Database db = await database;
       final List<Map<String, dynamic>> maps = await db.query('cart');
 
-      return maps.map((item) => ProductModel(
+      return maps.map((item) => CartItem(
         id: item['productId'],
         name: item['name'],
         description: item['description'],
-        price: item['price'],
-        images: [item['image'] ?? ''],
+        price: double.tryParse(item['price'].toString()) ?? 0.0,
+        image: item['image'] ?? '',
         categoryName: item['CategoryModel'],
         quantity: item['quantity'],
       )).toList();

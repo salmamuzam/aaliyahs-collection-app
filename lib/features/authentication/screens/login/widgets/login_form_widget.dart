@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_progress_indicator.dart';
 
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
-import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
+
 import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/forget_password/forget_password_screen.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/screens/two_factor/two_factor_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
+import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/form/auth_text_field.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/data/services/biometric_service.dart';
+import 'package:aaliyahs_collection_estore/utils/validators/validator.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -33,10 +36,6 @@ class _LoginFormState extends State<LoginForm> {
   bool _isBioAvailable = false;
   bool _rememberMe = false;
   
-  // Error state tracking
-  bool _emailHasError = false;
-  bool _passwordHasError = false;
-
   final ValueNotifier<bool> _obscurePasswordNotifier = ValueNotifier<bool>(true);
 
   @override
@@ -60,12 +59,6 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  void _clearErrors() {
-    setState(() {
-      _emailHasError = false;
-      _passwordHasError = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +81,9 @@ class _LoginFormState extends State<LoginForm> {
                   prefixIcon: Icons.person_outline_rounded,
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                  hasError: _emailHasError,
+                  validator: AaliyahValidator.validateEmailOrUsername,
                 ),
-                SizedBox(height: TUIConstants.relativeHeight(context, 0.02)),
+                SizedBox(height: DeviceUtils.m3Padding(4)),
                 
                 ValueListenableBuilder<bool>(
                   valueListenable: _obscurePasswordNotifier,
@@ -103,7 +96,7 @@ class _LoginFormState extends State<LoginForm> {
                       obscureText: obscure,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _handleLogin(),
-                      hasError: _passwordHasError,
+                      validator: (value) => value == null || value.isEmpty ? 'Password is required' : null,
                       suffixIcon: IconButton(
                         onPressed: () => _obscurePasswordNotifier.value = !obscure,
                         tooltip: obscure ? 'Show password' : 'Hide password',
@@ -115,16 +108,16 @@ class _LoginFormState extends State<LoginForm> {
                     );
                   },
                 ),
-                const SizedBox(height: 10), // Adjusting top gap
+                const SizedBox(height: 8), // Adjusting top gap
                 
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(2)),
                   child: _buildRememberMeAndForgetPassword(context, isDarkMode),
                 ),
                 
-                const SizedBox(height: 15), // Gap before login button
+                SizedBox(height: DeviceUtils.m3Padding(4)), // Gap before login button
                 _buildLoginButton(),
-                const SizedBox(height: 20), // Added small gap after sign in button
+                SizedBox(height: DeviceUtils.m3Padding(5)), // Added small gap after sign in button
                 if (_isBioAvailable) ...[ 
                   _buildBiometricButton(),
                 ],
@@ -135,7 +128,6 @@ class _LoginFormState extends State<LoginForm> {
                 curve: AMotion.easingEmphasizedDecelerate,
               ).slideY(
                 begin: 0.1, 
-                end: 0,
                 duration: AMotion.durationEnterEmphasized,
                 curve: AMotion.easingEmphasizedDecelerate,
               ),
@@ -233,7 +225,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: DeviceUtils.m3HSpace(2)),
               Text(
                 aaliyahRememberMe,
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -268,7 +260,10 @@ class _LoginFormState extends State<LoginForm> {
       child: Consumer<AuthController>(
         builder: (context, authController, child) {
           return FilledButton(
-            onPressed: () => _handleLogin(),
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              _handleLogin();
+            },
             child: authController.isLoading
                 ? ExpressiveCircularProgressIndicator(
                     strokeWidth: 3, 
@@ -289,16 +284,9 @@ class _LoginFormState extends State<LoginForm> {
     final authController = context.read<AuthController>();
     if (authController.isLoading) return;
     
-    // Clear previous errors
-    _clearErrors();
-    
-    // Check for empty fields
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      setState(() {
-        _emailHasError = _emailController.text.isEmpty;
-        _passwordHasError = _passwordController.text.isEmpty;
-      });
-      _showErrorToast(aaliyahEmptyFieldTitle, aaliyahEmptyFieldSubTitle);
+    // Validate form using standard Flutter validation
+    if (!_formKey.currentState!.validate()) {
+      HapticFeedback.mediumImpact();
       return;
     }
 
@@ -321,11 +309,6 @@ class _LoginFormState extends State<LoginForm> {
         ),
       );
     } else {
-      // Highlight fields in red for incorrect credentials
-      setState(() {
-        _emailHasError = true;
-        _passwordHasError = true;
-      });
       _showErrorToast(aaliyahInvalidCredTitle, aaliyahInvalidCredSubTitle);
     }
   }

@@ -1,7 +1,7 @@
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/cart_item.dart';
-import 'package:aaliyahs_collection_estore/data/repositories/data_repository.dart';
+import 'package:aaliyahs_collection_estore/utils/local_storage/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -24,8 +24,8 @@ class CartController extends ChangeNotifier {
   // Private list of cart items (only this controller can modify)
   List<CartItem> _cart = [];
   
-  // Database repository for saving/loading cart
-  final DataRepository _dataRepository = DataRepository();
+  // Database helper for saving/loading cart
+  final DBHelper _dbHelper = DBHelper();
   
   // Selection logic for bulk actions (Requirement: MD3 Checkbox Usage)
   final Set<int> _selectedItemIds = {};
@@ -59,7 +59,7 @@ class CartController extends ChangeNotifier {
   // Called when app starts to restore previously saved cart items
   Future<void> loadCart() async {
     try {
-      _cart = await _dataRepository.getCart();  // Get saved cart from SQLite
+      _cart = await _dbHelper.getCartItems();  // Get saved cart from SQLite
       notifyListeners();  // Tell UI to update with loaded data
     } catch (e) {
       debugPrint('Error loading cart: $e');
@@ -77,7 +77,7 @@ class CartController extends ChangeNotifier {
       if (existingIndex != -1) {
         // Product already in cart - just increase quantity
         _cart[existingIndex].quantity++;
-        await _dataRepository.updateCartItemQuantity(
+        await _dbHelper.updateCartQuantity(
           _cart[existingIndex].id, 
           _cart[existingIndex].quantity
         );
@@ -86,11 +86,13 @@ class CartController extends ChangeNotifier {
         final CartItem newItem = CartItem(
           id: product.id ?? 0,
           name: product.name,
-          price: _parsePrice(product.price),
+          price: product.priceDouble,
           image: product.image,
+          categoryName: product.categoryName,
+          description: product.description,
         );
         _cart.add(newItem);
-        await _dataRepository.addToCart(newItem);
+        await _dbHelper.insertCart(newItem);
       }
       
       // Update UI to show new cart count
@@ -107,8 +109,10 @@ class CartController extends ChangeNotifier {
     try {
       // Validate index is within range
       if (index >= 0 && index < _cart.length) {
+        final int itemId = _cart[index].id;
+        
         // Remove from database
-        await _dataRepository.removeFromCart(_cart[index].id);
+        await _dbHelper.deleteFromCart(itemId);
         
         // Remove from local list
         _cart.removeAt(index);
@@ -130,7 +134,7 @@ class CartController extends ChangeNotifier {
       _cart[index].quantity++;
       
       // Save to database
-      await _dataRepository.updateCartItemQuantity(
+      await _dbHelper.updateCartQuantity(
         _cart[index].id, 
         _cart[index].quantity
       );
@@ -152,7 +156,7 @@ class CartController extends ChangeNotifier {
         _cart[index].quantity--;
         
         // Save to database
-        await _dataRepository.updateCartItemQuantity(
+        await _dbHelper.updateCartQuantity(
           _cart[index].id, 
           _cart[index].quantity
         );
@@ -195,15 +199,6 @@ class CartController extends ChangeNotifier {
     return formatter.format(totalPrice());
   }
 
-  // ============================================================================
-  // PARSE PRICE - Convert String to Number
-  // ============================================================================
-  // Removes currency symbols and text, keeps only numbers and decimal point
-  // Example: "LKR 1,234.56" → 1234.56
-  double _parsePrice(String price) {
-    final String cleanPrice = price.replaceAll(RegExp(r'[^0-9.]'), '');
-    return double.tryParse(cleanPrice) ?? 0.0;
-  }
 
   // ============================================================================
   // CLEAR CART - Remove All Items
@@ -212,7 +207,7 @@ class CartController extends ChangeNotifier {
   Future<void> clearCart() async {
     try {
       // Clear from database
-      await _dataRepository.clearCart();
+      await _dbHelper.clearCart();
       
       // Clear local list
       _cart.clear();

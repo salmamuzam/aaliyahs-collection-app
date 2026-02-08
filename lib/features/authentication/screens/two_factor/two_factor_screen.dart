@@ -1,16 +1,16 @@
-import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/features/authentication/controllers/auth_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:aaliyahs_collection_estore/features/authentication/screens/login/login_screen.dart';
-import 'package:toastification/toastification.dart';
+import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
+import 'package:toastification/toastification.dart'; // Still needed for success toast
 import 'package:pinput/pinput.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_progress_indicator.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
+import 'package:aaliyahs_collection_estore/utils/validators/validator.dart';
 
 class TwoFactorScreen extends StatefulWidget {
   final String login;
@@ -26,7 +26,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
   final TextEditingController _pinController = TextEditingController();
   
   // Error state tracking
-  bool _hasError = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -35,8 +35,8 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
   }
 
   void _clearError() {
-    if (_hasError) {
-      setState(() => _hasError = false);
+    if (_errorMessage != null) {
+      setState(() => _errorMessage = null);
     }
   }
 
@@ -48,10 +48,10 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     
     final String code = _pinController.text;
     
-    // Check for empty or incomplete code
-    if (code.isEmpty || code.length < 6) {
-      setState(() => _hasError = true);
-      _showErrorToast(aaliyah2FAEmptyTitle, aaliyah2FAEmptySubTitle);
+    // Check for empty or incomplete code using Validator
+    final validationError = AaliyahValidator.validate2FACode(code);
+    if (validationError != null) {
+      setState(() => _errorMessage = validationError);
       return;
     }
 
@@ -70,27 +70,15 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
       
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const NavigationMenu()),
+        AppRoutes.navigationMenu,
         (route) => false,
       );
     } else {
       // Highlight field in red for incorrect code
-      setState(() => _hasError = true);
-      _showErrorToast(aaliyah2FAInvalidTitle, aaliyah2FAInvalidSubTitle);
+      setState(() => _errorMessage = aaliyah2FAInvalidSubTitle);
     }
-  }
-
-  void _showErrorToast(String title, String message) {
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.fillColored,
-      title: Text(title),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 4),
-    );
   }
 
   void _showSuccessToast(String title, String message) {
@@ -106,6 +94,8 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasError = _errorMessage != null;
+
     return Consumer<AuthController>(
       builder: (context, authController, child) {
         return SafeArea(
@@ -159,6 +149,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                                     Pinput(
                                       length: 6,
                                       controller: _pinController,
+                                      forceErrorState: hasError,
                                       defaultPinTheme: PinTheme(
                                         width: 56,
                                         height: 56,
@@ -169,10 +160,8 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                            color: _hasError 
-                                                ? Theme.of(context).colorScheme.error 
-                                                : (Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300),
-                                            width: _hasError ? 2 : 1,
+                                            color: (Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300),
+                                            width: 1,
                                           ),
                                           borderRadius: BorderRadius.circular(12),
                                           color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
@@ -184,7 +173,19 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                                         textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                            color: _hasError ? Theme.of(context).colorScheme.error : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : const Color(0xFF0F172A)),
+                                            color: (Theme.of(context).brightness == Brightness.dark ? const Color(0xFFE5EDEF) : const Color(0xFF0F172A)),
+                                            width: 2.0,
+                                          ),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      errorPinTheme: PinTheme(
+                                        width: 56,
+                                        height: 56,
+                                        textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context).colorScheme.error,
                                             width: 2.0,
                                           ),
                                           borderRadius: BorderRadius.circular(12),
@@ -193,6 +194,17 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                                       onChanged: (_) => _clearError(),
                                       onCompleted: (pin) => _verifyCode(authController),
                                     ),
+                                    // Error Message Text
+                                    if (hasError) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _errorMessage!,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.error,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                     const SizedBox(height: 25),
                                     SizedBox(
                                       width: double.infinity,
@@ -225,9 +237,9 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                       top: 10,
                       left: 10,
                       child: IconButton(
-                        onPressed: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        onPressed: () => Navigator.pushReplacementNamed(
+                          context, 
+                          AppRoutes.login
                         ),
                         icon: const Icon(Icons.arrow_back),
                       ),

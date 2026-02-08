@@ -99,10 +99,10 @@ class ProductModel {
       identical(this, other) ||
       other is ProductModel &&
           runtimeType == other.runtimeType &&
-          (id != null && other.id != null ? id == other.id : name == other.name);
+          id == other.id;
 
   @override
-  int get hashCode => id != null ? id.hashCode : name.hashCode;
+  int get hashCode => id.hashCode;
   Map<String, dynamic> toJson() {
     return {
       'id': id,
