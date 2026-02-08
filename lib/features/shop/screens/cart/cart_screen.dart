@@ -333,6 +333,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Center(
         child: TextButton.icon(
           onPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
             Provider.of<NavigationController>(context, listen: false).setIndex(1);
           },
           icon: const Icon(Icons.add_rounded, size: 20),

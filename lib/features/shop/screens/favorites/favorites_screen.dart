@@ -249,12 +249,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
             // Icon/Illustration Container with glassmorphism effect
             Container(
               padding: const EdgeInsets.all(32),
@@ -281,7 +283,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             
             // Text Content
             Text(
-              'Your Wishlist is Empty',
+              'Empty Wishlist!',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -290,7 +292,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Add the items you love to your wishlist and we\'ll keep them safe for you.',
+              'Add your Favorite Collections',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant,
@@ -324,6 +326,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
