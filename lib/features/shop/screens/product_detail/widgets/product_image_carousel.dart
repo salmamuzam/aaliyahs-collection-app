@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
@@ -20,9 +21,36 @@ class ProductImageCarousel extends StatefulWidget {
 
 class _ProductImageCarouselState extends State<ProductImageCarousel> {
   final CarouselController _carouselController = CarouselController();
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _carouselController.addListener(_onCarouselScroll);
+  }
+
+  void _onCarouselScroll() {
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+    
+    // Set a new timer to update after scrolling settles
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
+      if (_carouselController.hasClients && mounted) {
+        final double width = MediaQuery.of(context).size.width;
+        if (width > 0) {
+          final int index = (_carouselController.offset / width).round();
+          if (index >= 0 && index < widget.product.images.length && index != widget.selectedIndex) {
+            widget.onPageChanged(index);
+          }
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _carouselController.removeListener(_onCarouselScroll);
     _carouselController.dispose();
     super.dispose();
   }
@@ -39,42 +67,33 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
       color: isDarkMode ? colorScheme.surface : Colors.white,
       child: Stack(
         children: [
-          NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification is ScrollEndNotification) {
-                final double width = MediaQuery.of(context).size.width;
-                if (width > 0) {
-                  final int index = (_carouselController.offset / width).round();
-                  if (index >= 0 && index < widget.product.images.length && index != widget.selectedIndex) {
-                    widget.onPageChanged(index);
-                  }
-                }
+          CarouselView(
+            controller: _carouselController,
+            itemExtent: MediaQuery.of(context).size.width,
+            shrinkExtent: reduceMotion 
+                ? MediaQuery.of(context).size.width 
+                : MediaQuery.of(context).size.width * 0.9,
+            padding: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(),
+            elevation: 0,
+            onTap: (index) {
+              if (index != widget.selectedIndex) {
+                widget.onPageChanged(index);
               }
-              return true;
             },
-            child: CarouselView(
-              controller: _carouselController,
-              itemExtent: MediaQuery.of(context).size.width,
-              shrinkExtent: reduceMotion 
-                  ? MediaQuery.of(context).size.width 
-                  : MediaQuery.of(context).size.width * 0.9,
-              padding: EdgeInsets.zero,
-              shape: const RoundedRectangleBorder(),
-              elevation: 0,
-              children: widget.product.images.asMap().entries.map((entry) {
-                final int index = entry.key;
-                return Hero(
-                  tag: widget.product.id != null 
-                      ? 'ProductModel_${widget.product.id}_$index' 
-                      : 'ProductModel_${widget.product.name}_$index',
-                  child: Semantics(
-                    label: 'Product image ${index + 1} of ${widget.product.images.length}',
-                    container: true,
-                    child: _buildImageItem(entry.value),
-                  ),
-                );
-              }).toList(),
-            ),
+            children: widget.product.images.asMap().entries.map((entry) {
+              final int index = entry.key;
+              return Hero(
+                tag: widget.product.id != null 
+                    ? 'ProductModel_${widget.product.id}_$index' 
+                    : 'ProductModel_${widget.product.name}_$index',
+                child: Semantics(
+                  label: 'Product image ${index + 1} of ${widget.product.images.length}',
+                  container: true,
+                  child: _buildImageItem(entry.value),
+                ),
+              );
+            }).toList(),
           ),
           
           _buildM3Indicators(),

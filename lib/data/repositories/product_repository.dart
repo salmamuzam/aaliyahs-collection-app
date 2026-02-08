@@ -252,7 +252,13 @@ class ProductRepository {
       if (response.success && response.data != null) {
         final productReviews = response.data!
             .where((r) => r['productId'].toString() == productId.toString())
-            .map((r) => ReviewModel.fromJson(r))
+            .map((r) {
+              final Map<String, dynamic> modifiedJson = Map<String, dynamic>.from(r);
+              if (modifiedJson['userImage'] != null) {
+                modifiedJson['userImage'] = _fixImagePath(modifiedJson['userImage'].toString(), null);
+              }
+              return ReviewModel.fromJson(modifiedJson);
+            })
             .toList();
         return ApiResponse<List<ReviewModel>>(data: productReviews);
       }

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
-import 'package:aaliyahs_collection_estore/common/widgets/appbar/app_bar_actions.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/favorite_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/product_detail_controller.dart';
+import 'package:aaliyahs_collection_estore/features/shop/screens/cart/cart_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 import 'package:flutter/services.dart';
@@ -179,26 +180,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         bottom: false,
         child: Row(
           children: [
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_rounded),
-              tooltip: 'Go back', // M3: Tooltip describes the action
+            Semantics(
+              label: 'Back',
+              button: true,
+              child: _buildFloatingBtn(
+                context: context,
+                icon: Icons.arrow_back_rounded, 
+                onTap: () => Navigator.pop(context),
+              ),
             ),
             const Spacer(),
             Consumer<FavoriteController>(
               builder: (context, favProvider, _) {
                 final bool isFav = favProvider.isExists(product);
-                return IconButton(
-                  onPressed: () => favProvider.toggleFavorite(product),
-                  // M3: Outlined icon unselected, filled icon selected
-                  icon: Icon(isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-                  color: isFav ? colorScheme.primary : null,
-                  // M3: Tooltip describes the action, not the icon name
-                  tooltip: isFav ? 'Remove from favorites' : 'Add to favorites',
+                return Semantics(
+                  label: isFav ? 'Remove from favorites' : 'Add to favorites',
+                  button: true,
+                  child: _buildFloatingBtn(
+                    context: context,
+                    icon: isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      favProvider.toggleFavorite(product);
+                    },
+                    iconColor: isFav ? colorScheme.primary : null,
+                  ),
                 );
               },
             ),
-            CartAppBarAction(cartKey: _cartKey, color: colorScheme.onSurface),
+            const SizedBox(width: 10),
+            Consumer<CartController>(
+              builder: (context, cartProvider, _) {
+                final count = cartProvider.cart.length;
+                return Semantics(
+                  label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
+                  button: true,
+                  child: AddToCartIcon(
+                    key: _cartKey,
+                    badgeOptions: const BadgeOptions(active: false),
+                    icon: _buildFloatingBtn(
+                      context: context,
+                      icon: Icons.shopping_bag_outlined,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CartScreen()),
+                      ),
+                      badge: count > 0 ? Badge(
+                        label: Text(count > 999 ? '999+' : count.toString()),
+                        alignment: AlignmentDirectional.topEnd,
+                      ) : null,
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -249,8 +284,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         const SizedBox(width: 10),
         Padding(
-          padding: const EdgeInsetsDirectional.only(end: 15),
-          child: CartAppBarAction(cartKey: _cartKey, color: colorScheme.onSurface),
+          padding: const EdgeInsetsDirectional.only(end: 20),
+          child: Consumer<CartController>(
+            builder: (context, cartProvider, _) {
+              final count = cartProvider.cart.length;
+              return Semantics(
+                label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
+                button: true,
+                child: AddToCartIcon(
+                  key: _cartKey,
+                  badgeOptions: const BadgeOptions(active: false),
+                  icon: _buildFloatingBtn(
+                    context: context,
+                    icon: Icons.shopping_bag_outlined,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                    ),
+                    badge: count > 0 ? Badge(
+                      label: Text(count > 999 ? '999+' : count.toString()),
+                      alignment: AlignmentDirectional.topEnd,
+                    ) : null,
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
@@ -274,10 +333,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildFloatingBtn({required BuildContext context, required IconData icon, required VoidCallback onTap, Color? iconColor}) {
+  Widget _buildFloatingBtn({
+    required BuildContext context, 
+    required IconData icon, 
+    required VoidCallback onTap, 
+    Color? iconColor,
+    Badge? badge,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+    final iconWidget = Icon(icon, color: iconColor ?? colorScheme.onSurface, size: 20);
+    
+    return SizedBox(
+      width: 48,
+      height: 48,
       child: Material(
         // M3 Elevation: Level 1 for secondary floating elements
         elevation: 1,
@@ -285,10 +353,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         shape: const CircleBorder(),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(30),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: iconColor ?? colorScheme.onSurface, size: 22),
+          borderRadius: BorderRadius.circular(24),
+          child: Center(
+            child: badge != null 
+              ? Badge(
+                  label: badge.label,
+                  alignment: badge.alignment ?? AlignmentDirectional.topEnd,
+                  child: iconWidget,
+                )
+              : iconWidget,
           ),
         ),
       ),

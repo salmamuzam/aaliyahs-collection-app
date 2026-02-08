@@ -33,71 +33,7 @@ class NotificationScreen extends StatelessWidget {
                 itemCount: provider.notifications.length,
                 itemBuilder: (context, index) {
                   final notification = provider.notifications[index];
-                  final iconConfig = _getIconConfig(context, notification);
-                  final isRead = notification.isRead;
-                  
-                  return Card(
-                    margin: EdgeInsets.only(bottom: DeviceUtils.m3Padding(4)),
-                    clipBehavior: Clip.antiAlias,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-                    ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: iconConfig['color'] as Color,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(iconConfig['icon'] as IconData, color: Colors.white, size: 20),
-                        ),
-                        title: Text(
-                          notification.title,
-                          style: TextStyle(
-                            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                            fontSize: 15,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        subtitle: Text(
-                          timeago.format(notification.timestamp),
-                          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11),
-                        ),
-                        trailing: isRead 
-                            ? null 
-                            : Container(height: 8, width: 8, decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle)),
-                        childrenPadding: EdgeInsets.all(DeviceUtils.m3Padding(4)),
-                        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            notification.body,
-                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14, height: 1.5),
-                          ),
-                          if (notification.orderItems != null && notification.orderItems!.isNotEmpty) ...[
-                            SizedBox(height: DeviceUtils.m3Padding(4)),
-                            AaliyahDividerTheme.fullWidthDivider(context, height: 1),
-                            SizedBox(height: DeviceUtils.m3Padding(3)),
-                            ...notification.orderItems!.map((item) => _buildItemRow(context, item)),
-                            SizedBox(height: DeviceUtils.m3Padding(2)),
-                            _buildPaymentSummary(context, notification.paymentMethod, notification.totalAmount),
-                          ],
-                          SizedBox(height: DeviceUtils.m3Padding(2)),
-                          Align(
-                            alignment: AlignmentDirectional.centerEnd,
-                            child: TextButton.icon(
-                              onPressed: () => provider.removeNotification(notification),
-                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
-                              label: const Text('Clear', style: TextStyle(color: Colors.red)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return _NotificationCard(notification: notification);
                 },
               );
             },
@@ -112,14 +48,10 @@ class NotificationScreen extends StatelessWidget {
     
     return PreferredSize(
       preferredSize: const Size.fromHeight(64.0),
-      child: Selector<NotificationController, int>(
-        selector: (_, controller) => controller.notifications.where((n) => !n.isRead).length,
-        builder: (context, unreadCount, _) {
-          final notificationProvider = Provider.of<NotificationController>(context, listen: false);
-          
+      child: Consumer<NotificationController>(
+        builder: (context, notificationProvider, _) {
           return AaliyahSmallAppBar(
             title: 'My Notifications',
-            subtitle: unreadCount > 0 ? '$unreadCount unread' : null,
             actions: [
               IconButton(
                 onPressed: () => notificationProvider.markAllAsRead(),
@@ -162,40 +94,422 @@ class NotificationScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Map<String, dynamic> _getIconConfig(BuildContext context, NotificationModel notification) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final String title = notification.title.toLowerCase();
-    if (title.contains('order') || title.contains('placed')) return {'icon': Icons.notifications_rounded, 'color': colorScheme.primary};
-    if (title.contains('payment') || title.contains('success')) return {'icon': Icons.check_circle_outline_rounded, 'color': Colors.green};
-    if (title.contains('offer') || title.contains('sale') || title.contains('discount')) return {'icon': Icons.discount_rounded, 'color': Colors.orange};
-    if (title.contains('shipped') || title.contains('track')) return {'icon': Icons.local_shipping_rounded, 'color': Colors.indigo};
-    return {'icon': Icons.info_outline_rounded, 'color': Colors.blue};
+class _NotificationCard extends StatefulWidget {
+  final NotificationModel notification;
+
+  const _NotificationCard({required this.notification});
+
+  @override
+  State<_NotificationCard> createState() => _NotificationCardState();
+}
+
+class _NotificationCardState extends State<_NotificationCard> with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late AnimationController _animationController;
+  late Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
   }
 
-  Widget _buildItemRow(BuildContext context, dynamic item) {
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final iconConfig = _getIconConfig(context, widget.notification);
+    final isRead = widget.notification.isRead;
+
     return Padding(
       padding: EdgeInsets.only(bottom: DeviceUtils.m3Padding(3)),
+      child: Material(
+        elevation: isRead ? 0 : 2,
+        borderRadius: BorderRadius.circular(20),
+        color: isRead 
+            ? colorScheme.surfaceContainerLowest 
+            : colorScheme.surfaceContainer,
+        child: InkWell(
+          onTap: _toggleExpanded,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isRead 
+                    ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
+                    : colorScheme.primary.withValues(alpha: 0.3),
+                width: isRead ? 1 : 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Icon
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: iconConfig['color'] as Color,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(iconConfig['icon'] as IconData, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      
+                      // Content
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _getDisplayTitle(widget.notification.title),
+                                    style: TextStyle(
+                                      fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                                      fontSize: 14,
+                                      color: colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                                if (!isRead)
+                                  Container(
+                                    height: 7,
+                                    width: 7,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
+                              children: [
+                                Text(
+                                  timeago.format(widget.notification.timestamp),
+                                  style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                if (!_isExpanded && widget.notification.orderItems != null && widget.notification.orderItems!.isNotEmpty)
+                                  _buildCollapsedSummary(context),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Expand icon
+                      AnimatedRotation(
+                        turns: _isExpanded ? 0.5 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Expanded content
+                SizeTransition(
+                  sizeFactor: _expandAnimation,
+                  child: _buildExpandedContent(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCollapsedSummary(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final itemCount = widget.notification.orderItems?.length ?? 0;
+    final total = widget.notification.totalAmount ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Text(
+        '$itemCount ${itemCount == 1 ? 'item' : 'items'} • LKR ${total.toStringAsFixed(2)}',
+        style: TextStyle(
+          fontSize: 10,
+          color: colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedContent(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest.withValues(alpha: 0.3),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Message body
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.notification.body,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          if (widget.notification.orderItems != null && widget.notification.orderItems!.isNotEmpty) ...[
+            // Order Items Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 16,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Order Items',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurfaceVariant,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Product items with cards
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: widget.notification.orderItems!
+                    .map((item) => _buildItemCard(context, item))
+                    .toList(),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Payment Summary Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.primary.withValues(alpha: 0.1),
+                      colorScheme.primaryContainer.withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: _buildPaymentSummary(
+                  context,
+                  widget.notification.paymentMethod,
+                  widget.notification.totalAmount,
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+          ],
+          
+          // Actions
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Provider.of<NotificationController>(context, listen: false)
+                      .removeNotification(widget.notification);
+                },
+                icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                label: const Text('Clear Notification'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemCard(BuildContext context, dynamic item) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: EdgeInsets.only(bottom: DeviceUtils.m3Padding(2)),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(DeviceUtils.m3Padding(2)),
-            child: item.productImage.startsWith('http')
-                ? SmartImage(imageUrl: item.productImage, height: 45, width: 45)
-                : Image.asset(item.productImage, height: 45, width: 45, fit: BoxFit.cover),
+          // Product image with shadow
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                height: 70,
+                width: 70,
+                color: colorScheme.surfaceContainerHighest,
+                child: item.productImage.startsWith('http')
+                    ? SmartImage(
+                        imageUrl: item.productImage,
+                        height: 70,
+                        width: 70,
+                        alignment: Alignment.topCenter,
+                      )
+                    : Image.asset(
+                        item.productImage,
+                        height: 70,
+                        width: 70,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                      ),
+              ),
+            ),
           ),
           SizedBox(width: DeviceUtils.m3Padding(3)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.categoryName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                Text('Qty: ${item.quantity}  x  LKR ${item.price}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11)),
+                Text(
+                  item.categoryName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${item.quantity} x LKR ${item.price}',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          Text('LKR ${(item.price * item.quantity).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
@@ -205,29 +519,101 @@ class NotificationScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        AaliyahDividerTheme.fullWidthDivider(context, height: 1),
-        SizedBox(height: DeviceUtils.m3Padding(2)),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Payment', style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant)),
-                Text(payment ?? 'N/A', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.receipt_long_rounded,
+                size: 20,
+                color: colorScheme.primary,
+              ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('Total', style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant)),
-                Text("LKR ${total?.toStringAsFixed(2) ?? '0.00'}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: colorScheme.primary)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Payment Method',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    payment ?? 'N/A',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colorScheme.primary.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Total Amount',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                "LKR ${total?.toStringAsFixed(2) ?? '0.00'}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
-}
 
+  Map<String, dynamic> _getIconConfig(BuildContext context, NotificationModel notification) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final String title = notification.title.toLowerCase();
+    if (title.contains('order') || title.contains('placed')) return {'icon': Icons.shopping_bag_rounded, 'color': colorScheme.primary};
+    if (title.contains('payment') || title.contains('success')) return {'icon': Icons.check_circle_rounded, 'color': Colors.green};
+    if (title.contains('offer') || title.contains('sale') || title.contains('discount')) return {'icon': Icons.local_offer_rounded, 'color': Colors.orange};
+    if (title.contains('shipped') || title.contains('track')) return {'icon': Icons.local_shipping_rounded, 'color': Colors.indigo};
+    return {'icon': Icons.notifications_rounded, 'color': Colors.blue};
+  }
+
+  String _getDisplayTitle(String title) {
+    // Extract order number from titles like "Aaliyah's Collection - Order #12345"
+    if (title.contains(' - Order')) {
+      final parts = title.split(' - ');
+      if (parts.length > 1) {
+        return parts[1]; // Returns "Order #12345"
+      }
+    }
+    return title;
+  }
+}

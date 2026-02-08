@@ -4,6 +4,7 @@ import 'package:readmore/readmore.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/product_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
 
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 import 'package:aaliyahs_collection_estore/features/shop/models/review_model.dart';
@@ -46,7 +47,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,67 +56,9 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      // Category Assist Chip
-                      if (widget.product.categoryName.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Semantics(
-                            button: true,
-                            label: 'Category: ${widget.product.categoryName}',
-                            child: ActionChip(
-                              avatar: ExcludeSemantics(
-                                child: Icon(Icons.label_outline_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
-                              ),
-                              label: Text(widget.product.categoryName),
-                              onPressed: () {}, // Could navigate to category search
-                              labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      // Share Assist Chip (Standard M3 Action)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Semantics(
-                          button: true,
-                          label: 'Share this product',
-                          child: ActionChip(
-                            avatar: ExcludeSemantics(
-                              child: Icon(Icons.share_outlined, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            ),
-                            label: const Text('Share'),
-                            onPressed: () {
-                              // Standard Share implementation
-                            },
-                          ),
-                        ),
-                      ),
-                      // Add to Wishlist Assist Chip (Contextual Action)
-                      Semantics(
-                        button: true,
-                        label: 'Save to wishlist',
-                        child: ActionChip(
-                          avatar: ExcludeSemantics(
-                            child: Icon(Icons.favorite_border_rounded, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
-                          label: const Text('Save'),
-                          onPressed: () {
-                            // Wishlist logic
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 25),
                 _buildItemTitle(isDarkMode).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
-                const SizedBox(height: 8),
+                const SizedBox(height: 15),
                 _buildItemPrice(isDarkMode).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.1),
               ],
             ),
@@ -132,8 +75,6 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
               },
             ),
           ),
-          const SizedBox(height: 24),
-          _buildRelatedProducts(context, isDarkMode),
         ],
       ),
     );
@@ -149,24 +90,28 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
           ),
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: colorScheme.primary,
-            unselectedLabelColor: colorScheme.onSurfaceVariant,
-            indicatorColor: colorScheme.primary,
-            indicatorSize: TabBarIndicatorSize.label,
-            dividerColor: Colors.transparent,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            labelStyle: (Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized ?? 
-                         Theme.of(context).textTheme.titleSmall),
-            unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
-            tabs: [
-              const Tab(text: 'Description'),
-              Tab(text: 'Reviews ($reviewCount)'),
-              const Tab(text: 'Write Review'),
-            ],
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
+              indicatorColor: colorScheme.primary,
+              indicatorSize: TabBarIndicatorSize.label,
+              dividerColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              labelPadding: const EdgeInsets.only(right: 24),
+              labelStyle: (Theme.of(context).extension<AaliyahTypography>()?.titleSmallEmphasized ?? 
+                           Theme.of(context).textTheme.titleSmall),
+              unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
+              tabs: [
+                const Tab(text: 'Description'),
+                Tab(text: 'Reviews ($reviewCount)'),
+                const Tab(text: 'Write Review'),
+              ],
+            ),
           ),
         );
       },
@@ -242,7 +187,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                         )),
                       ),
                       const SizedBox(height: 4),
-                      Text('Based on ${controller.reviews.length} reviews', 
+                      Text('Based on ${controller.reviews.length} Reviews', 
                           style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                           textAlign: TextAlign.right),
                     ],
@@ -250,7 +195,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                 )
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 0),
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -259,7 +204,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
               itemBuilder: (context, index) {
                 final review = controller.reviews[index];
                 return Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(TUIConstants.cardRadius), // 20
@@ -282,6 +227,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                                 ? Icon(Icons.person, size: 20, color: colorScheme.onSecondaryContainer)
                                 : null,
                           ),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,6 +256,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                             color: colorScheme.onSurface.withValues(alpha: 0.8),
                             height: 1.4,
                             fontSize: 14),
+                        textAlign: TextAlign.justify,
                       ),
                     ],
                   ),
@@ -332,7 +279,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
         _toTitleCase(widget.product.displayName),
         style: (Theme.of(context).extension<AaliyahTypography>()?.editorialMedium ?? 
                Theme.of(context).textTheme.headlineMedium)?.copyWith(
-          fontSize: (32 * textScale).clamp(24.0, 56.0),
+          fontSize: (20 * textScale).clamp(24.0, 56.0),
           color: Theme.of(context).colorScheme.onSurface,
           letterSpacing: 0.5,
         ),
@@ -347,7 +294,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
       child: Text(
         "LKR ${widget.product.price.replaceAll(RegExp(r'[^0-9.]'), '')}",
         style: GoogleFonts.robotoMono(
-          fontSize: 24,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.primary, // Primary color for price
         ),
@@ -367,6 +314,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
         trimExpandedText: ' Read less',
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontSize: 20,
         ),
         textAlign: TextAlign.justify,
         moreStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
@@ -393,7 +341,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(existingReview == null ? 'Share your experience' : 'Edit Your Review', 
+              child: Text(existingReview == null ? 'Share Your Experience' : 'Edit Your Review', 
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
@@ -406,8 +354,9 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
           ],
         ),
         const SizedBox(height: 8),
-        Text('Your review will help other modest-fashion lovers find the perfect pieces!', 
-            style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant)),
+        Text('Your Review will Help Other Modest Fashion Lovers find their Perfect Pieces!', 
+            style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.justify),
         const SizedBox(height: 20),
         
         // Star Rating Selection
@@ -442,7 +391,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
           controller: _reviewController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: 'Write your thoughts here...',
+            hintText: 'Write Your Thoughts Here...',
             filled: true,
             fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             border: OutlineInputBorder(
@@ -457,13 +406,26 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
         
         SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 56,
           child: FilledButton(
             onPressed: () {
-              if (_reviewController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please write a comment first!')),
-                );
+              final reviewText = _reviewController.text.trim();
+              
+              // Validation 1: Check for empty fields
+              if (reviewText.isEmpty) {
+                _showErrorToast('Empty Fields!', 'Please write your review!');
+                return;
+              }
+              
+              // Validation 2: Check minimum length
+              if (reviewText.length < 10) {
+                _showErrorToast('Too Short!', 'Please enter at least 10 characters!');
+                return;
+              }
+              
+              // Validation 3: Check if only numbers
+              if (RegExp(r'^\d+$').hasMatch(reviewText)) {
+                _showErrorToast('Invalid Format!', 'Please enter only letters!');
                 return;
               }
 
@@ -491,8 +453,8 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
                 SnackBar(
                   backgroundColor: colorScheme.primary,
                   content: Text(existingReview == null 
-                    ? 'Thank you! Your review has been added' 
-                    : 'Your review has been updated'),
+                    ? 'Your review has been posted successfully!' 
+                    : 'Your review has been updated successfully!'),
                 ),
               );
             },
@@ -522,13 +484,24 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
               setState(() { _userRating = 5.0; });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Review deleted successfully')),
+                const SnackBar(content: Text('Your review has been deleted successfully!')),
               );
             }, 
             child: const Text('Delete', style: TextStyle(color: Colors.red))
           ),
         ],
       ),
+    );
+  }
+
+  void _showErrorToast(String title, String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.fillColored,
+      title: Text(title),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 4),
     );
   }
 

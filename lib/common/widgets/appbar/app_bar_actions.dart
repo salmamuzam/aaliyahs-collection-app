@@ -31,6 +31,7 @@ class CartAppBarAction extends StatelessWidget {
           padding: const EdgeInsets.only(right: 8.0),
           child: AddToCartIcon(
             key: cartKey ?? GlobalKey<CartIconKey>(),
+            badgeOptions: const BadgeOptions(active: false),
             icon: Semantics(
               label: count > 0 ? 'Shopping cart, ${count > 999 ? "999+" : count}' : 'Shopping cart, empty',
               button: true,

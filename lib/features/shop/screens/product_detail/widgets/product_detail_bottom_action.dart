@@ -33,9 +33,9 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
     return Container(
       padding: EdgeInsets.fromLTRB(
         DeviceUtils.m3Margin, 
-        20, 
+        10, 
         DeviceUtils.m3Margin, 
-        30 + MediaQuery.of(context).padding.bottom
+        10 + MediaQuery.of(context).padding.bottom
       ),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainer,
@@ -50,6 +50,7 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
       ),
       child: SafeArea(
         top: false,
+        bottom: false,
         child: Row(
           mainAxisSize: MainAxisSize.min, // Added to prevent expansion issues
           children: [
@@ -141,7 +142,7 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
         child: const FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            'Add to cart',
+            'Add to Cart',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),

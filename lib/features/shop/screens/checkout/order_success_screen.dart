@@ -4,6 +4,8 @@ import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/custom_colors.dart';
 import 'package:aaliyahs_collection_estore/data/services/pdf_service.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_progress_indicator.dart';
+import 'package:provider/provider.dart';
+import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   final String orderAmount;
@@ -233,11 +235,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         width: double.infinity,
                         height: 55,
                         child: OutlinedButton(
-                          onPressed: () => Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const NavigationMenu()),
-                            (route) => false,
-                          ),
+                          onPressed: () {
+                            // Set navigation index to 1 (Shop Page) before navigating
+                            Provider.of<NavigationController>(context, listen: false).setIndex(1);
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const NavigationMenu()),
+                              (route) => false,
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: colorScheme.primary,
                             side: BorderSide(color: colorScheme.outlineVariant),

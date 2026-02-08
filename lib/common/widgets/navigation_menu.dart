@@ -405,7 +405,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
                                     radius: 18,
                                     backgroundColor: nav.selectedIndex == 4 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
                                     backgroundImage: (userProvider.user?.profilePicture ?? '').isNotEmpty 
-                                      ? NetworkImage(userProvider.user!.profilePicture) 
+                                      ? ((userProvider.user!.profilePicture.startsWith('assets/'))
+                                          ? AssetImage(userProvider.user!.profilePicture) as ImageProvider
+                                          : NetworkImage(userProvider.user!.profilePicture))
                                       : null,
                                     child: (userProvider.user?.profilePicture ?? '').isEmpty 
                                       ? Icon(
@@ -445,9 +447,11 @@ class _NavigationMenuState extends State<NavigationMenu> {
                             icon: CircleAvatar(
                               radius: 12,
                               backgroundColor: nav.selectedIndex == 4 ? colorScheme.onSecondaryContainer : colorScheme.surfaceContainerHigh,
-                              backgroundImage: (userProvider.user?.profilePicture ?? '').isNotEmpty 
-                                ? NetworkImage(userProvider.user!.profilePicture) 
-                                : null,
+                                backgroundImage: (userProvider.user?.profilePicture ?? '').isNotEmpty 
+                                  ? ((userProvider.user!.profilePicture.startsWith('assets/'))
+                                      ? AssetImage(userProvider.user!.profilePicture) as ImageProvider
+                                      : NetworkImage(userProvider.user!.profilePicture))
+                                  : null,
                               child: (userProvider.user?.profilePicture ?? '').isEmpty 
                                 ? Icon(
                                     nav.selectedIndex == 4 ? Icons.person_rounded : Icons.person_outline_rounded, 
