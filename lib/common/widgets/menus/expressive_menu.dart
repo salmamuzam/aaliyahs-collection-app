@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 
-/// A Material Design 3 Expressive Menu implementation.
-/// 
-/// Follows November 2025 M3 Expressive Specs:
-/// - Shapes: M3 Extra Large (28dp) corners for containers.
-/// - Color (Standard): Surface-based. Background: surfaceContainerLow. Selected: TertiaryContainer/OnTertiaryContainer.
-/// - Color (Vibrant): Tertiary-based. Background: tertiaryContainer. Selected: Tertiary/OnTertiary.
-/// - Layout: Supports supportingText, trailingText, and Dividers.
+
 class AaliyahExpressiveMenu extends StatelessWidget {
-  final List<dynamic> items; // AaliyahMenuItem or Widget (for Dividers)
+  final List<dynamic> items; 
   final String? selectedValue;
-  final List<String>? selectedValues; // For multi-select
+  final List<String>? selectedValues; 
   final ValueChanged<String>? onSelected;
   final Widget child;
   final bool isVibrant;
@@ -98,7 +92,7 @@ class AaliyahExpressiveMenu extends StatelessWidget {
             closeOnActivate: closeOnSelect,
             style: MenuItemButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              minimumSize: const Size(0, 48), // M3 Spec: List item height 48dp
+              minimumSize: const Size(0, 48), 
               shape: useGaps 
                   ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)) 
                   : (isSelected ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)) : null),

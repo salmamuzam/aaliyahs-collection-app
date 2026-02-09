@@ -5,32 +5,21 @@ import 'package:aaliyahs_collection_estore/utils/local_storage/db_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-// ============================================================================
-// CART CONTROLLER - Manages Shopping Cart State
-// ============================================================================
+
 // This controller handles all shopping cart operations using Provider pattern
 // It stores cart items in SQLite database for persistence
-//
-// Features:
-// - Add products to cart
-// - Remove products from cart
-// - Increase/decrease quantity
-// - Calculate total price
-// - Clear entire cart
-// - Persist cart data (survives app restart)
-// ============================================================================
+
 
 class CartController extends ChangeNotifier {
-  // Private list of cart items (only this controller can modify)
+
   List<CartItem> _cart = [];
   
   // Database helper for saving/loading cart
   final DBHelper _dbHelper = DBHelper();
   
-  // Selection logic for bulk actions (Requirement: MD3 Checkbox Usage)
+  // Selection logic for bulk actions 
   final Set<int> _selectedItemIds = {};
 
-  // Public getter - other parts of app can read cart but not modify directly
   List<CartItem> get cart => _cart;
 
   // Get total number of items in cart
@@ -45,30 +34,24 @@ class CartController extends ChangeNotifier {
     if (_cart.isEmpty) return false;
     if (_selectedItemIds.isEmpty) return false;
     if (_selectedItemIds.length == _cart.length) return true;
-    return null; // Indeterminate
+    return null; 
   }
 
-  // Constructor - automatically loads cart when controller is created
   CartController() {
     loadCart();
   }
 
-  // ============================================================================
-  // LOAD CART - Restore Cart from Database
-  // ============================================================================
   // Called when app starts to restore previously saved cart items
   Future<void> loadCart() async {
     try {
       _cart = await _dbHelper.getCartItems();  // Get saved cart from SQLite
-      notifyListeners();  // Tell UI to update with loaded data
+      notifyListeners(); 
     } catch (e) {
       debugPrint('Error loading cart: $e');
     }
   }
 
-  // ============================================================================
-  // ADD TO CART - Add Product or Increase Quantity
-  // ============================================================================
+
   Future<void> addToCart(ProductModel product) async {
     try {
       // Check if product already exists in cart
@@ -251,11 +234,7 @@ class CartController extends ChangeNotifier {
     _selectedItemIds.clear();
   }
 
-  // ============================================================================
-  // HELPER METHOD - Access Controller from Widget
-  // ============================================================================
-  // Shortcut to get CartController from any widget
-  // Usage: CartController.of(context).addToCart(product)
+
   static CartController of(BuildContext context, {bool listen = true}) => 
     Provider.of<CartController>(context, listen: listen);
 }

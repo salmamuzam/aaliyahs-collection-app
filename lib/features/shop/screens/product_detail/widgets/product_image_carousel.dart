@@ -30,10 +30,10 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
   }
 
   void _onCarouselScroll() {
-    // Cancel previous timer
+   
     _debounceTimer?.cancel();
     
-    // Set a new timer to update after scrolling settles
+
     _debounceTimer = Timer(const Duration(milliseconds: 100), () {
       if (_carouselController.hasClients && mounted) {
         final double width = MediaQuery.of(context).size.width;

@@ -17,7 +17,7 @@ class CheckoutAddressStep extends StatelessWidget {
   final TimeOfDay? selectedTime;
   final Function(TimeOfDay) onTimeSelected;
   
-  // Field-specific error states
+
   final bool dateHasError;
   final bool timeHasError;
 

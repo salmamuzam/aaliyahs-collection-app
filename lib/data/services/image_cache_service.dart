@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Image Cache Service
 /// Manages image caching, memory pressure, and eviction strategies
-/// Based on Flutter image loading optimization best practices
 class ImageCacheService {
   static final ImageCacheService _instance = ImageCacheService._internal();
   factory ImageCacheService() => _instance;
@@ -18,14 +16,14 @@ class ImageCacheService {
     imageCache.maximumSize = 500;
     imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 50MB
     
-    debugPrint('📸 ImageCacheService: Initialized with max ${imageCache.maximumSize} images, ${imageCache.maximumSizeBytes ~/ (1024 * 1024)}MB');
+    debugPrint('ImageCacheService: Initialized with max ${imageCache.maximumSize} images, ${imageCache.maximumSizeBytes ~/ (1024 * 1024)}MB');
   }
 
   /// Clear entire image cache
   void clearCache() {
     PaintingBinding.instance.imageCache.clear();
     PaintingBinding.instance.imageCache.clearLiveImages();
-    debugPrint('📸 ImageCacheService: Cache cleared');
+    debugPrint('ImageCacheService: Cache cleared');
   }
 
   /// Evict a specific image from cache
@@ -39,7 +37,7 @@ class ImageCacheService {
     }
     
     await provider.evict();
-    debugPrint('📸 ImageCacheService: Evicted $imageUrl');
+    debugPrint('ImageCacheService: Evicted $imageUrl');
   }
 
   /// Get current cache status
@@ -69,10 +67,10 @@ class ImageCacheService {
     // Clear to enforce new limits
     imageCache.clear();
     
-    debugPrint('📸 ImageCacheService: Memory pressure handled. New limits: $newMaxSize images, ${newMaxBytes ~/ (1024 * 1024)}MB');
+    debugPrint('ImageCacheService: Memory pressure handled. New limits: $newMaxSize images, ${newMaxBytes ~/ (1024 * 1024)}MB');
   }
 
-  /// Preload images for better UX
+  /// Preload images 
   Future<void> precacheImages(BuildContext context, List<String> imageUrls) async {
     for (final url in imageUrls) {
       try {
@@ -82,9 +80,9 @@ class ImageCacheService {
           await precacheImage(AssetImage(url), context);
         }
       } catch (e) {
-        debugPrint('📸 ImageCacheService: Failed to precache $url - $e');
+        debugPrint('ImageCacheService: Failed to precache $url - $e');
       }
     }
-    debugPrint('📸 ImageCacheService: Precached ${imageUrls.length} images');
+    debugPrint(' ImageCacheService: Precached ${imageUrls.length} images');
   }
 }

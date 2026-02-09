@@ -102,7 +102,7 @@ class HomeTopBar extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(width: 8), // Gap between icons
+        const SizedBox(width: 8), 
 
         // Notification Icon
         Consumer<NotificationController>(

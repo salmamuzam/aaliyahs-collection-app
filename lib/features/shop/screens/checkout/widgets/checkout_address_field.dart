@@ -40,10 +40,10 @@ class CheckoutAddressField extends StatelessWidget {
           icon, 
           color: colorScheme.primary,
         ),
-        // Use default error style and border behavior
+    
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.error, width: 1.0),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

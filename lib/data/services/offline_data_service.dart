@@ -2,19 +2,18 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-/// Offline Data Service
 /// Handles loading local JSON data and managing fallback images
 class OfflineDataService {
   /// Load local JSON data from assets
   Future<Map<String, dynamic>> loadLocalJson(String assetPath) async {
     try {
-      debugPrint('📂 [OFFLINE SERVICE]: Loading JSON from $assetPath');
+      debugPrint('[OFFLINE SERVICE]: Loading JSON from $assetPath');
       final String jsonString = await rootBundle.loadString(assetPath);
       final Map<String, dynamic> data = json.decode(jsonString);
-      debugPrint('✅ [OFFLINE SERVICE]: Successfully loaded JSON from $assetPath');
+      debugPrint('[OFFLINE SERVICE]: Successfully loaded JSON from $assetPath');
       return data;
     } catch (e) {
-      debugPrint('❌ [OFFLINE SERVICE]: Error loading JSON from $assetPath: $e');
+      debugPrint('[OFFLINE SERVICE]: Error loading JSON from $assetPath: $e');
       return {};
     }
   }
@@ -73,14 +72,12 @@ class OfflineDataService {
       final uri = Uri.parse(url);
       final filenameWithExtension = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
       
-      // AUTO-CORRECT: Force .webp extension for local lookup, regardless of URL extension
-      // This is crucial because all local assets were converted to .webp
+  
       final filename = filenameWithExtension.replaceAll(RegExp(r'\.(jpg|jpeg|png)$'), '.webp');
 
       if (filename.isEmpty) return 'assets/images/shop/products/placeholder_product.webp';
 
-      // 0. SPECIAL CASE: If filename starts with a number (ID-based), it is in the products root
-      // We flattened these during optimization to avoid complex mapping
+ 
       if (RegExp(r'^\d').hasMatch(filename)) {
         return 'assets/images/shop/products/$filename';
       }

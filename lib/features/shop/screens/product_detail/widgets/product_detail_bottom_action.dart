@@ -52,10 +52,10 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
         top: false,
         bottom: false,
         child: Row(
-          mainAxisSize: MainAxisSize.min, // Added to prevent expansion issues
+          mainAxisSize: MainAxisSize.min, 
           children: [
             _buildQuantitySelector(context),
-            const SizedBox(width: 12), // Reduced from 20
+            const SizedBox(width: 12), 
             _buildAddToCartButton(context),
           ],
         ),
@@ -88,7 +88,7 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12), // Reduced from 16
+            padding: const EdgeInsets.symmetric(horizontal: 12), 
             child: Semantics(
               label: 'Quantity $_quantity',
               liveRegion: true,
@@ -96,7 +96,7 @@ class _ProductDetailBottomActionState extends State<ProductDetailBottomAction> {
                 '$_quantity',
                 style: TextStyle(
                   fontWeight: FontWeight.w900, 
-                  fontSize: 16, // Reduced from 18
+                  fontSize: 16, 
                   color: colorScheme.onSurface,
                 ),
               ),

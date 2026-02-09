@@ -16,7 +16,7 @@ class ProductDetailController extends ChangeNotifier {
   int _selectedImageIndex = 0;
   bool _isLoading = true;
   String _errorMessage = '';
-  ColorScheme? _contentColorScheme; // M3 Content-based Dynamic Color
+  ColorScheme? _contentColorScheme; 
 
   ProductModel? get product => _product;
   List<ReviewModel> get reviews => _reviews;
@@ -26,28 +26,26 @@ class ProductDetailController extends ChangeNotifier {
   ColorScheme? get contentColorScheme => _contentColorScheme;
 
   void initialize(ProductModel initialProduct, {required Function(ProductModel) onAddToRecent}) {
-    _product = initialProduct; // Set immediately to show content before full fetch
+    _product = initialProduct; 
     _reviews = [];
     _selectedImageIndex = 0;
     _isLoading = true;
     _errorMessage = '';
     _contentColorScheme = null; 
     
-    // Add to Recently Viewed immediately
+  
     onAddToRecent(initialProduct);
 
-    // Initial Theme Generation (Optimistic)
+   
     if (initialProduct.image.isNotEmpty) {
-       // We can't generate the scheme here easily without context/brightness 
-       // so we will let the view trigger it or use a default brightness.
-       // For now, let's leave theme generation trigger to the view but make it smarter.
+
     }
     
     // Fetch fresh details
     _fetchFullDetails(initialProduct.id);
   }
 
-  /// M3: Generates a ColorScheme based on the product image (Content-based Color)
+
   Future<void> updateContentTheme(ProductModel product, Brightness brightness) async {
     if (product.image.isEmpty) return;
     
@@ -59,7 +57,7 @@ class ProductDetailController extends ChangeNotifier {
         imageProvider = AssetImage(product.image);
       }
 
-      // Optimization: extract from tiny version
+
       imageProvider = ResizeImage(imageProvider, width: 100);
 
       final scheme = await ColorScheme.fromImageProvider(
@@ -73,7 +71,7 @@ class ProductDetailController extends ChangeNotifier {
       // debugPrint('Theme generation timed out for product');
     } catch (e) {
       if (e.toString().contains('Stream has been disposed')) {
-         // Ignore framework Disposal quirks
+    
       } else {
          debugPrint('Error generating content color scheme: $e');
       }
@@ -119,11 +117,11 @@ class ProductDetailController extends ChangeNotifier {
     }
   }
 
-  // Dynamic Current User Lookups
+
   String get currentUserName {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && !user.isAnonymous) return user.displayName ?? 'Google User';
-    return 'Salma Muzammil'; // Fallback for testing/offline
+    return 'Salma Muzammil'; // Fallback for offline
   }
 
   String get currentUserImage {
@@ -163,7 +161,7 @@ class ProductDetailController extends ChangeNotifier {
         userImage: oldReview.userImage,
         rating: rating,
         comment: comment,
-        date: 'Edited Today', // Visual cue
+        date: 'Edited Today', 
       );
       notifyListeners();
     }

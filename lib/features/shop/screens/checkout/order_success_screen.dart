@@ -236,7 +236,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         height: 55,
                         child: OutlinedButton(
                           onPressed: () {
-                            // Set navigation index to 1 (Shop Page) before navigating
+                    
                             Provider.of<NavigationController>(context, listen: false).setIndex(1);
                             Navigator.pushAndRemoveUntil(
                               context,

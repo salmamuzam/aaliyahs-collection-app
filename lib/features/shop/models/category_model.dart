@@ -12,7 +12,7 @@ class CategoryModel {
   String get displayName => TFormatter.toSentenceCase(name);
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    // Extensive fallback for image fields
+   
     String url = json['image'] ?? 
                  json['icon_url'] ?? 
                  json['CategoryModel_image'] ?? 
@@ -20,7 +20,7 @@ class CategoryModel {
                  json['icon'] ?? 
                  ''; 
     
-    // Process URL to handle relative paths and localhost issues
+  
     url = _processImageUrl(url);
 
     return CategoryModel(
@@ -33,7 +33,7 @@ class CategoryModel {
   static String _processImageUrl(String url) {
     if (url.isEmpty) return '';
     
-    // 1. Handle Local Assets (Requirement 3)
+    // 1. Handle Local Assets 
     if (url.startsWith('assets/')) {
         return url;
     }
@@ -47,11 +47,11 @@ class CategoryModel {
         return url;
     }
 
-    // 3. Handle relative paths (e.g. /storage/... or storage/...)
+    // 3. Handle relative paths 
     if (url.startsWith('/')) {
         return '$rootBaseURL$url';
     } else {
-        // Prepend slash if missing
+     
         return '$rootBaseURL/$url';
     }
   }

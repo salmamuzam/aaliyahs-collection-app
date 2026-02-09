@@ -2,8 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// Biometric Authentication Service
-/// Following the pattern from flutter_biometric_auth_jetstream reference
 class BiometricService {
   final LocalAuthentication _localAuth = LocalAuthentication();
 
@@ -13,36 +11,36 @@ class BiometricService {
       final bool canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
       final bool canAuthenticate = canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
       
-      debugPrint('🔐 [BIOMETRIC]: canCheckBiometrics: $canAuthenticateWithBiometrics');
-      debugPrint('🔐 [BIOMETRIC]: isDeviceSupported: ${await _localAuth.isDeviceSupported()}');
-      debugPrint('🔐 [BIOMETRIC]: canAuthenticate: $canAuthenticate');
+      debugPrint('[BIOMETRIC]: canCheckBiometrics: $canAuthenticateWithBiometrics');
+      debugPrint(' [BIOMETRIC]: isDeviceSupported: ${await _localAuth.isDeviceSupported()}');
+      debugPrint('[BIOMETRIC]: canAuthenticate: $canAuthenticate');
       
       return canAuthenticate;
     } catch (e) {
-      debugPrint('❌ Error checking biometric availability: $e');
+      debugPrint('Error checking biometric availability: $e');
       return false;
     }
   }
 
-  /// Check if user has enrolled biometric data (fingerprint/face)
+  /// Check if user has enrolled biometric data 
   Future<bool> isBiometricEnrolled() async {
     try {
       final bool canCheckBiometrics = await _localAuth.canCheckBiometrics;
       if (!canCheckBiometrics) {
-        debugPrint('🔐 [BIOMETRIC]: Device cannot check biometrics');
+        debugPrint('[BIOMETRIC]: Device cannot check biometrics');
         return false;
       }
 
       final List<BiometricType> availableBiometrics = await _localAuth.getAvailableBiometrics();
-      debugPrint('🔐 [BIOMETRIC]: Available biometrics: $availableBiometrics');
+      debugPrint('[BIOMETRIC]: Available biometrics: $availableBiometrics');
       
       if (availableBiometrics.isEmpty) {
-        debugPrint('🔐 [BIOMETRIC]: No biometrics enrolled. Please go to Settings > Security to enroll fingerprint or face recognition');
+        debugPrint('[BIOMETRIC]: No biometrics enrolled. Please go to Settings > Security to enroll fingerprint or face recognition');
       }
       
       return availableBiometrics.isNotEmpty;
     } catch (e) {
-      debugPrint('❌ Error checking biometric enrollment: $e');
+      debugPrint('Error checking biometric enrollment: $e');
       return false;
     }
   }
@@ -51,10 +49,10 @@ class BiometricService {
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
       final biometrics = await _localAuth.getAvailableBiometrics();
-      debugPrint('🔐 [BIOMETRIC]: Available biometric types: $biometrics');
+      debugPrint(' [BIOMETRIC]: Available biometric types: $biometrics');
       return biometrics;
     } catch (e) {
-      debugPrint('❌ Error getting available biometrics: $e');
+      debugPrint(' Error getting available biometrics: $e');
       return [];
     }
   }
@@ -67,50 +65,50 @@ class BiometricService {
       // Check if biometrics are available first
       final bool canAuthenticate = await isBiometricAvailable();
       if (!canAuthenticate) {
-        debugPrint('🔐 [BIOMETRIC]: Biometric authentication not available on this device');
+        debugPrint(' [BIOMETRIC]: Biometric authentication not available on this device');
         return false;
       }
 
       // Check if biometrics are enrolled
       final bool isEnrolled = await isBiometricEnrolled();
       if (!isEnrolled) {
-        debugPrint('🔐 [BIOMETRIC]: No biometrics enrolled. Please add a fingerprint or face in device settings');
+        debugPrint('[BIOMETRIC]: No biometrics enrolled. Please add a fingerprint or face in device settings');
         return false;
       }
 
       isAuthorized = await _localAuth.authenticate(
         localizedReason: "Please authenticate to log into Aaliyah's Collection",
       );
-      debugPrint('🔐 Biometric authentication result: $isAuthorized');
+      debugPrint(' Biometric authentication result: $isAuthorized');
     } on PlatformException catch (e) {
-      debugPrint('🔐 Biometric Authentication Platform Error: ${e.code} - ${e.message}');
+      debugPrint(' Biometric Authentication Platform Error: ${e.code} - ${e.message}');
       
-      // Provide more helpful error messages
+      // error messages
       switch (e.code) {
         case 'NotAvailable':
-          debugPrint('🔐 Biometric authentication is not available on this device');
+          debugPrint(' Biometric authentication is not available on this device');
           break;
         case 'NotEnrolled':
-          debugPrint('🔐 No biometrics enrolled. Go to Settings > Security to add fingerprint/face');
+          debugPrint(' No biometrics enrolled. Go to Settings > Security to add fingerprint/face');
           break;
         case 'LockedOut':
-          debugPrint('🔐 Too many failed attempts. Biometrics temporarily locked');
+          debugPrint('Too many failed attempts. Biometrics temporarily locked');
           break;
         case 'PermanentlyLockedOut':
-          debugPrint('🔐 Biometrics permanently locked. Use device password to unlock');
+          debugPrint(' Biometrics permanently locked. Use device password to unlock');
           break;
         default:
-          debugPrint('🔐 Biometric error: ${e.code}');
+          debugPrint(' Biometric error: ${e.code}');
       }
       return false;
     } catch (exception) {
-      debugPrint('❌ Biometric Authentication Error: $exception');
+      debugPrint(' Biometric Authentication Error: $exception');
       return false;
     }
     return isAuthorized;
   }
 
-  /// Get user-friendly message for biometric status
+  ///  biometric status
   Future<String> getBiometricStatusMessage() async {
     final isAvailable = await isBiometricAvailable();
     if (!isAvailable) {

@@ -27,7 +27,7 @@ class NavigationMenu extends StatefulWidget {
 
   const NavigationMenu({
     super.key,
-    this.initialIndex = 0, // Default to Home (0)
+    this.initialIndex = 0, 
   });
 
   @override
@@ -35,18 +35,18 @@ class NavigationMenu extends StatefulWidget {
 }
 
 class _NavigationMenuState extends State<NavigationMenu> {
-  bool _isRailCollapsed = false; // M3 Expressive: Manual rail toggle state
+  bool _isRailCollapsed = false; 
   final GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
   Function(GlobalKey) runAddToCartAnimation = (key) {};
   
-  // Robustness: Maintain reference to listener for proper disposal
+
   VoidCallback? _connectivityListener;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // PRO NAVIGATION: Handle Initial Tab Selection
+
       final navController = Provider.of<NavigationController>(context, listen: false);
       if (navController.selectedIndex != widget.initialIndex) {
         navController.setIndex(widget.initialIndex);
@@ -55,7 +55,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
       Provider.of<UserController>(context, listen: false).fetchUserProfile();
       Provider.of<ProductController>(context, listen: false).fetchHomeData(); 
       
-      // Listen to connectivity changes
+   
       _setupConnectivityListener();
     });
   }
@@ -63,7 +63,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   @override
   void dispose() {
-    // 🛡️ Robustness: Unregister listeners to prevent context leaks
+
     if (_connectivityListener != null) {
       try {
         Provider.of<ConnectivityController>(context, listen: false).removeListener(_connectivityListener!);
@@ -99,7 +99,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
         disableBackBtn: true,
       );
       
-      // Fetch local data (Controller handles offline check internally)
+      // Fetch local data 
       await productProvider.fetchHomeData();
       
       // Close the loading alert
@@ -116,16 +116,16 @@ class _NavigationMenuState extends State<NavigationMenu> {
         disableBackBtn: true,
       );
       
-      // Fetch live data (internally handles error fallback)
+      // Fetch live data 
       await productProvider.fetchHomeData();
       
-      // Force Shop refresh if specifically requested to ensure live results show immediately
+
       await productProvider.fetchShopProducts(refresh: true);
       
       // Close the loading alert
       if (mounted && Navigator.canPop(context)) {
         Navigator.pop(context);
-        // Requirement: Removed 'Welcome Back' success popup per user request
+
       }
     }
   }
@@ -153,7 +153,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
             builder: (context, sizingInformation) {
               final double width = sizingInformation.screenSize.width;
               
-              // M3 Expressive: Flexible nav bar can be used in Compact (<600) and Medium (600-840)
+           
               final bool isCompact = width < 600;
               final bool isMedium = width >= 600 && width < 840;
               final bool useBottomBar = isCompact || isMedium;
@@ -177,7 +177,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
               );
             }
 
-            // Tablet Landscape & Desktop: Navigation Rail (Large/Expanded)
+          
             return Scaffold(
               body: Row(
                 children: [
@@ -209,7 +209,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
     }
 
   Widget _buildNavigationRail(BuildContext context, ColorScheme colorScheme, SizingInformation sizing, NavigationController nav) {
-    // M3 Expressive: Combined Width-based and Manual-toggle logic
+
     final bool isExtended = sizing.screenSize.width > 900 && !_isRailCollapsed;
     final userProvider = Provider.of<UserController>(context, listen: false);
 
@@ -238,13 +238,13 @@ class _NavigationMenuState extends State<NavigationMenu> {
         useIndicator: true,
         groupAlignment: -1.0, 
         minWidth: 80,
-        minExtendedWidth: 360, // Exact M3 Drawer container width spec
+        minExtendedWidth: 360, 
         leading: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Adjusted for FAB
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 0. M3 Expressive: Rail Expansion Toggle
+ 
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 8),
                 child: IconButton(
@@ -254,7 +254,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
                 ),
               ),
 
-              // 1. Brand Logo / Header
+
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 24, left: 12),
                 child: AnimatedSwitcher(
@@ -285,7 +285,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
                       )
                     : Container(
                         key: const ValueKey('compact_brand'),
-                        width: 48, // Standard rail width touch target
+                        width: 48, 
                         height: 32,
                         decoration: BoxDecoration(
                           color: colorScheme.primary,
@@ -296,35 +296,33 @@ class _NavigationMenuState extends State<NavigationMenu> {
                 ),
               ),
 
-              // 2. M3 Expressive: Integrated FAB with Accessibility
-              // M3 Accessibility: FAB placed in upper left for large screens (nav rail)
-              // Semantics label describes the action being performed
+       
               Padding(
                 padding: EdgeInsets.only(left: isExtended ? 12 : 0, bottom: 32),
                 child: Semantics(
                   button: true,
                   enabled: true,
-                  // M3 Accessibility: Label describes the action
+                  
                   label: 'Shop now, browse the latest modest fashion collection',
                   child: isExtended
                       ? FloatingActionButton.extended(
-                          elevation: 3, // M3: Enabled state elevation
-                          hoverElevation: 4, // M3: Hovered state
-                          focusElevation: 3, // M3: Focused state
-                          highlightElevation: 3, // M3: Pressed state
+                          elevation: 3, 
+                          hoverElevation: 4, 
+                          focusElevation: 3, 
+                          highlightElevation: 3, 
                           backgroundColor: colorScheme.primaryContainer,
                           foregroundColor: colorScheme.onPrimaryContainer,
                           tooltip: 'Shop newest modest arrivals',
-                          onPressed: () => nav.setIndex(1), // Quick navigate to Shop
+                          onPressed: () => nav.setIndex(1), 
                           icon: const Icon(Icons.add_shopping_cart_rounded),
                           label: const Text('SHOP NOW'),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         )
                       : FloatingActionButton(
-                          elevation: 3, // M3: Enabled state elevation
-                          hoverElevation: 4, // M3: Hovered state
-                          focusElevation: 3, // M3: Focused state
-                          highlightElevation: 3, // M3: Pressed state
+                          elevation: 3, 
+                          hoverElevation: 4,
+                          focusElevation: 3, 
+                          highlightElevation: 3,
                           backgroundColor: colorScheme.primaryContainer,
                           foregroundColor: colorScheme.onPrimaryContainer,
                           tooltip: 'Shop Now',
@@ -356,7 +354,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
         ),
         trailing: Expanded(
           child: Align(
-            alignment: Alignment.bottomLeft, // Rail items are start-aligned
+            alignment: Alignment.bottomLeft, 
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,7 +391,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
                           key: const ValueKey('expanded_user'),
                           decoration: BoxDecoration(
                             color: nav.selectedIndex == 3 ? colorScheme.secondaryContainer : Colors.transparent,
-                            borderRadius: BorderRadius.circular(28), // Matches indicator shape
+                            borderRadius: BorderRadius.circular(28), 
                           ),
                           child: Semantics(
                             label: 'Profile, account settings',
@@ -514,7 +512,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   Widget _buildBottomBar(ColorScheme colorScheme, NavigationController nav, bool isMedium) {
     if (isMedium) {
-      // M3 Expressive: Horizontal navigation items for Medium windows
+    
       return Container(
         height: 64.h,
         decoration: BoxDecoration(
@@ -522,7 +520,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
         ),
         child: SafeArea(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, // Horizontal items have fixed width, center them
+            mainAxisAlignment: MainAxisAlignment.center, 
             children: [
               _buildHorizontalNavDestination(nav, 0, Icons.home_outlined, Icons.home_rounded, 'Home', 'Home, explore collection', colorScheme),
               SizedBox(width: 8.w),
@@ -537,7 +535,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
       );
     }
 
-    // Default Vertical Navigation Bar for Compact windows
+    
     return NavigationBarTheme(
       data: NavigationBarThemeData(
         indicatorColor: colorScheme.secondaryContainer,
@@ -603,7 +601,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
       label: semanticLabel,
       child: InkWell(
         onTap: () {
-          // M3 Behavior: Light haptic feedback on tab selection
+    
           HapticFeedback.lightImpact();
           nav.setIndex(index);
         },
@@ -639,7 +637,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
   }
 
   Widget _buildNumberedIcon(NavigationController nav, int index, IconData icon, bool isSelected, ColorScheme colorScheme) {
-    // Helper to generate the correct Icon with selection-aware coloring
+  
     Widget buildIcon(IconData i) => Icon(
       i, 
       color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant
@@ -682,7 +680,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   NavigationDestination _buildNavDestination(NavigationController nav, int index, IconData icon, IconData selectedIcon, String label, String semanticLabel, ColorScheme colorScheme) {
     return NavigationDestination(
-      key: (index == 2 && DeviceUtils.isCompact) ? cartKey : null, // Target for Cart Animation
+      key: (index == 2 && DeviceUtils.isCompact) ? cartKey : null, 
       icon: _buildNumberedIcon(nav, index, icon, false, colorScheme),
       selectedIcon: _buildNumberedIcon(nav, index, selectedIcon, true, colorScheme),
       label: label,
@@ -702,7 +700,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
   }) {
     final String countText = badgeCount != null && badgeCount > 999 ? '999+' : (badgeCount?.toString() ?? '');
     
-    // Helper to get color without context since we are inside a method
+
     final colorScheme = Theme.of(context).colorScheme;
 
     Widget buildIcon() => isExtended 
@@ -718,10 +716,10 @@ class _NavigationMenuState extends State<NavigationMenu> {
             );
 
     return NavigationRailDestination(
-      // Apply key to the icon container if it is the cart item and not using bottom bar
+  
       icon: (isCart && !DeviceUtils.isCompact) ? KeyedSubtree(key: cartKey, child: buildIcon()) : buildIcon(),
       selectedIcon: Icon(selectedIcon, color: colorScheme.onSecondaryContainer), 
-      label: Text(label), // Label must be a Widget, usually Text
+      label: Text(label), 
       padding: const EdgeInsets.symmetric(vertical: 4), 
     );
   }

@@ -27,17 +27,16 @@ class CategoryButton extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isHighContrast = colorScheme.outline == Colors.black87 || colorScheme.outline == Colors.white;
     
-    // Theme-driven colors with accessibility fallbacks
+
     final Color selectedBg = colorScheme.primary;
     final Color unselectedBg = colorScheme.surfaceContainerHighest;
 
     return Consumer<AccessibilityController>(
       builder: (context, access, _) {
-        // M3 Expressive: Shape Morphing configuration
-        // Tension: Asymmetrical shape for unselected, morphs to circular when selected
+   
         const BorderRadius adaptiveRadius = BorderRadius.only(
-                topLeft: Radius.circular(TUIConstants.shapeRadiusXL), // 28
-                topRight: Radius.circular(TUIConstants.shapeRadiusMedium), // 12
+                topLeft: Radius.circular(TUIConstants.shapeRadiusXL), 
+                topRight: Radius.circular(TUIConstants.shapeRadiusMedium), 
                 bottomLeft: Radius.circular(TUIConstants.shapeRadiusMedium),
                 bottomRight: Radius.circular(TUIConstants.shapeRadiusXL),
               );
@@ -51,12 +50,12 @@ class CategoryButton extends StatelessWidget {
             child: GestureDetector(
               onTap: onTap,
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(1)), // Reduced to 4dp
+                padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(1)), 
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     AnimatedContainer(
-                      duration: AMotion.durationStationaryEmphasized, // 500ms
+                      duration: AMotion.durationStationaryEmphasized,
                       curve: AMotion.easingEmphasized,
                       height: 68,
                       width: 68,
@@ -80,7 +79,7 @@ class CategoryButton extends StatelessWidget {
                           width: isHighContrast ? 2.0 : 1.5,
                         ),
                       ),
-                      child: ClipRRect( // M3: Support shape morph clipping
+                      child: ClipRRect( 
                         borderRadius: adaptiveRadius,
                         child: Material(
                           color: Colors.transparent,
@@ -120,8 +119,8 @@ class CategoryButton extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: DeviceUtils.m3Padding(1)), // 4dp (Reduced from 8dp)
-                    // Category Name with dynamic styling
+                    SizedBox(height: DeviceUtils.m3Padding(1)), 
+                 
                     AutoSizeText(
                       category.displayName,
                       maxLines: 1,
@@ -132,7 +131,7 @@ class CategoryButton extends StatelessWidget {
                         ? (Theme.of(context).extension<AaliyahTypography>()?.labelLargeEmphasized ?? 
                            Theme.of(context).textTheme.labelLarge)?.copyWith(
                             color: colorScheme.primary,
-                            fontSize: 12, // Maintain design size but use emphasized weight
+                            fontSize: 12, 
                           )
                         : Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: colorScheme.onSurfaceVariant,

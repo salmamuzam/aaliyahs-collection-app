@@ -26,7 +26,7 @@ class AppRouter {
       case AppRoutes.navigationMenu:
         return MaterialPageRoute(builder: (_) => const NavigationMenu());
       
-      // PRO NAVIGATION: Route to specific TABS instead of pushing new screens
+      //  Route to specific TABS instead of pushing new screens
       case AppRoutes.home:
         return MaterialPageRoute(
           builder: (_) => const NavigationMenu(), // Tab 0: Home
@@ -46,7 +46,7 @@ class AppRouter {
       case AppRoutes.productDetail:
         if (settings.arguments is ProductModel) {
           final product = settings.arguments as ProductModel;
-          // PRO FLUTTER: Custom M3 Transition (Slide + Fade)
+          
           return _buildPageRoute(settings, ProductDetailScreen(product: product));
         }
         return _errorRoute();
@@ -90,7 +90,7 @@ class AppRouter {
     }
   }
 
-  // HELPER: Professional Slide + Fade Transition
+
   static PageRouteBuilder _buildPageRoute(RouteSettings settings, Widget child) {
     return PageRouteBuilder(
       settings: settings,

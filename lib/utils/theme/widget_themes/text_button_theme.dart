@@ -9,13 +9,13 @@ class AaliyahTextButtonTheme {
       foregroundColor: aaliyahPrimaryColor,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      shape: const StadiumBorder(), // Consistent M3 Pill Shape for Hover/Focus ring
+      shape: const StadiumBorder(),
     ),
   );
 
   static final darkTextButtonTheme = TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: const Color(0xFF4CDABD), // Light Teal for M3 Dark Mode
+      foregroundColor: const Color(0xFF4CDABD), 
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       shape: const StadiumBorder(),

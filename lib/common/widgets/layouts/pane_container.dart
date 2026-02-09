@@ -5,10 +5,10 @@ class PaneConfig {
   /// Unique identifier for this pane
   final String id;
   
-  /// Whether this pane has a fixed width (true) or is flexible (false)
+
   final bool isFixed;
   
-  /// Fixed width in dp (only used if isFixed is true)
+
   final double? fixedWidth;
   
   /// Minimum width constraint for flexible panes
@@ -17,7 +17,7 @@ class PaneConfig {
   /// Maximum width constraint for flexible panes
   final double? maxWidth;
   
-  /// Whether this pane is resizable by the user
+
   final bool resizable;
   
   /// Whether resize preferences should persist across sessions
@@ -26,7 +26,7 @@ class PaneConfig {
   /// Whether this pane is currently visible
   final bool visible;
   
-  /// Flex value for flexible panes (default 1)
+
   final int flex;
 
   const PaneConfig({
@@ -67,9 +67,7 @@ class PaneConfig {
 }
 
 /// A container widget for individual panes in adaptive layouts.
-/// 
-/// This widget wraps pane content and applies appropriate styling,
-/// constraints, and behavior based on the pane configuration.
+
 class PaneContainer extends StatelessWidget {
   /// Configuration for this pane
   final PaneConfig config;
@@ -136,7 +134,7 @@ class PaneContainer extends StatelessWidget {
       child: child,
     );
     
-    // Wrap flexible panes in Expanded
+ 
     if (!config.isFixed) {
       content = Expanded(
         flex: config.flex,

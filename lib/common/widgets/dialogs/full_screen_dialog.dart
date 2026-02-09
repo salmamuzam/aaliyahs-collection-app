@@ -5,7 +5,7 @@ class AaliyahFullScreenDialog extends StatelessWidget {
   final String actionLabel;
   final VoidCallback onActionPressed;
   final Widget child;
-  final bool hasChanges; // New flag to track unsaved state
+  final bool hasChanges; 
 
   const AaliyahFullScreenDialog({
     super.key,
@@ -66,7 +66,7 @@ class AaliyahFullScreenDialog extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     
     return PopScope(
-      canPop: false, // Handle pop manually to show discard dialog
+      canPop: false, 
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         final shouldPop = await _onWillPop(context);
@@ -75,7 +75,7 @@ class AaliyahFullScreenDialog extends StatelessWidget {
         }
       },
       child: Semantics(
-        scopesRoute: true, // Accessibility: Treat as a separate route
+        scopesRoute: true, 
         explicitChildNodes: true,
         label: title,
         child: Scaffold(
@@ -101,7 +101,7 @@ class AaliyahFullScreenDialog extends StatelessWidget {
               ),
               centerTitle: false,
               title: Semantics(
-                header: true, // Accessibility: Mark as semantic header
+                header: true, 
                 child: Text(
                   title,
                   style: const TextStyle(

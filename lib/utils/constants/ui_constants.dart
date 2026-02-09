@@ -8,11 +8,11 @@ class TUIConstants {
   // Spacing & Padding
   static const double horizontalPadding = 16.0;
   static const double verticalPadding = 8.0;
-  // Material 3 Shape Scale
+
   static const double shapeRadiusXS = 4.0;
   static const double shapeRadiusExtraSmall = shapeRadiusXS;
   static const double shapeRadiusSmall = 8.0;
-  static const double shapeRadiusMedium = 12.0;    // Standard for Cards
+  static const double shapeRadiusMedium = 12.0;    
   static const double shapeRadiusLarge = 16.0;
   static const double shapeRadiusLargeIncreased = 20.0;
   static const double shapeRadiusXL = 28.0;
@@ -25,14 +25,13 @@ class TUIConstants {
   static const double cartAnimOpacity = 0.85;
   static const double shapeRadiusXLIncreased = 32.0;
   static const double shapeRadiusXXL = 48.0;
-  static const double shapeRadiusFull = 999.0;     // Buttons (Stadium)
+  static const double shapeRadiusFull = 999.0;    
 
-  // Component Specific Mappings
-  static const double cardRadius = shapeRadiusMedium; // M3 Standard: 12dp
-  // buttonRadius is already defined above
+  static const double cardRadius = shapeRadiusMedium; 
+
   static const double inputFieldRadius = shapeRadiusMedium;
-  static const double dialogRadius = shapeRadiusXL; // M3 Standard: 28dp
-  static const double bottomSheetRadius = shapeRadiusXL; // M3 Standard: 28dp
+  static const double dialogRadius = shapeRadiusXL; 
+  static const double bottomSheetRadius = shapeRadiusXL; 
 
   // Animations
   static const Duration fadeInFast = Duration(milliseconds: 200);

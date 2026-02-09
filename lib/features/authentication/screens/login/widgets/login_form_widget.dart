@@ -41,7 +41,7 @@ class _LoginFormState extends State<LoginForm> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🚀 [BOOT]: LOGIN FORM INITIALIZED'); // Verification log
+    debugPrint(' [BOOT]: LOGIN FORM INITIALIZED'); 
     _checkBiometrics();
   }
 
@@ -108,21 +108,21 @@ class _LoginFormState extends State<LoginForm> {
                     );
                   },
                 ),
-                const SizedBox(height: 8), // Adjusting top gap
+                const SizedBox(height: 8), 
                 
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: DeviceUtils.m3Padding(2)),
                   child: _buildRememberMeAndForgetPassword(context, isDarkMode),
                 ),
                 
-                SizedBox(height: DeviceUtils.m3Padding(4)), // Gap before login button
+                SizedBox(height: DeviceUtils.m3Padding(4)), 
                 _buildLoginButton(),
-                SizedBox(height: DeviceUtils.m3Padding(5)), // Added small gap after sign in button
+                SizedBox(height: DeviceUtils.m3Padding(5)), 
                 if (_isBioAvailable) ...[ 
                   _buildBiometricButton(),
                 ],
               ].animate(
-                interval: reduceMotion ? 0.ms : AMotion.durationShort2, // 100ms staggered
+                interval: reduceMotion ? 0.ms : AMotion.durationShort2, 
               ).fadeIn(
                 duration: AMotion.durationEnterEmphasized,
                 curve: AMotion.easingEmphasizedDecelerate,
@@ -153,7 +153,7 @@ class _LoginFormState extends State<LoginForm> {
     try {
       final authController = context.read<AuthController>();
       
-      // FIRST: Check if biometrics are enrolled on device
+      // Check if biometrics are enrolled on device
       final isEnrolled = await _biometricService.isBiometricEnrolled();
       if (!isEnrolled) {
         _showErrorToast(
@@ -163,15 +163,15 @@ class _LoginFormState extends State<LoginForm> {
         return;
       }
 
-      // SECOND: Check if we have saved credentials
-      debugPrint('🔐 [UI]: Checking secure storage for saved credentials...');
+      // Check if we have saved credentials
+      debugPrint(' [UI]: Checking secure storage for saved credentials...');
       final savedEmail = await authController.getBioEmail();
       final savedPassword = await authController.getBioPassword();
       
-      debugPrint('🔐 [UI]: Email from storage: ${savedEmail != null ? 'Found' : 'Not found'}');
+      debugPrint('[UI]: Email from storage: ${savedEmail != null ? 'Found' : 'Not found'}');
 
       if (savedEmail == null || savedPassword == null || savedEmail.isEmpty || savedPassword.isEmpty) {
-        debugPrint('🔐 [UI]: No credentials saved yet - user needs to login with email/password first');
+        debugPrint(' [UI]: No credentials saved yet - user needs to login with email/password first');
         _showErrorToast(
           'Error!', 
           'Please log in to enable fingerprint!',
@@ -179,24 +179,24 @@ class _LoginFormState extends State<LoginForm> {
         return;
       }
 
-      // THIRD: Authenticate with biometrics
-      debugPrint('🔐 [UI]: Credentials found. Requesting biometric authentication...');
+      // Authenticate with biometrics
+      debugPrint(' [UI]: Credentials found. Requesting biometric authentication...');
       final isAuthenticated = await _biometricService.authenticate();
       
       if (isAuthenticated) {
-        debugPrint('🔐 [UI]: ✅ Biometric authentication successful! Logging in with saved credentials...');
+        debugPrint(' [UI]: Biometric authentication successful! Logging in with saved credentials...');
         _emailController.text = savedEmail;
         _passwordController.text = savedPassword;
         _handleLogin();
       } else {
-        debugPrint('🔐 [UI]: ❌ Biometric authentication failed or cancelled');
+        debugPrint(' [UI]: Biometric authentication failed or cancelled');
         _showErrorToast(
           'Authentication Failed',
           'Biometric authentication was not successful. Please try again.',
         );
       }
     } catch (e) {
-      debugPrint('🔐 [UI] ERROR: $e');
+      debugPrint('[UI] ERROR: $e');
       _showErrorToast('Biometric Error', 'An error occurred: $e');
     }
   }
@@ -284,7 +284,7 @@ class _LoginFormState extends State<LoginForm> {
     final authController = context.read<AuthController>();
     if (authController.isLoading) return;
     
-    // Validate form using standard Flutter validation
+ 
     if (!_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
       return;
@@ -294,8 +294,8 @@ class _LoginFormState extends State<LoginForm> {
     if (!mounted) return;
 
     if (result['status'] == 'success') {
-      // NOTE: Biometric storage now handled automatically inside AuthRepository.login()
-      debugPrint('🔐 [UI]: Login success. Repo should have saved bio credentials.');
+
+      debugPrint(' Login success. Repo should have saved bio credentials.');
       
       _showSuccessToast(aaliyahLoginSuccessTitle, aaliyahLoginSuccessSubTitle);
       

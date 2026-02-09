@@ -18,7 +18,7 @@ class NetworkImageHelper {
     final bool isNetwork = imagePath.startsWith('http');
 
     if (!isNetwork) {
-      // It's already a local asset path, use Image.asset directly
+
       return Image.asset(
         imagePath,
         width: width,
@@ -31,7 +31,7 @@ class NetworkImageHelper {
       );
     }
 
-    // Use SmartImage which handles the "Network -> Local Asset" fallback logic
+
     return SmartImage(
       imageUrl: imagePath,
       width: width,

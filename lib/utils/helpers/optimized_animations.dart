@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 
-/// Optimized Animation Helper
-/// Provides reusable, performance-optimized animation patterns
-/// Uses AnimatedBuilder and RepaintBoundary for better performance
+
 class OptimizedAnimations {
-  /// Fade in animation with optimized builder
-  /// Uses FadeTransition instead of Opacity for better GPU performance
+  
   static Widget fadeIn({
     required Widget child,
     required Animation<double> animation,
     Curve curve = Curves.easeIn,
   }) {
-    // Use FadeTransition - applies opacity using GPU's fragment shader (faster)
+ 
     return FadeTransition(
       opacity: CurvedAnimation(parent: animation, curve: curve),
       child: child,
     );
   }
 
-  /// Slide in animation with optimized builder
   static Widget slideIn({
     required Widget child,
     required Animation<double> animation,
@@ -39,7 +35,7 @@ class OptimizedAnimations {
     );
   }
 
-  /// Scale animation with optimized builder
+
   static Widget scale({
     required Widget child,
     required Animation<double> animation,
@@ -61,8 +57,7 @@ class OptimizedAnimations {
     );
   }
 
-  /// Combined fade and slide animation
-  /// Uses FadeTransition and SlideTransition for GPU-accelerated performance
+
   static Widget fadeSlide({
     required Widget child,
     required Animation<double> animation,
@@ -70,7 +65,7 @@ class OptimizedAnimations {
     Curve curve = Curves.easeOut,
   }) {
     final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
-    // Use built-in transitions for GPU fragment shader optimization
+ 
     return FadeTransition(
       opacity: curvedAnimation,
       child: SlideTransition(
@@ -80,7 +75,6 @@ class OptimizedAnimations {
     );
   }
 
-  /// Rotation animation with optimized builder
   static Widget rotate({
     required Widget child,
     required Animation<double> animation,
@@ -94,7 +88,7 @@ class OptimizedAnimations {
         final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
         final rotation = begin + (end - begin) * curvedAnimation.value;
         return Transform.rotate(
-          angle: rotation * 2 * 3.14159, // Convert to radians
+          angle: rotation * 2 * 3.14159, 
           child: child,
         );
       },
@@ -103,8 +97,7 @@ class OptimizedAnimations {
   }
 }
 
-/// Repaint Boundary Wrapper
-/// Isolates expensive widgets from unnecessary repaints
+
 class OptimizedRepaintBoundary extends StatelessWidget {
   final Widget child;
   final String? debugLabel;
@@ -123,8 +116,7 @@ class OptimizedRepaintBoundary extends StatelessWidget {
   }
 }
 
-/// Optimized Animated Container
-/// Uses Transform instead of changing widget properties for better performance
+
 class OptimizedAnimatedContainer extends StatelessWidget {
   final Widget child;
   final Animation<double> animation;
@@ -184,12 +176,10 @@ class OptimizedAnimatedContainer extends StatelessWidget {
   }
 }
 
-/// Animation Controller Manager
-/// Helps manage multiple animation controllers and ensures proper disposal
+
 class AnimationControllerManager {
   final List<AnimationController> _controllers = [];
 
-  /// Create and register an animation controller
   AnimationController createController({
     required TickerProvider vsync,
     required Duration duration,
@@ -206,7 +196,7 @@ class AnimationControllerManager {
     return controller;
   }
 
-  /// Dispose all registered controllers
+
   void disposeAll() {
     for (final controller in _controllers) {
       controller.dispose();
@@ -214,49 +204,7 @@ class AnimationControllerManager {
     _controllers.clear();
   }
 
-  /// Get count of active controllers
+
   int get activeCount => _controllers.length;
 }
 
-/// Example usage:
-/// 
-/// class MyAnimatedWidget extends StatefulWidget {
-///   @override
-///   _MyAnimatedWidgetState createState() => _MyAnimatedWidgetState();
-/// }
-/// 
-/// class _MyAnimatedWidgetState extends State<MyAnimatedWidget>
-///     with SingleTickerProviderStateMixin {
-///   late AnimationController _controller;
-///   late Animation<double> _animation;
-/// 
-///   @override
-///   void initState() {
-///     super.initState();
-///     _controller = AnimationController(
-///       duration: const Duration(milliseconds: 300),
-///       vsync: this,
-///     );
-///     _animation = CurvedAnimation(
-///       parent: _controller,
-///       curve: Curves.easeInOut,
-///     );
-///     _controller.forward();
-///   }
-/// 
-///   @override
-///   Widget build(BuildContext context) {
-///     return OptimizedRepaintBoundary(
-///       child: OptimizedAnimations.fadeSlide(
-///         animation: _animation,
-///         child: const ExpensiveWidget(),
-///       ),
-///     );
-///   }
-/// 
-///   @override
-///   void dispose() {
-///     _controller.dispose();
-///     super.dispose();
-///   }
-/// }

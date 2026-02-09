@@ -64,7 +64,7 @@ class AaliyahCustomColors extends ThemeExtension<AaliyahCustomColors> {
     );
   }
 
-  /// M3: Provides harmonization to the scheme's primary color
+
   AaliyahCustomColors harmonized(ColorScheme dynamicScheme) {
     return copyWith(
       success: success?.harmonizeWith(dynamicScheme.primary),
@@ -79,7 +79,7 @@ class AaliyahCustomColors extends ThemeExtension<AaliyahCustomColors> {
   }
 }
 
-/// Helper to light/dark roles for static colors
+
 class StaticColors {
   // Brand Green (Success)
   static const success = Color(0xFF2E7D32);

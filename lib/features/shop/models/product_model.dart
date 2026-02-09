@@ -6,7 +6,7 @@ class ProductModel {
   final int? id;
   final String name;
   final String description;
-  final String price; // We'll keep it as String for display, matching API
+  final String price; 
   final List<String> images;
   final int? categoryId;
   final String categoryName;
@@ -26,16 +26,16 @@ class ProductModel {
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     List<String> validImages = [];
     
-    // Helper to process a single URL
+
     String processUrl(String url) {
        if (url.isEmpty) return '';
        
-       // 1. PRIORITY: Keep local asset paths as-is for offline support
+     
        if (url.startsWith('assets/')) {
-          return url; // Return immediately - don't convert to network URL
+          return url; 
        }
        
-       // 2. Handle complete URLs pointing to localhost/emulator IPs
+
        if (url.startsWith('http')) {
            if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2')) {
               final Uri uri = Uri.parse(url);
@@ -44,18 +44,18 @@ class ProductModel {
            return url;
        }
 
-       // 3. Normalize path for Laravel storage
+   
        String path = url;
        if (path.startsWith('/')) {
          path = path.substring(1);
        }
        
-       // 4. Ensure storage prefix exists for Laravel
+   
        if (!path.startsWith('storage/')) {
          path = 'storage/$path';
        }
 
-       // 5. Return full URL
+     
        return '$rootBaseURL$path';
     }
 
@@ -83,12 +83,12 @@ class ProductModel {
     );
   }
 
-  // To maintain compatibility with existing code
+ 
   String get image => images.isNotEmpty ? images[0] : '';
   String get categoryNameFormatted => TFormatter.toSentenceCase(categoryName);
   String get displayName => TFormatter.toSentenceCase(name);
 
-  /// Returns the price as a double, cleaning any non-numeric characters.
+  /// Returns the price as a double
   double get priceDouble {
     final String cleanPrice = price.replaceAll(RegExp(r'[^0-9.]'), '');
     return double.tryParse(cleanPrice) ?? 0.0;

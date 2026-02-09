@@ -21,7 +21,7 @@ import 'package:aaliyahs_collection_estore/features/personalization/controllers/
 import 'package:aaliyahs_collection_estore/features/shop/controllers/order_controller.dart';
 
 import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
-// Profile Feature Widgets
+
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_header.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_menu_item.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/screens/widgets/profile_settings_bottom_sheet.dart';
@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ImagePicker _picker = ImagePicker();
   final ScrollController _scrollController = ScrollController();
 
-  // Sensor Features
+  
   bool _isAutoBrightnessEnabled = false;
   StreamSubscription<int>? _lightSubscription;
   final Light _light = Light();
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _initBrightness();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // M3 Behavior: Scroll to top upon re-selection
+
       _navigationController = Provider.of<NavigationController>(context, listen: false);
       _navigationController.addListener(_handleNavSelection);
     });
@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const NavigationMenu()),
             );
-            // Set to Home page after navigation
+          
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Provider.of<NavigationController>(context, listen: false).setIndex(0);
             });
@@ -296,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
-        SizedBox(height: DeviceUtils.m3Padding(4)), // Slightly larger gap before destructive action
+        SizedBox(height: DeviceUtils.m3Padding(4)), 
         Semantics(
           label: 'Log out',
           button: true,
@@ -374,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               
               Navigator.pop(dialogContext);
               
-              // Multi-layer State Reset
+            
               await authController.logout();
               await userController.clearUser();
               await cartController.clearCart();

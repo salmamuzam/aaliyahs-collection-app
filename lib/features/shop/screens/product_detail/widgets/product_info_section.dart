@@ -264,7 +264,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
   }
 
   Widget _buildItemTitle(bool isDarkMode) {
-    // Respect text scaling but prevent extreme sizes that break layout
+  
     final textScale = MediaQuery.of(context).textScaler.scale(1.0);
     
     return Semantics(
@@ -290,7 +290,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
         style: GoogleFonts.robotoMono(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.primary, // Primary color for price
+          color: Theme.of(context).colorScheme.primary, 
         ),
       ),
     );
@@ -322,7 +322,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> with TickerProv
     final detailController = context.watch<ProductDetailController>();
     final existingReview = detailController.currentUserReview;
 
-    // Pre-fill if editing for the first time in this session
+  
     if (existingReview != null && _reviewController.text.isEmpty) {
       _reviewController.text = existingReview.comment;
       _userRating = existingReview.rating;

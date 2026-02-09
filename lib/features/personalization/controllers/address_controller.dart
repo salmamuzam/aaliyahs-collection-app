@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/utils/local_storage/db_helper.dart';
 
-// ============================================================================
-// ADDRESS CONTROLLER - Manages User Shipping Addresses
-// ============================================================================
+
 // This controller handles all address-related operations using Provider pattern
 // It stores addresses in SQLite database for persistence
-//
-// Features:
-// - Load saved addresses from database
-// - Add new shipping addresses
-// - Delete addresses
-// - Automatically updates UI when addresses change
-// ============================================================================
+
 
 class AddressController extends ChangeNotifier {
   final DBHelper _dbHelper = DBHelper();  // Database helper for SQLite operations
   
-  // Private list of addresses (only this controller can modify directly)
+  // Private list of addresses 
   List<Map<String, dynamic>> _addresses = [];
 
-  // Public getter - other parts of app can read addresses but not modify directly
   List<Map<String, dynamic>> get addresses => _addresses;
 
-  // Constructor - automatically loads addresses when controller is created
   AddressController() {
     loadAddresses();
   }

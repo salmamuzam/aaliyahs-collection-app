@@ -249,7 +249,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildItemImage(String imageUrl, bool isDarkMode) {
     return Container(
       width: 70,
-      height: 100, // Taller aspect ratio for fashion
+      height: 100, 
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(TUIConstants.cardRadius),
@@ -260,7 +260,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           imageUrl: imageUrl, 
           width: 70,
           height: 100,
-          fit: BoxFit.cover,
           alignment: Alignment.topCenter,
         ),
       ),
@@ -318,7 +317,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildPaymentMethod(String? method, bool isDarkMode) {
     String cleanMethod = method ?? 'N/A';
-    // Remove status in brackets (e.g., "Stripe (Paid)" -> "Stripe")
+
     if (cleanMethod.contains('(')) {
       cleanMethod = cleanMethod.split('(')[0].trim();
     }

@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
 
-/// Shows a Modal Side Sheet adhering to Material 3 specifications.
-/// 
-/// Specs:
-/// - Corner Radius: 16dp (TUIConstants.shapeRadiusLarge)
-/// - Background: Surface Container Low
-/// - Elevation: 1 (Modal)
-/// - Animation: Slide from Side (Standard Easing)
-/// - Scrim: Standard Scrim Color
+
 Future<T?> showModalSideSheet<T>({
   required BuildContext context,
   required Widget body,
@@ -49,7 +42,7 @@ Future<T?> showModalSideSheet<T>({
               width: double.infinity,
               height: double.infinity,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400), // Standard Side Sheet max width
+                constraints: const BoxConstraints(maxWidth: 400),
                 child: body,
               ),
             ),
@@ -61,7 +54,7 @@ Future<T?> showModalSideSheet<T>({
       final Offset begin = side == SideSheetSide.right ? const Offset(1.0, 0.0) : const Offset(-1.0, 0.0);
       return SlideTransition(
         position: Tween<Offset>(begin: begin, end: Offset.zero).animate(
-          CurvedAnimation(parent: animation, curve: AMotion.easingEmphasizedDecelerate), // M3 Standard
+          CurvedAnimation(parent: animation, curve: AMotion.easingEmphasizedDecelerate), 
         ),
         child: child,
       );
@@ -73,12 +66,7 @@ Future<T?> showModalSideSheet<T>({
 
 enum SideSheetSide { left, right }
 
-/// A Standard Side Sheet widget for use in large screen layouts.
-/// 
-/// Specs:
-/// - Max Width: 400dp
-/// - Color: Surface (or Surface Container Low if elevated)
-/// - Border: Outline Variant (if needed for separation)
+
 class StandardSideSheet extends StatelessWidget {
   final Widget child;
   final double width;
@@ -103,7 +91,7 @@ class StandardSideSheet extends StatelessWidget {
       width: width,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.surface, // Standard Side Sheet background (Surface per specs)
+        color: backgroundColor ?? colorScheme.surface, 
         border: showBorder ? Border(
           left: side == SideSheetSide.right ? BorderSide(color: colorScheme.outlineVariant) : BorderSide.none,
           right: side == SideSheetSide.left ? BorderSide(color: colorScheme.outlineVariant) : BorderSide.none,
@@ -114,12 +102,6 @@ class StandardSideSheet extends StatelessWidget {
   }
 }
 
-/// A standard header for Side Sheets adhering to M3 padding specs.
-/// 
-/// Specs:
-/// - Start/End Padding: 24dp
-/// - Padding between elements: 12dp
-/// - Title Style: Headline Small
 class SideSheetHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onClose;
@@ -139,8 +121,7 @@ class SideSheetHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     
     return Padding(
-      // Padding spec: 24dp start/end, 12dp between top elements
-      // Vertical padding isn't strictly defined but visual examples show spacing.
+    
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16), 
       child: Row(
         children: [
@@ -151,7 +132,7 @@ class SideSheetHeader extends StatelessWidget {
               tooltip: 'Back',
               color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(width: 12), // Padding between top elements
+            const SizedBox(width: 12), 
           ],
           Expanded(
             child: Semantics(
@@ -184,14 +165,7 @@ class SideSheetHeader extends StatelessWidget {
   }
 }
 
-/// A standard footer for Side Sheets containing action buttons.
-/// 
-/// Specs:
-/// - Height: 72dp (implied minimum with padding)
-/// - Top Padding: 16dp
-/// - Bottom Padding: 24dp
-/// - Start/End Padding: 24dp
-/// - Alignment: Start (Left) with 8dp gap
+
 class SideSheetFooter extends StatelessWidget {
   final List<Widget> children;
   final MainAxisAlignment mainAxisAlignment;
@@ -206,7 +180,7 @@ class SideSheetFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     if (children.isEmpty) return const SizedBox.shrink();
 
-    // Interleave with SizedBox(width: 8)
+
     final spacedChildren = <Widget>[];
     for (int i = 0; i < children.length; i++) {
         spacedChildren.add(children[i]);
@@ -218,7 +192,7 @@ class SideSheetFooter extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       child: Row(
-        mainAxisSize: MainAxisSize.min, // Footer should size to content? Or fill? Usually fill but items align left.
+        mainAxisSize: MainAxisSize.min, 
         mainAxisAlignment: mainAxisAlignment,
         children: spacedChildren,
       ),

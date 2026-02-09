@@ -13,7 +13,7 @@ class AuthTextField extends StatelessWidget {
   final bool isOutlined;
   final FocusNode? focusNode;
   final String? helperText;
-  final bool hasError; // New parameter for error state
+  final bool hasError; 
 
 
   const AuthTextField({
@@ -30,7 +30,7 @@ class AuthTextField extends StatelessWidget {
     this.onFieldSubmitted,
     this.focusNode,
     this.helperText,
-    this.hasError = false, // Default to no error
+    this.hasError = false, 
   });
 
   @override
@@ -63,7 +63,7 @@ class AuthTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
-        // Override border when hasError is true
+     
         enabledBorder: hasError
             ? OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

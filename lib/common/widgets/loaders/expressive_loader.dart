@@ -1,17 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// removed ui_constants.dart
 
-
-
-/// A Material Design 3 Expressive Loading Indicator that uses Shape Morphing.
-/// It transitions between seven unique Material 3 shapes while rotating.
-///
-/// Follows M3 Expressive Specs:
-/// - Size: 48dp (Interaction target) / 38dp (Active indicator)
-/// - Range: 24dp - 240dp (Proportional scaling)
-/// - Morphology: Looping sequence of 7 shapes
 class ExpressiveLoader extends StatefulWidget {
   final double size;
   final Color? color;
@@ -26,10 +16,10 @@ class ExpressiveLoader extends StatefulWidget {
     this.semanticLabel,
   });
 
-  /// Responsive helper to scale loader based on screen width/height
+
   static double responsiveSize(BuildContext context, {double baseSize = 48}) {
     final double width = MediaQuery.of(context).size.width;
-    // Scale up for larger windows but cap at 240dp per M3 specs
+ 
     if (width > 1200) return (baseSize * 2.5).clamp(24.0, 240.0);
     if (width > 600) return (baseSize * 1.5).clamp(24.0, 240.0);
     return baseSize.clamp(24.0, 240.0);
@@ -49,7 +39,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3000), // Slower for 7-shape cycle
+      duration: const Duration(milliseconds: 3000),
     )..repeat();
 
     _rotationAnimation = Tween<double>(begin: 0, end: 4 * math.pi).animate(
@@ -119,11 +109,10 @@ class _M3ExpressivePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = color..style = PaintingStyle.fill;
     final rect = Offset.zero & size;
-    final double t = progress * 7; // 7 shapes cycle
+    final double t = progress * 7; 
     final int index = t.floor();
     final double subProgress = t - index;
 
-    // We define 7 radii configurations to simulate the "7 unique M3 shapes"
     final List<BorderRadius> shapes = [
       BorderRadius.circular(size.width / 2), // Circle
       BorderRadius.all(Radius.circular(size.width / 3.5)), // Squircle

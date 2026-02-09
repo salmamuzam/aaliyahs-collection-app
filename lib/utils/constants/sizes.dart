@@ -10,10 +10,10 @@ class AaliyahSizes {
   static const double spaceBtwItems = 16.0;      // Space between small items
   static const double spaceBtwSections = 32.0;   // Space between major sections
 
-  // AppBar heights - M3 Expressive Update (May 2025)
-  static const double appBarHeightSmall = 64.0;         // Small app bar (updated from 56)
-  static const double appBarHeightMediumFlexible = 112.0; // Medium flexible app bar (reduced from previous medium)
-  static const double appBarHeightLargeFlexible = 152.0;  // Large flexible app bar (reduced from previous large)
+  // AppBar heights 
+  static const double appBarHeightSmall = 64.0;         // Small app bar 
+  static const double appBarHeightMediumFlexible = 112.0; // Medium flexible app bar 
+  static const double appBarHeightLargeFlexible = 152.0;  // Large flexible app bar 
   static const double appBarHeightSearch = 72.0;         // Search app bar
   
   // Legacy support

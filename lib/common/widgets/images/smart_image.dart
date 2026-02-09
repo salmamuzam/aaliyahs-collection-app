@@ -3,15 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shimmer/shimmer.dart';
 
-/// Optimized Smart Image Widget
-/// 
+
 /// Consolidates image logic into a single robust widget.
-/// Features:
-/// 1. Automatic Offline Detection (Connectivity)
-/// 2. Memory Efficient Caching (ResizeImage)
-/// 3. Network Caching (CachedNetworkImage)
-/// 4. Intelligent Local Asset Fallback for Offline/Error states
-/// 5. Shimmer Loading Placeholders
+
 class SmartImage extends StatefulWidget {
   final String imageUrl;
   final String? fallbackAssetPath;
@@ -66,8 +60,7 @@ class _SmartImageState extends State<SmartImage> {
 
   String _getAssetPathFromUrl(String url) {
     if (url.isEmpty) return 'assets/images/shop/products/placeholder_product.png';
-    
-    // Explicit asset path
+
     if (url.startsWith('assets/')) return url;
     if (widget.fallbackAssetPath != null) return widget.fallbackAssetPath!;
 
@@ -77,7 +70,7 @@ class _SmartImageState extends State<SmartImage> {
       
       if (filename.isEmpty) return 'assets/images/shop/products/placeholder_product.png';
 
-      // 1. Check for GitHub Pages URL (Specific for this project)
+      // 1. Check for GitHub Pages URL 
       if (url.contains('salmamuzam.github.io/ecommerce_api/assets/')) {
         return url.split('salmamuzam.github.io/ecommerce_api/').last;
       }
@@ -112,7 +105,7 @@ class _SmartImageState extends State<SmartImage> {
   Widget build(BuildContext context) {
     // Calculate optimal cache dimensions based on device pixel ratio
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio; 
-    // Ensure we don't try to multiply Infinity by pixel ratio
+
     final optimalCacheWidth = widget.cacheWidth ?? 
       (widget.width != null && widget.width!.isFinite ? (widget.width! * devicePixelRatio).toInt() : null);
     final optimalCacheHeight = widget.cacheHeight ?? 
@@ -163,7 +156,7 @@ class _SmartImageState extends State<SmartImage> {
       );
     }
 
-    // Wrap with BorderRadius if provided
+  
     if (widget.borderRadius != null) {
       return ClipRRect(
         borderRadius: widget.borderRadius!,

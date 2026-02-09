@@ -33,7 +33,7 @@ class CartItemCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card.outlined(
-      margin: EdgeInsets.zero, // Removed bottom margin to reduce spacing between products
+      margin: EdgeInsets.zero, 
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(TUIConstants.cardRadius)),
       clipBehavior: Clip.antiAlias,
       child: Slidable(
@@ -49,7 +49,7 @@ class CartItemCard extends StatelessWidget {
               },
               backgroundColor: colorScheme.error,
               foregroundColor: colorScheme.onError,
-              icon: Icons.delete_sweep_rounded, // Distinctive icon
+              icon: Icons.delete_sweep_rounded, 
               label: 'Delete',
               borderRadius: const BorderRadius.horizontal(right: Radius.circular(TUIConstants.cardRadius)),
             ),
@@ -164,7 +164,7 @@ class CartItemCard extends StatelessWidget {
       children: [
         _buildQtyBtn(context, Icons.remove_rounded, () => provider.decrementQtn(index), 'Decrease quantity'),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced from 12
+          padding: const EdgeInsets.symmetric(horizontal: 8), 
           child: Text(
             '${item.quantity}',
             style: GoogleFonts.robotoMono(
@@ -187,7 +187,7 @@ class CartItemCard extends StatelessWidget {
       },
       icon: Icon(icon, size: 14),
       constraints: const BoxConstraints(
-        minWidth: 28, // Reduced from 32
+        minWidth: 28, 
         minHeight: 28,
       ),
       padding: EdgeInsets.zero,

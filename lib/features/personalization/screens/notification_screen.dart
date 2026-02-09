@@ -80,9 +80,8 @@ class NotificationScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Icon/Illustration Container with glassmorphism effect
+            
               Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
@@ -295,7 +294,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
                           ),
                         ),
                         
-                        // Action Column (Arrow UP, Bin DOWN)
+                        // Action Column 
                         Padding(
                           padding: const EdgeInsets.only(left: 8),
                           child: Column(
@@ -312,7 +311,7 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
                                 ),
                               ),
                               
-                              // Bin at the bottom (aligned with summary row)
+                              // Bin at the bottom 
                               if (!_isExpanded)
                                 IconButton(
                                   onPressed: () {
@@ -516,7 +515,6 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
                         imageUrl: item.productImage,
                         height: 80,
                         width: 60,
-                        fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
                       )
                     : Image.asset(
@@ -639,21 +637,21 @@ class _NotificationCardState extends State<_NotificationCard> with SingleTickerP
   }
 
   String _getDisplayTitle(NotificationModel notification) {
-    // 1. If we have a direct orderId field, use it
+
     if (notification.orderId != null && notification.orderId!.isNotEmpty) {
       return 'Order No. ${notification.orderId}';
     }
 
-    // 2. Fallback to existing logic: Extract from title like "Aaliyah's Collection - Order #12345"
+   
     final title = notification.title;
     if (title.contains(' - Order')) {
       final parts = title.split(' - ');
       if (parts.length > 1) {
-        return parts[1].replaceAll('#', 'No. '); // Returns "Order No. 12345"
+        return parts[1].replaceAll('#', 'No. '); 
       }
     }
     
-    // 3. Last fallback
+   
     return title;
   }
 }

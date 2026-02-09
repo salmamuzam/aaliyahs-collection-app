@@ -8,11 +8,11 @@ class FeedbackDialog extends StatelessWidget {
     final TextEditingController feedbackController = TextEditingController();
     
     return AlertDialog(
-      title: const Text('Your feedback matters'), // Sentence case title
+      title: const Text('Your feedback matters'), 
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Share your thoughts, ideas, or report issues'), // Removed "us/we"
+          const Text('Share your thoughts, ideas, or report issues'), 
           const SizedBox(height: 16),
           TextField(
             controller: feedbackController,
@@ -32,7 +32,7 @@ class FeedbackDialog extends StatelessWidget {
         FilledButton(
           onPressed: () {
             Navigator.pop(context); // Close dialog
-            // Simulate submission
+   
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Thanks! Your feedback improves the app for everyone.')),
             );

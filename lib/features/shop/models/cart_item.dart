@@ -1,21 +1,16 @@
-// ============================================================================
-// CART ITEM MODEL - Represents a Product in Shopping Cart
-// ============================================================================
+
 // This model stores information about a product that has been added to cart
-// It's simpler than ProductModel because we only need essential info
-//
-// Stored in: SQLite database (via DataRepository)
-// Used by: CartController
-// ============================================================================
+
+
 
 import 'package:aaliyahs_collection_estore/utils/formatters/text_formatter.dart';
 
 class CartItem {
-  final int id;              // Product ID (matches ProductModel.id)
-  final String name;         // Product name for display
-  final double price;        // Price per unit (as number, not string)
-  final String image;        // Product image URL
-  int quantity;              // How many of this item (can change)
+  final int id;            
+  final String name;        
+  final double price;       
+  final String image;        
+  int quantity;              
   
   // Optional fields that may be needed for checkout
   final String? categoryName;
@@ -31,9 +26,7 @@ class CartItem {
     this.description,
   });
 
-  // ============================================================================
-  // GETTERS - Convenience Properties
-  // ============================================================================
+
   
   // Display name (formatted in title case)
   String get displayName => TFormatter.toSentenceCase(name);
@@ -74,9 +67,7 @@ class CartItem {
     );
   }
 
-  // ============================================================================
-  // COPY WITH - Create Modified Copy
-  // ============================================================================
+
   // Useful for updating quantity without modifying original
   CartItem copyWith({
     int? id,

@@ -8,8 +8,6 @@ import 'package:aaliyahs_collection_estore/common/widgets/navigation_menu.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/loaders/expressive_progress_indicator.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 
-/// Monitoring user identity via Firebase Auth state changes.
-/// Best practice: Strike a balance between security and accessibility.
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 

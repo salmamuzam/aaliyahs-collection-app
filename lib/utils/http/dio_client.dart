@@ -32,11 +32,11 @@ class DioClient implements ApiClient {
       _client.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) {
           final uri = options.uri.toString();
-          String prefix = '🌐';
+          String prefix = '';
           if (uri.contains('github')) {
-            prefix = '🟣 GITHUB';
+            prefix = ' GITHUB';
           } else if (uri.contains('api')) {
-            prefix = '🔵 LARAVEL';
+            prefix = 'LARAVEL';
           }
           
           debugPrint('$prefix REQUEST: $uri');
@@ -44,18 +44,18 @@ class DioClient implements ApiClient {
         },
         onResponse: (response, handler) {
            final uri = response.requestOptions.uri.toString();
-           String prefix = '✅';
+           String prefix = '';
            if (uri.contains('github')) {
-             prefix = '🟣 GITHUB';
+             prefix = ' GITHUB';
            } else {
-             prefix = '🔵 LARAVEL';
+             prefix = ' LARAVEL';
            }
            
            debugPrint('$prefix SUCCESS: $uri');
            return handler.next(response); // continue
         },
         onError: (DioException e, handler) {
-           debugPrint('🔴 API ERROR: ${e.response?.statusCode} | ${e.requestOptions.uri}');
+           debugPrint(' API ERROR: ${e.response?.statusCode} | ${e.requestOptions.uri}');
            return handler.next(e); // continue
         }
       ));

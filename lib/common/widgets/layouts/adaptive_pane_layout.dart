@@ -3,33 +3,33 @@ import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_drag_handle.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
-/// Defines how panes should adapt when window size changes
+
 enum PaneAdaptationStrategy {
-  /// Panes show/hide based on available space
+
   showHide,
   
-  /// Panes float above content (as dialogs or bottom sheets)
+
   levitate,
   
-  /// Panes reorganize their position (e.g., side-by-side to stacked)
+
   reflow,
 }
 
-/// Configuration for a pane and its content
+
 class AdaptivePaneItem {
-  /// Unique identifier for this pane
+ 
   final String id;
   
-  /// The widget to display in this pane
+
   final Widget child;
   
-  /// Configuration for this pane
+
   final PaneConfig config;
   
-  /// How this pane should adapt to window size changes
+
   final PaneAdaptationStrategy adaptationStrategy;
   
-  /// Minimum window size class where this pane is visible
+
   final WindowSizeClass minWindowSize;
 
   const AdaptivePaneItem({
@@ -41,10 +41,7 @@ class AdaptivePaneItem {
   });
 }
 
-/// A widget that creates adaptive multi-pane layouts following Material Design 3 guidelines.
-/// 
-/// This widget automatically arranges panes based on the current window size class
-/// and supports resizing, show/hide, levitate, and reflow adaptation strategies.
+
 class AdaptivePaneLayout extends StatefulWidget {
   /// List of panes to display
   final List<AdaptivePaneItem> panes;

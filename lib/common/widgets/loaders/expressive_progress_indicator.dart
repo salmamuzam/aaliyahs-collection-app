@@ -2,14 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-/// A Material Design 3 Expressive Linear Progress Indicator.
-/// 
-/// Follows May 2025 M3 Expressive Specs:
-/// - Track Height: Thick (8dp) standard.
-/// - Shape: Linear or Wavy.
-/// - Interaction: 4dp inset from edges.
-/// - RTL: Mirrored horizontally in RTL.
-/// - Stop indicator: 4dp circle at the end of determinate progress.
 class ExpressiveLinearProgressIndicator extends StatelessWidget {
   final double? value;
   final Color? color;
@@ -32,7 +24,7 @@ class ExpressiveLinearProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final double height = isThick ? 8.0 : 4.0;
-    // M3 Spec: Active = Primary, Track = Secondary Container for high contrast
+
     final Color activeColor = color ?? colorScheme.primary;
     final Color trackColor = backgroundColor ?? colorScheme.secondaryContainer;
     final TextDirection textDirection = Directionality.of(context);
@@ -43,7 +35,7 @@ class ExpressiveLinearProgressIndicator extends StatelessWidget {
       role: SemanticsRole.progressBar,
       container: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0), // M3 Inset Spec
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Container(
           height: height + (isWavy ? 8 : 0),
           constraints: const BoxConstraints(minWidth: 80),
@@ -90,7 +82,7 @@ class _ExpressiveLinearPainter extends CustomPainter {
       ..color = activeColor
       ..style = PaintingStyle.fill;
 
-    // RTL handling
+
     if (textDirection == TextDirection.rtl) {
       canvas.translate(size.width, 0);
       canvas.scale(-1, 1);
@@ -101,12 +93,11 @@ class _ExpressiveLinearPainter extends CustomPainter {
       Radius.circular(height / 2),
     );
 
-    // Draw Track
+
     canvas.drawRRect(trackRRect, trackPaint);
 
     if (value == null) {
-      // Indeterminate: Basic animation placeholder for now
-      // Real M3 indeterminate uses a more complex 2-segment animation
+ 
       final double indeterminateWidth = size.width * 0.3;
       final RRect activeRRect = RRect.fromRectAndRadius(
         Rect.fromLTWH(size.width * 0.35, (size.height - height) / 2, indeterminateWidth, height),
@@ -116,7 +107,7 @@ class _ExpressiveLinearPainter extends CustomPainter {
       return;
     }
 
-    // Determine width ensuring a "dot" at minimum progress
+
     final double minDotWidth = height; 
     final double calculatedWidth = value! * size.width;
     final double activeWidth = calculatedWidth < minDotWidth ? minDotWidth : calculatedWidth;
@@ -125,7 +116,7 @@ class _ExpressiveLinearPainter extends CustomPainter {
 
     if (isWavy) {
       final path = Path();
-      // M3 Wavy Specs
+
       const double amplitude = 4.0;
       const double wavelength = 24.0;
       
@@ -143,10 +134,10 @@ class _ExpressiveLinearPainter extends CustomPainter {
       
       canvas.drawPath(path, wavyPaint);
       
-      // Stop indicator (4dp circle as per May 2025 specs)
+ 
       canvas.drawCircle(
         Offset(activeWidth, startY + amplitude * math.sin(activeWidth / wavelength * 2 * math.pi)), 
-        2.0, // 4dp diameter = 2dp radius
+        2.0, 
         activePaint
       );
     } else {
@@ -156,7 +147,7 @@ class _ExpressiveLinearPainter extends CustomPainter {
       );
       canvas.drawRRect(activeRRect, activePaint);
       
-      // Stop indicator (4dp circle as per May 2025 specs)
+
       canvas.drawCircle(Offset(activeWidth, startY), 2.0, activePaint);
     }
   }
@@ -168,13 +159,7 @@ class _ExpressiveLinearPainter extends CustomPainter {
       oldDelegate.textDirection != textDirection;
 }
 
-/// A Material Design 3 Expressive Circular Progress Indicator.
-/// 
-/// Follows May 2025 M3 Expressive Specs:
-/// - Track Thickness: Thick (8dp) standard.
-/// - Shape: Standard circle or Wavy.
-/// - Sizing: Flexible (24dp to 240dp).
-/// - Buttons: No-track variant supported for contrast in small buttons.
+
 class ExpressiveCircularProgressIndicator extends StatefulWidget {
   final double? value;
   final Color? color;
@@ -304,7 +289,7 @@ class _ExpressiveCircularPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     if (value != null) {
-      // Ensure a "dot" (small arc) even at low percentage
+ 
       final double minSweep = (strokeWidth / (2 * math.pi * radius)) * 2 * math.pi;
       double sweepAngle = 2 * math.pi * value!;
       if (sweepAngle < minSweep && value! > 0) sweepAngle = minSweep;
@@ -315,7 +300,7 @@ class _ExpressiveCircularPainter extends CustomPainter {
         canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -math.pi / 2, sweepAngle, false, activePaint);
       }
     } else {
-      // Indeterminate
+
       final startAngle = animationValue * 2 * math.pi;
       const double sweepAngle = math.pi * 1.5;
       if (isWavy) {
@@ -331,9 +316,9 @@ class _ExpressiveCircularPainter extends CustomPainter {
     const int segments = 100;
     final double angleStep = sweepAngle / segments;
     
-    // Proportional waveform amplitude (approx 1/4 of stroke width)
+   
     final double amplitude = strokeWidth / 4;
-    // Frequency remains consistent across sizes to maintain style
+
     const double frequency = 12.0;
 
     for (int i = 0; i <= segments; i++) {

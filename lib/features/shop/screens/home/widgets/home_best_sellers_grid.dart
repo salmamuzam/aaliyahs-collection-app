@@ -48,7 +48,7 @@ class HomeBestSellersGrid extends StatelessWidget {
                     heroPrefix: 'bestSelling_',
                     onPress: () => _navigateToDetail(context, product),
                     onAddToCart: onAddToCart,
-                  ).animate().fadeIn(duration: AMotion.durationMedium4); // Animate items instead
+                  ).animate().fadeIn(duration: AMotion.durationMedium4); 
                 },
                 childCount: bestSellers.length,
               ),

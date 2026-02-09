@@ -47,14 +47,14 @@ class LazyLoadingController extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ LazyLoadingController: Error loading products - $e');
+      debugPrint(' LazyLoadingController: Error loading products - $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Refresh products (pull to refresh)
+  /// Refresh products 
   Future<void> refresh(Future<List<ProductModel>> Function(int page, int pageSize) fetchFunction) async {
     await loadInitial(fetchFunction);
   }
@@ -76,8 +76,7 @@ class LazyLoadingController extends ChangeNotifier {
   }
 }
 
-/// Lazy Loading List View Widget
-/// Optimized ListView with automatic pagination
+
 class LazyLoadingListView extends StatefulWidget {
   final LazyLoadingController controller;
   final Future<List<ProductModel>> Function(int page, int pageSize) fetchFunction;

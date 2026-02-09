@@ -5,47 +5,30 @@ import 'package:aaliyahs_collection_estore/data/services/notification_service.da
 import 'package:aaliyahs_collection_estore/features/personalization/models/notification_model.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/models/notification_item_model.dart';
 
-// ============================================================================
-// NOTIFICATION CONTROLLER - Manages App Notifications
-// ============================================================================
+
 // This controller handles all notifications using Firebase Realtime Database
 // Notifications sync in real-time across all user's devices
-//
-// Features:
-// - Real-time sync with Firebase
-// - Add new notifications
-// - Remove notifications
-// - Mark as read/unread
-// - Count unread notifications
-// - Show local popup notifications
-//
-// Used for:
-// - Order confirmations
-// - Shipping updates
-// - Promotional messages
-// ============================================================================
+
 
 class NotificationController extends ChangeNotifier {
-  List<NotificationModel> _notifications = [];  // Private list of notifications
+  List<NotificationModel> _notifications = [];  
   final FirebaseDatabase _db = FirebaseDatabase.instance;  // Firebase Realtime Database
   final FirebaseAuth _auth = FirebaseAuth.instance;        // To get current user
   
-  // Constructor - sets up real-time sync when controller is created
+  // sets up real-time sync when controller is created
   NotificationController() {
     _initRealtimeSync();
   }
 
-  // Public getter - returns unmodifiable list (can't be changed directly)
+  // returns unmodifiable list 
   List<NotificationModel> get notifications => List<NotificationModel>.unmodifiable(_notifications);
   
   // Count how many notifications are unread
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
-  // ============================================================================
-  // SETUP REAL-TIME SYNC - Listen for Firebase Changes
-  // ============================================================================
+
   // This sets up a listener that automatically updates when Firebase data changes
-  // Works like a live connection - any change in Firebase instantly updates the app
+
   void _initRealtimeSync() {
     final user = _auth.currentUser;
     if (user == null) return;  // No user logged in, can't sync
@@ -67,7 +50,7 @@ class NotificationController extends ChangeNotifier {
           );
         });
         
-        // Sort by newest first (most recent at top)
+        // Sort by newest first
         loadedNotifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         _notifications = loadedNotifications;
       }
@@ -104,7 +87,7 @@ class NotificationController extends ChangeNotifier {
     );
 
     try {
-      // 1. Show local popup notification IMMEDIATELY (Instant feedback)
+      // 1. Show local popup notification IMMEDIATELY 
       await NotificationService.showOrderNotification(title: title, body: body);
 
       // 2. Save to Firebase in background for history
@@ -141,7 +124,7 @@ class NotificationController extends ChangeNotifier {
     if (user == null) return;
 
     try {
-      // Prepare batch update (more efficient than updating one by one)
+      // Prepare batch update 
       final updates = <String, dynamic>{};
       for (var n in _notifications) {
         if (!n.isRead && n.id != null) {

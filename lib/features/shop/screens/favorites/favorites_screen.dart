@@ -15,8 +15,6 @@ import 'package:aaliyahs_collection_estore/routes/app_routes.dart';
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 
-// ProductInfoSection was accidentally introduced here, removing it as it belongs in product_detail
-// class ProductInfoSection extends StatelessWidget ... (removed)
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -39,7 +37,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // M3 Behavior: Scroll to top upon re-selection
+
       _navigationController = Provider.of<NavigationController>(context, listen: false);
       _navigationController.addListener(_handleNavSelection);
     });
@@ -180,7 +178,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       titlePadding: const EdgeInsets.only(top: 8.0),
       leading: IconButton(
         onPressed: () {
-          // If we can pop, do so. Otherwise go to Home tab (Index 0).
+    
           if (Navigator.of(context).canPop()) {
             Navigator.of(context).pop();
           } else {
@@ -204,7 +202,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       padding: EdgeInsets.all(DeviceUtils.m3Margin),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: Responsive.getGridColumnCount(context),
-        mainAxisExtent: DeviceUtils.getVerticalSize(288), // Consistent with other product grids
+        mainAxisExtent: DeviceUtils.getVerticalSize(288), 
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
@@ -255,9 +253,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-            // Icon/Illustration Container with glassmorphism effect
+     
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(

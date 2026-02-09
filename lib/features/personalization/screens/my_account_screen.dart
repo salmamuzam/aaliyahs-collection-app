@@ -213,7 +213,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
           FilledButton(
             onPressed: () async {
               final authController = Provider.of<AuthController>(context, listen: false);
-              final navigator = Navigator.of(this.context); // Use state context for navigation
+              final navigator = Navigator.of(this.context); 
               Navigator.pop(context); // Close dialog
               final result = await userController.deleteAccount();
               if (!mounted) return;

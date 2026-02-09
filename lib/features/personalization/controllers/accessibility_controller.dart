@@ -25,7 +25,7 @@ class AccessibilityController with ChangeNotifier {
     _reduceMotion = prefs.getBool('reduce_motion') ?? false;
     _highContrast = prefs.getBool('high_contrast') ?? false;
     
-    // Load ThemeMode (0: system, 1: light, 2: dark)
+    // Load ThemeMode
     final int themeIndex = prefs.getInt('theme_mode') ?? 0;
     _themeMode = ThemeMode.values[themeIndex];
     

@@ -46,7 +46,6 @@ class LoginFooterWidget extends StatelessWidget {
       );
       Navigator.pushNamedAndRemoveUntil(context, AppRoutes.navigationMenu, (route) => false);
     } else if (result['status'] == 'cancelled') {
-        // User cancelled
     } else {
        toastification.show(
         context: context,

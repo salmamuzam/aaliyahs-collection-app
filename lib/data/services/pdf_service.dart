@@ -18,8 +18,8 @@ class PdfService {
     final pdf = pw.Document();
 
     // Define Colors based on App Theme
-    const primaryColor = PdfColor.fromInt(0xFF004D61); // aaliyahPrimaryColor
-    const secondaryColor = PdfColor.fromInt(0xFF822659); // aaliyahSecondaryColor
+    const primaryColor = PdfColor.fromInt(0xFF004D61); 
+    const secondaryColor = PdfColor.fromInt(0xFF822659);
 
     pdf.addPage(
       pw.Page(

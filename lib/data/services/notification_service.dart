@@ -2,11 +2,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 
-/// Top-level background message handler
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `Firebase.initializeApp()` before using them.
   debugPrint('Handling a background message: ${message.messageId}');
 }
 
@@ -17,7 +14,7 @@ class NotificationService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
-    // 1. Setup Local Notifications
+    // Setup Local Notifications
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -32,13 +29,13 @@ class NotificationService {
     const List<AndroidNotificationChannel> channels = [
       AndroidNotificationChannel(
         'high_importance_channel',
-        'Important updates', // User-friendly
+        'Important updates',
         description: 'Get critical alerts about your account.',
         importance: Importance.max,
       ),
       AndroidNotificationChannel(
         'order_channel',
-        'Order updates', // Sentence case
+        'Order updates', 
         description: 'Track your order status.',
         importance: Importance.high,
       ),
@@ -51,11 +48,10 @@ class NotificationService {
       await androidPlugin?.createNotificationChannel(channel);
     }
 
-    // Explicitly request permissions on Android 13+
+    // request permissions on Android 
     await androidPlugin?.requestNotificationsPermission();
 
-    // 2. FCM Setup
-    // Request Permission (iOS & Android 13+)
+  
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       
     );
@@ -66,7 +62,7 @@ class NotificationService {
       debugPrint('User declined or has not accepted notification permission');
     }
 
-    // Get FCM Token (for backend targetting)
+    // Get FCM Token 
     String? token = await _firebaseMessaging.getToken();
     debugPrint('FCM Token: $token');
 
@@ -81,13 +77,12 @@ class NotificationService {
       }
     });
 
-    // Handle Background Messages (When app is in background but not terminated)
+    // Handle Background Messages 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('A new onMessageOpenedApp event was published!');
-      // Handle navigation here if needed
     });
 
-    // Handle Background Messages (Top-Level)
+    // Handle Background Messages 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 

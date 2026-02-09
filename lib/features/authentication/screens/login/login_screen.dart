@@ -32,19 +32,19 @@ class LoginScreen extends StatelessWidget {
                                   MediaQuery.of(context).viewInsets.bottom,
                       ),
                       child: Padding(
-                        padding: DeviceUtils.getPadding(all: DeviceUtils.m3Padding(5)), // 20.0
+                        padding: DeviceUtils.getPadding(all: DeviceUtils.m3Padding(5)), 
                         child: IntrinsicHeight(
                           child: Column(
                             children: [
-                              SizedBox(height: DeviceUtils.m3Padding(10)), // 40.0
+                              SizedBox(height: DeviceUtils.m3Padding(10)), 
                               // Header
                               LoginHeaderWidget(size: size),
-                              SizedBox(height: DeviceUtils.m3Padding(3)), // 12.0
+                              SizedBox(height: DeviceUtils.m3Padding(3)), 
                               
                               // Form
                               const LoginForm(),
                               
-                              SizedBox(height: DeviceUtils.m3Padding(5)), // 20.0
+                              SizedBox(height: DeviceUtils.m3Padding(5)), 
                               
                               // Footer
                               const LoginFooterWidget(),

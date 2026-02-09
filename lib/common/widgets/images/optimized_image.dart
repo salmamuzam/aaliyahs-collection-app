@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
 
-/// Optimized Image Widget - Deprecated Wrapper
-/// 
-/// This file now wraps SmartImage to maintain backward compatibility 
-/// while we migrate all usages to SmartImage.
-/// 
-/// @deprecated Use SmartImage instead.
+
 class OptimizedImage extends StatelessWidget {
   final String imageUrl;
   final double? width;
@@ -55,7 +50,7 @@ class OptimizedImage extends StatelessWidget {
   }
 }
 
-/// Extension for convenient usage (Redirects to SmartImage internally)
+
 extension OptimizedImageExtension on String {
   Widget toOptimizedImage({
     BoxFit fit = BoxFit.cover,

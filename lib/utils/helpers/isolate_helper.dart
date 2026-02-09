@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
-/// Isolate Helper
-/// Provides utilities for running heavy computations in isolates
-/// Prevents UI blocking and maintains smooth 60fps performance
+
 class IsolateHelper {
   /// Parse JSON in isolate to avoid blocking UI
   static Future<T> parseJsonInIsolate<T>(
@@ -123,41 +121,3 @@ class _SearchParams<T> {
   _SearchParams(this.data, this.matcher, this.query);
 }
 
-/// Example usage:
-/// 
-/// // Parse JSON without blocking UI
-/// final product = await IsolateHelper.parseJsonInIsolate(
-///   jsonString,
-///   (json) => ProductModel.fromJson(json),
-/// );
-/// 
-/// // Parse JSON list
-/// final products = await IsolateHelper.parseJsonListInIsolate(
-///   jsonString,
-///   (json) => ProductModel.fromJson(json),
-/// );
-/// 
-/// // Process large dataset
-/// final processedData = await IsolateHelper.processListInIsolate(
-///   largeList,
-///   (item) => expensiveCalculation(item),
-/// );
-/// 
-/// // Filter large list
-/// final filtered = await IsolateHelper.filterListInIsolate(
-///   products,
-///   (product) => product.price < 1000,
-/// );
-/// 
-/// // Sort large list
-/// final sorted = await IsolateHelper.sortListInIsolate(
-///   products,
-///   (a, b) => a.price.compareTo(b.price),
-/// );
-/// 
-/// // Search in large dataset
-/// final results = await IsolateHelper.searchInIsolate(
-///   products,
-///   (product, query) => product.name.toLowerCase().contains(query.toLowerCase()),
-///   'dress',
-/// );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AaliyahDragHandle extends StatelessWidget {
-  final VoidCallback? onTap; // Optional override, defaults to pop
+  final VoidCallback? onTap; 
   final String label;
 
   const AaliyahDragHandle({
@@ -12,21 +12,19 @@ class AaliyahDragHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // M3 Specs:
-    // Touch target: 48dp height minimum
-    // Handle size: 32dp x 4dp
-    // Color: OnSurfaceVariant (Active/Focus should be visible)
+
+
     
     final colorScheme = Theme.of(context).colorScheme;
     
     return Semantics(
-      button: true, // Role: Button
+      button: true, 
       label: label, // Label the drag handle
       onTap: onTap ?? () => Navigator.pop(context),
       child: InkWell(
         onTap: onTap ?? () => Navigator.pop(context),
-        borderRadius: BorderRadius.circular(4), // Focus highlight shape roughly around handle area? Or full width?
-        // Full width tap target is better for "Top 48dp portion" spec.
+        borderRadius: BorderRadius.circular(4), 
+     
         child: SizedBox(
           width: double.infinity,
           height: 48, 

@@ -42,20 +42,20 @@ class AaliyahAppTheme {
     iconButtonTheme: AaliyahIconButtonTheme.lightIconButtonTheme,
     inputDecorationTheme: AaliyahTextFormFieldTheme.lightInputDecorationTheme,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF006A60), // Refined Teal Seed for better tonal generation
+      seedColor: const Color(0xFF006A60), 
       primary: const Color(0xFF006A60),
       onPrimary: Colors.white,
       secondary: const Color(0xFF4A635F),
-      tertiary: const Color(0xFF456179), // Muted Blue tertiary
+      tertiary: const Color(0xFF456179), 
       error: const Color(0xFFBA1A1A),
       surface: const Color(0xFFFBFDFA),
-      surfaceTint: const Color(0xFF006A60), // Tint for elevation overlay
+      surfaceTint: const Color(0xFF006A60), 
     ),
     extensions: [
       StaticColors.getLight(null),
       AaliyahTypography.generateExtension(aaliyahDarkColor, false),
     ],
-    // ... rest of lightTheme checkbox/switch
+
     checkboxTheme: AaliyahCheckboxTheme.checkboxTheme(ColorScheme.fromSeed(seedColor: const Color(0xFF006A60))),
     // States: Switch
     switchTheme: SwitchThemeData(
@@ -88,7 +88,7 @@ class AaliyahAppTheme {
     materialTapTargetSize: MaterialTapTargetSize.padded,
     brightness: Brightness.dark,
     primaryColor: aaliyahPrimaryColor,
-    scaffoldBackgroundColor: const Color(0xFF191C1B), // Dark Green-Grey Surface
+    scaffoldBackgroundColor: const Color(0xFF191C1B), 
     textTheme: AaliyahTextTheme.generateTextTheme(aaliyahLightColor),
     appBarTheme: AaliyahAppBarTheme.darkAppBarTheme,
     outlinedButtonTheme: AaliyahOutlinedButtonTheme.darkOutlinedButtonTheme,
@@ -101,7 +101,7 @@ class AaliyahAppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF006A60),
       brightness: Brightness.dark,
-      primary: const Color(0xFF4CDABD), // Lighter Teal for Dark Mode
+      primary: const Color(0xFF4CDABD), 
       onPrimary: const Color(0xFF003731),
       secondary: const Color(0xFFB1CCC6),
       tertiary: const Color(0xFFAEC9E5),
@@ -145,7 +145,7 @@ class AaliyahAppTheme {
     colorScheme: lightTheme.colorScheme.copyWith(
       surface: Colors.white,
       onSurface: Colors.black,
-      primary: const Color(0xFF003731), // Darker Teal
+      primary: const Color(0xFF003731), 
       secondary: const Color(0xFF2E3D3A),
       outline: Colors.black87,
     ),
@@ -163,7 +163,7 @@ class AaliyahAppTheme {
     colorScheme: darkTheme.colorScheme.copyWith(
       surface: Colors.black,
       onSurface: Colors.white,
-      primary: const Color(0xFFBEFFEC), // Extra light for contrast
+      primary: const Color(0xFFBEFFEC), 
       secondary: const Color(0xFFD3EBE5),
       outline: Colors.white,
     ),
@@ -193,24 +193,24 @@ class AaliyahAppTheme {
         AaliyahTypography.generateExtension(colorScheme.onSurface, isDark),
       ],
       
-      // Global State Layers
+
       hoverColor: colorScheme.onSurface.withValues(alpha: 0.08),
       focusColor: colorScheme.onSurface.withValues(alpha: 0.1),
       highlightColor: colorScheme.onSurface.withValues(alpha: 0.1),
       splashColor: colorScheme.onSurface.withValues(alpha: 0.1),
       
-      // States: AppBar
+  
       appBarTheme: baseTheme.appBarTheme.copyWith(
         backgroundColor: Colors.transparent,
-        // surfaceTintColor: Colors.transparent, // Removed to allow M3 default tint/fill
-        elevation: 0, // Level 0 resting
-        // scrolledUnderElevation: 3, // Default M3 elevation is 3.0 when scrolled under
+   
+        elevation: 0, 
+    
         iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         actionsIconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         titleTextStyle: AaliyahTypography.generateExtension(colorScheme.onSurface, isDark).titleLargeEmphasized,
       ),
 
-      // States: Filled Button
+    
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
           elevation: WidgetStateProperty.all(0),
@@ -237,7 +237,7 @@ class AaliyahAppTheme {
         ),
       ),
 
-      // States: Outlined Button
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           foregroundColor: WidgetStateProperty.resolveWith((states) {
@@ -247,7 +247,7 @@ class AaliyahAppTheme {
           side: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.12));
             if (states.contains(WidgetState.focused) || states.contains(WidgetState.hovered)) return BorderSide(color: colorScheme.primary, width: 2); // Thicker border on hover/focus (M3)
-            return BorderSide(color: colorScheme.outline); // Default width 1 (M3)
+            return BorderSide(color: colorScheme.outline); 
           }),
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return null;
@@ -269,7 +269,7 @@ class AaliyahAppTheme {
         style: ButtonStyle(
           elevation: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return 0;
-            if (states.contains(WidgetState.hovered) || states.contains(WidgetState.focused)) return 2; // Elevate on hover/focus (M3)
+            if (states.contains(WidgetState.hovered) || states.contains(WidgetState.focused)) return 2; 
             if (states.contains(WidgetState.pressed)) return 0;
             return 1;
           }),
@@ -296,7 +296,7 @@ class AaliyahAppTheme {
         ),
       ),
 
-      // States: Text Field (Input Decoration)
+   
       inputDecorationTheme: AaliyahTextFormFieldTheme.inputDecorationTheme(colorScheme),
 
       checkboxTheme: AaliyahCheckboxTheme.checkboxTheme(colorScheme),
@@ -316,25 +316,25 @@ class AaliyahAppTheme {
         }),
       ),
 
-      // States: Slider
+
       sliderTheme: AaliyahSliderTheme.sliderTheme(colorScheme),
 
-      // States: Card
+ 
       cardTheme: CardThemeData(
         elevation: 0, 
         color: colorScheme.surface,
         surfaceTintColor: Colors.transparent, 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), // M3 Standard: 12dp
+          borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), 
           side: BorderSide(color: colorScheme.outlineVariant),
         ),
         margin: EdgeInsets.zero,
       ),
 
-      // States: List Tile
+
       listTileTheme: AaliyahListTileTheme.listTileTheme(colorScheme),
 
-      // States: Text Button
+
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
           foregroundColor: WidgetStateProperty.resolveWith((states) {
@@ -355,7 +355,7 @@ class AaliyahAppTheme {
         ),
       ),
 
-      // States: Chip
+  
       chipTheme: ChipThemeData(
         backgroundColor: colorScheme.surfaceContainerLow,
         disabledColor: colorScheme.onSurface.withValues(alpha: 0.12),
@@ -373,10 +373,10 @@ class AaliyahAppTheme {
 
       dividerTheme: AaliyahDividerTheme.dividerTheme(colorScheme),
 
-      // States: Tab Bar
+
       tabBarTheme: AaliyahTabBarTheme.tabBarTheme(colorScheme),
 
-      // States: Badge
+  
       badgeTheme: BadgeThemeData(
         backgroundColor: colorScheme.error,
         textColor: colorScheme.onError,
@@ -386,7 +386,7 @@ class AaliyahAppTheme {
         smallSize: 6,
       ),
 
-      // M3 Elevation: Scrim & Overlays
+   
       drawerTheme: DrawerThemeData(
         backgroundColor: colorScheme.surfaceContainerLow,
         scrimColor: colorScheme.scrim.withValues(alpha: 0.32),
@@ -410,7 +410,7 @@ class AaliyahAppTheme {
 
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: colorScheme.surface,
-        elevation: 0, // Level 0 per M3 Tokens
+        elevation: 0, 
         indicatorColor: colorScheme.secondaryContainer,
         selectedIconTheme: IconThemeData(color: colorScheme.onSecondaryContainer),
         unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
@@ -419,12 +419,12 @@ class AaliyahAppTheme {
       ),
 
       navigationBarTheme: NavigationBarThemeData(
-        elevation: 3, // Level 2 per M3 Tokens
+        elevation: 3,
         surfaceTintColor: Colors.transparent,
         indicatorColor: colorScheme.secondaryContainer,
         backgroundColor: colorScheme.surface,
       ),
-      // M3 Docked Toolbar Spec
+
       bottomAppBarTheme: BottomAppBarThemeData(
         color: colorScheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
@@ -434,7 +434,7 @@ class AaliyahAppTheme {
       ),
       datePickerTheme: AaliyahDatePickerTheme.datePickerTheme(colorScheme),
       timePickerTheme: AaliyahTimePickerTheme.timePickerTheme(colorScheme),
-      // M3 Plain Tooltip Spec
+
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
           color: colorScheme.inverseSurface,

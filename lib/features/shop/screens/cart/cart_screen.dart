@@ -14,7 +14,7 @@ import 'package:aaliyahs_collection_estore/common/widgets/layouts/adaptive_pane_
 import 'package:aaliyahs_collection_estore/common/widgets/layouts/pane_container.dart';
 
 
-// Modular Cart Widgets
+
 import 'package:aaliyahs_collection_estore/features/shop/screens/cart/widgets/cart_item_card.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/cart/widgets/cart_bottom_section.dart';
 
@@ -33,7 +33,7 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // M3 Behavior: Scroll to top upon re-selection
+   
       _navigationController = Provider.of<NavigationController>(context, listen: false);
       _navigationController.addListener(_handleNavSelection);
     });
@@ -97,7 +97,7 @@ class _CartScreenState extends State<CartScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => const NavigationMenu()),
                 );
-                // Set to Shop page after navigation
+              
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Provider.of<NavigationController>(context, listen: false).setIndex(1);
                 });
@@ -118,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
     return AdaptivePaneLayout(
       maxWidth: DeviceUtils.maxContentWidth,
       panes: [
-        // PRIMARY PANE: Cart Items (Flexible)
+      
         AdaptivePaneItem(
           id: 'cart_items',
           config: const PaneConfig(id: 'cart_items'),
@@ -143,13 +143,13 @@ class _CartScreenState extends State<CartScreen> {
                   },
                 ),
               ),
-              // On mobile, the bottom section is at the bottom of the screen
+      
               if (DeviceUtils.isCompact) CartBottomSection(provider: provider),
             ],
           ),
         ),
         
-        // SUPPORTING PANE: Order Summary (Fixed 360dp, Medium+)
+   
         AdaptivePaneItem(
           id: 'cart_summary',
           config: const PaneConfig(
@@ -197,9 +197,8 @@ class _CartScreenState extends State<CartScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Icon/Illustration Container with glassmorphism effect
+       
               Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(

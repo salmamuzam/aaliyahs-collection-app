@@ -4,9 +4,7 @@ import 'package:aaliyahs_collection_estore/features/personalization/controllers/
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// Large Flexible App Bar - M3 Expressive
-/// Height: 152dp (reduced from previous 176dp large app bar)
-/// Features: Larger title, subtitle support, flexible alignment, more space for imagery
+
 class AaliyahLargeFlexibleAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
@@ -42,9 +40,9 @@ class AaliyahLargeFlexibleAppBar extends StatelessWidget implements PreferredSiz
     return SliverAppBar(
       pinned: pinned,
       floating: floating,
-      expandedHeight: 152.0, // M3 Expressive: Large flexible height
+      expandedHeight: 152.0,
       toolbarHeight: 64.0,
-      scrolledUnderElevation: 0, // M3 Expressive: No shadow
+      scrolledUnderElevation: 0, 
       backgroundColor: backgroundColor ?? colorScheme.surface,
       leading: leading,
       actions: actions,
@@ -66,12 +64,12 @@ class AaliyahLargeFlexibleAppBar extends StatelessWidget implements PreferredSiz
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 32.0, // M3 Expressive: Larger title for large
+                  fontSize: 32.0, 
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface,
                   height: 1.2,
                 ),
-                maxLines: 3, // M3 Expressive: Text wrapping support
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
               if (subtitle != null) ...[

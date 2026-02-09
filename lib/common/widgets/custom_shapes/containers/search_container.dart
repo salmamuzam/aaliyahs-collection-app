@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// removed device_utility.dart
+
 
 class SearchContainer extends StatelessWidget {
   final String text;
@@ -34,7 +34,7 @@ class SearchContainer extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-            // Removed fixed width to respect parent constraints (e.g. max 720dp)
+           
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: showBackground
@@ -42,10 +42,8 @@ class SearchContainer extends StatelessWidget {
                       ? colorScheme.surfaceContainerHighest
                       : colorScheme.surfaceContainerHigh 
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(28), // M3 Stadium/Pill Shape (56dp height / 2)
-              border: showBorder 
-                  ? Border.all(color: colorScheme.outlineVariant) 
-                  : null,
+              borderRadius: BorderRadius.circular(28), 
+              border: showBorder ? Border.all(color: colorScheme.outlineVariant) : null,
             ),
             child: Row(
               children: [

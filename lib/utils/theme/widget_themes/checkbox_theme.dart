@@ -16,7 +16,7 @@ class AaliyahCheckboxTheme {
         if (states.contains(WidgetState.selected)) {
           return colorScheme.primary;
         }
-        return null; // Transparent / Border only
+        return null; 
       }),
       checkColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
@@ -37,7 +37,7 @@ class AaliyahCheckboxTheme {
         return null;
       }),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(2), // M3 Spec: 2dp corner shape
+        borderRadius: BorderRadius.circular(2), 
       ),
       side: WidgetStateBorderSide.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) {
@@ -49,7 +49,7 @@ class AaliyahCheckboxTheme {
         if (states.contains(WidgetState.selected)) {
           return BorderSide(color: colorScheme.primary);
         }
-        return BorderSide(color: colorScheme.onSurfaceVariant); // M3 Spec: On-surface-variant for unselected
+        return BorderSide(color: colorScheme.onSurfaceVariant); 
       }),
     );
   }

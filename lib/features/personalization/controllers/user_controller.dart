@@ -34,24 +34,24 @@ class UserController extends ChangeNotifier {
   Future<void> fetchUserProfile() async {
     _setLoading(true);
     try {
-      // 🚀 Proactive offline check
+      //  offline check
       final connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        debugPrint('🔌 [OFFLINE] No internet. Loading from local user.json fallback...');
+        debugPrint('[OFFLINE] No internet. Loading from local user.json fallback...');
         await _loadUserFromLocalJSON();
         _setLoading(false);
         return;
       }
 
-      // 🚀 Check Firebase first (Google Sign-In)
+      // Check Firebase first (Google Sign-In)
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null && !firebaseUser.isAnonymous) {
-        debugPrint('🔥 Found Firebase User: ${firebaseUser.email}');
+        debugPrint('Found Firebase User: ${firebaseUser.email}');
         _user = UserModel.fromFirebaseUser(firebaseUser);
         notifyListeners();
         // We still continue to try fetching from Laravel if there's a token
       } else {
-        // Try to load from Cache first (Offline Support)
+        // Try to load from Cache first 
         await _loadUserFromCache();
       }
       
@@ -62,7 +62,7 @@ class UserController extends ChangeNotifier {
         _token = await _userRepository.getStoredToken();
         
         final dynamic rawData = response.data!;
-        // Robust parsing: Check for nested 'data' or 'user' keys common in Laravel Resources
+        // Check for nested 'data' or 'user' keys common in Laravel Resources
         final Map<String, dynamic> userMap;
         if (rawData['data'] != null && rawData['data'] is Map) {
              userMap = rawData['data'];
@@ -102,9 +102,9 @@ class UserController extends ChangeNotifier {
         final Map<String, dynamic> data = json.decode(userStr);
         final user = UserModel.fromJson(data);
         
-        // STALE DATA CHECK: If cache has old 'salma.jpg' path, ignore it and reload from JSON
+        // If cache has old 'salma.jpg' path, ignore it and reload from JSON
         if (user.profilePhotoUrl.contains('salma.jpg') || user.profilePhotoUrl.contains('fathima.jpg')) {
-           debugPrint('⚠️ Stale image path found in cache, reloading from local user.json...');
+           debugPrint(' Stale image path found in cache, reloading from local user.json...');
            await _loadUserFromLocalJSON();
            return;
         }
@@ -112,12 +112,12 @@ class UserController extends ChangeNotifier {
         _user = user;
         _token = await _userRepository.getStoredToken();
         notifyListeners();
-        debugPrint('✅ Loaded User from SharedPreferences Cache');
+        debugPrint('Loaded User from SharedPreferences Cache');
         return;
       }
       
       // If no cache, try to load from local JSON (Offline Fallback)
-      debugPrint('📦 No cache found, attempting to load from local user.json...');
+      debugPrint('No cache found, attempting to load from local user.json...');
       await _loadUserFromLocalJSON();
       
     } catch (e) {
@@ -146,14 +146,13 @@ class UserController extends ChangeNotifier {
         );
         _user = UserModel.fromJson(userJson);
         
-        // IMPORTANT: Update cache with the fresh local data so we don't keep hitting this fallback
         await _cacheUser(userJson);
         
-        debugPrint('✅ Loaded User from local user.json: ${_user?.email}');
+        debugPrint(' Loaded User from local user.json: ${_user?.email}');
         notifyListeners();
       }
     } catch (e) {
-       debugPrint('❌ Error loading user from local JSON: $e');
+       debugPrint(' Error loading user from local JSON: $e');
     }
   }
 
@@ -168,8 +167,7 @@ class UserController extends ChangeNotifier {
   }) async {
     _setLoading(true);
     try {
-      // In a real app, we'd send all these to the repository
-      // For this implementation, we ensure it's recorded correctly in the cached user
+
       final response = await _userRepository.updateProfile(
         firstName: firstName, 
         lastName: lastName,
@@ -219,11 +217,7 @@ class UserController extends ChangeNotifier {
         password: password,
         passwordConfirmation: passwordConfirmation,
       );
-      // Map ApiResponse to the expected return type if needed, 
-      // but for now let's just return a map if the consumer expects it, 
-      // or better, change the consumer to expect ApiResponse.
-      // The diagnostic said "A value of type 'ApiResponse<Map<String, dynamic>>' can't be assigned to a variable of type 'Map<String, dynamic>'."
-      // Let's return the response object or its map representation.
+
       return {
         'status': response.success ? 'success' : 'error',
         'message': response.statusMessage,

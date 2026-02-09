@@ -1,4 +1,4 @@
-// This file contains all the path to images and icons used throughout development
+// This file contains all the path to images and icons 
 
 // Welcome Screen Image
 const String aaliyahWelcomeScreenImage = 'assets/images/authentication/onboarding/welcome.webp';

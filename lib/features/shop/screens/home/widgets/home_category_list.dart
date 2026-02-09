@@ -31,10 +31,10 @@ class HomeCategoryList extends StatelessWidget {
         }
 
         return SizedBox(
-          height: 115, // Reduced height to minimize whitespace
+          height: 115, 
           child: CarouselView(
-            itemExtent: 80, // Reduced from 100 to close gap
-            shrinkExtent: 56, // Multi-browse: small items around 56dp
+            itemExtent: 80, 
+            shrinkExtent: 56,
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusXL),
@@ -53,12 +53,12 @@ class HomeCategoryList extends StatelessWidget {
                 category: category,
                 isSelected: productController.selectedCategoryId == category.id,
                 onTap: () {
-                   // Visual feedback handled by InkWell, logic handled by CarouselView or ignored if CarouselView intercepts
+           
                 },
               );
             }).toList(),
           ),
-        ).animate().fadeIn(duration: AMotion.durationMedium4); // M3: Content quickly fades in once loaded
+        ).animate().fadeIn(duration: AMotion.durationMedium4); 
       },
     );
   }

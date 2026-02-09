@@ -10,7 +10,7 @@ String get baseURL {
   return url;
 }
 
-// Helper to get the root URL (e.g. for images)
+// Helper to get the root URL 
 String get rootBaseURL {
   final base = baseURL;
   if (base.endsWith('/api/v1')) {

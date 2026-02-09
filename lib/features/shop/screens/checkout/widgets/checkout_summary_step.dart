@@ -44,7 +44,7 @@ class CheckoutSummaryStep extends StatelessWidget {
               TextButton.icon(
                 onPressed: () {
                   Navigator.popUntil(context, (route) => route.isFirst);
-                  // Ensure we go to the Shop tab (index 1)
+           
                   Provider.of<NavigationController>(context, listen: false).setIndex(1);
                 },
                 style: TextButton.styleFrom(
@@ -81,9 +81,9 @@ class CheckoutSummaryStep extends StatelessWidget {
   Widget _buildAddressCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card.outlined(
-      margin: const EdgeInsets.only(bottom: 12), // Same bottom margin as item cards for consistency
+      margin: const EdgeInsets.only(bottom: 12),
       child: SizedBox(
-        width: double.infinity, // Ensure it takes full width of the parent Column
+        width: double.infinity, 
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -103,7 +103,7 @@ class CheckoutSummaryStep extends StatelessWidget {
 
   Widget _buildItemCard(BuildContext context, dynamic item, int index) {
     final colorScheme = Theme.of(context).colorScheme;
-    // Handle both CartItem and ProductModel for compatibility
+ 
     final String displayName = item.displayName ?? item.name ?? '';
     final String image = item.image ?? '';
     final int quantity = item.quantity ?? 1;
@@ -148,8 +148,7 @@ class CheckoutSummaryStep extends StatelessWidget {
                 child: SmartImage(
                   imageUrl: image,
                   width: 60,
-                  height: 80, // Taller aspect ratio
-                  fit: BoxFit.cover,
+                  height: 80, 
                   alignment: Alignment.topCenter,
                   errorWidget: const Icon(Icons.error),
                 ),

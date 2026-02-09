@@ -2,16 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// AALIYAH TYPOGRAPHY - Material Design 3 Expressive Type System
-/// 
-/// Updated with Typesetting & Readability Standards (May 2025):
-/// - Large Type (Display, Headline, Title): 1.2 Height Ratio
-/// - Small Type (Body, Label): 1.5 Height Ratio
-/// - Fallback: Roboto Flex -> Roboto -> Noto Sans
 class AaliyahTypography extends ThemeExtension<AaliyahTypography> {
   static final List<String> _fontFallback = ['Roboto', 'Noto Sans'];
 
-  // Emphasized Styles (High-impact weights for highlighted moments)
+
   final TextStyle displayLargeEmphasized;
   final TextStyle displayMediumEmphasized;
   final TextStyle displaySmallEmphasized;
@@ -32,7 +26,7 @@ class AaliyahTypography extends ThemeExtension<AaliyahTypography> {
   final TextStyle labelMediumEmphasized;
   final TextStyle labelSmallEmphasized;
 
-  // Editorial Treatments (Showcase moments using variable axes: Width, Grade)
+
   final TextStyle editorialLarge;
   final TextStyle editorialMedium;
   final TextStyle editorialSmall;
@@ -154,7 +148,7 @@ class AaliyahTypography extends ThemeExtension<AaliyahTypography> {
       labelMediumEmphasized: GoogleFonts.robotoFlex(fontSize: 12, fontWeight: FontWeight.w700, color: color, height: 1.5, letterSpacing: 0.5).copyWith(fontFamilyFallback: _fontFallback),
       labelSmallEmphasized: GoogleFonts.robotoFlex(fontSize: 11, fontWeight: FontWeight.w700, color: color, height: 1.5, letterSpacing: 0.5).copyWith(fontFamilyFallback: _fontFallback),
       
-      // Editorial Treatments: Wide Width (150) + High Grade (150) + Bold
+ 
       editorialLarge: GoogleFonts.robotoFlex(
         fontSize: 32, 
         color: color, 
@@ -201,27 +195,27 @@ class AaliyahTextTheme {
 
   static TextTheme generateTextTheme(Color color) {
     return TextTheme(
-      // Display: 1.2 Height
+
       displayLarge: GoogleFonts.robotoFlex(fontSize: 57, fontWeight: FontWeight.w300, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       displayMedium: GoogleFonts.robotoFlex(fontSize: 45, fontWeight: FontWeight.w400, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       displaySmall: GoogleFonts.robotoFlex(fontSize: 36, fontWeight: FontWeight.w400, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       
-      // Headline: 1.2 Height
+
       headlineLarge: GoogleFonts.robotoFlex(fontSize: 32, fontWeight: FontWeight.w400, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       headlineMedium: GoogleFonts.robotoFlex(fontSize: 28, fontWeight: FontWeight.w400, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       headlineSmall: GoogleFonts.robotoFlex(fontSize: 24, fontWeight: FontWeight.w400, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
 
-      // Title: 1.2 Height
+    
       titleLarge: GoogleFonts.robotoFlex(fontSize: 22, fontWeight: FontWeight.w500, color: color, height: 1.2).copyWith(fontFamilyFallback: _fontFallback),
       titleMedium: GoogleFonts.robotoFlex(fontSize: 16, fontWeight: FontWeight.w500, color: color, height: 1.2, letterSpacing: 0.15).copyWith(fontFamilyFallback: _fontFallback),
       titleSmall: GoogleFonts.robotoFlex(fontSize: 14, fontWeight: FontWeight.w500, color: color, height: 1.2, letterSpacing: 0.1).copyWith(fontFamilyFallback: _fontFallback),
 
-      // Body: 1.5 Height for optimal readability
+     
       bodyLarge: GoogleFonts.robotoSerif(fontSize: 16, fontWeight: FontWeight.w400, color: color, height: 1.5, letterSpacing: 0.5).copyWith(fontFamilyFallback: _fontFallback),
       bodyMedium: GoogleFonts.robotoSerif(fontSize: 14, fontWeight: FontWeight.w400, color: color, height: 1.5, letterSpacing: 0.25).copyWith(fontFamilyFallback: _fontFallback),
       bodySmall: GoogleFonts.robotoSerif(fontSize: 12, fontWeight: FontWeight.w400, color: color.withValues(alpha: 0.8), height: 1.5, letterSpacing: 0.4).copyWith(fontFamilyFallback: _fontFallback),
 
-      // Label: 1.5 Height
+    
       labelLarge: GoogleFonts.robotoFlex(fontSize: 14, fontWeight: FontWeight.w500, color: color, height: 1.5, letterSpacing: 0.1).copyWith(fontFamilyFallback: _fontFallback),
       labelMedium: GoogleFonts.robotoFlex(fontSize: 12, fontWeight: FontWeight.w500, color: color, height: 1.5, letterSpacing: 0.5).copyWith(fontFamilyFallback: _fontFallback),
       labelSmall: GoogleFonts.robotoFlex(fontSize: 11, fontWeight: FontWeight.w500, color: color, height: 1.5, letterSpacing: 0.5).copyWith(fontFamilyFallback: _fontFallback),

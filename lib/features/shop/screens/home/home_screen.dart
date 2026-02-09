@@ -11,7 +11,7 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/product_con
 import 'package:aaliyahs_collection_estore/features/shop/controllers/navigation_controller.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/divider_theme.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
-// Home Feature Widgets
+
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_top_bar.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_banner_carousel.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/home/widgets/home_category_list.dart';
@@ -33,7 +33,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Removed internal cartKey and runAddToCartAnimation local var
+
   final ScrollController _scrollController = ScrollController();
   late NavigationController _navigationController;
 
@@ -42,8 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
-      
-      // Listen for re-selection to scroll to top (M3 Behavior)
+ 
       _navigationController = Provider.of<NavigationController>(context, listen: false);
       _navigationController.addListener(_handleNavSelection);
     });
@@ -61,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    // Clean up listener and controller
+
     try {
       _navigationController.removeListener(_handleNavSelection);
     } catch (_) {}
@@ -78,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
       productController.fetchHomeData(token: userController.token),
     ]);
 
-    // M3 Feature: UX improvement for offline fallback
+
     if (mounted && productController.isUsingLocalData) {
       QuickAlert.show(
         context: context,
@@ -106,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: AdaptivePaneLayout(
             maxWidth: DeviceUtils.maxContentWidth,
             panes: [
-              // PANE 1: Side Navigation (Fixed, Medium+)
+        
               AdaptivePaneItem(
                 id: 'home_side_nav',
                 config: PaneConfig(
@@ -130,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               
-              // PANE 2: Main Content (Flexible, All Sizes)
+           
               AdaptivePaneItem(
                 id: 'home_main_content',
                 config: const PaneConfig(id: 'home_main_content'),
@@ -141,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   slivers: [
                     _buildHeaderSection(),
                     
-                    // Only show category section on compact mobile
+            
                     if (isCompact) _buildCategorySection(),
                     
                     _buildBestSellersHeaderSection(),
@@ -226,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: DeviceUtils.m3Padding(2)), // Reduced padding
+            SizedBox(height: DeviceUtils.m3Padding(2)), 
             SectionHeading(
               title: 'Shop By Category',
               actionLabel: 'See All',
@@ -235,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Provider.of<NavigationController>(context, listen: false).setIndex(1);
               },
             ),
-            SizedBox(height: DeviceUtils.m3Padding(3)), // 12dp
+            SizedBox(height: DeviceUtils.m3Padding(3)), 
             const HomeCategoryList(),
           ],
         ),
@@ -247,9 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return SliverPadding(
       padding: EdgeInsets.fromLTRB(
         DeviceUtils.m3Margin, 
-        0, // Reduced padding
+        0, 
         DeviceUtils.m3Margin, 
-        DeviceUtils.m3Padding(4)  // 16dp
+        DeviceUtils.m3Padding(4)  
       ),
       sliver: SliverToBoxAdapter(
         child: SectionHeading(

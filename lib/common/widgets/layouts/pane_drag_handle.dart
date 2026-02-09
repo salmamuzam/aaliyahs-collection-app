@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A drag handle widget for resizing panes following Material Design 3 guidelines.
-/// 
-/// This widget provides a visual indicator and interaction area for resizing
-/// panes in adaptive layouts. It supports both horizontal and vertical orientations.
+
 class PaneDragHandle extends StatefulWidget {
   /// The axis along which the drag handle operates
   final Axis axis;
@@ -17,7 +14,7 @@ class PaneDragHandle extends StatefulWidget {
   /// Whether the drag handle is enabled
   final bool enabled;
   
-  /// Custom color for the drag handle (defaults to theme's outlineVariant)
+
   final Color? color;
   
   /// Custom width for vertical drag handles (defaults to 24dp)
@@ -106,10 +103,7 @@ class _PaneDragHandleState extends State<PaneDragHandle> {
   }
 }
 
-/// A simple divider widget for separating panes.
-/// 
-/// This widget provides a visual separator between panes with optional
-/// drag handle overlay.
+
 class PaneDivider extends StatelessWidget {
   /// The axis along which the divider runs
   final Axis axis;
@@ -123,7 +117,7 @@ class PaneDivider extends StatelessWidget {
   /// Thickness of the divider line (defaults to 1dp)
   final double thickness;
   
-  /// Color of the divider (defaults to theme's outlineVariant)
+
   final Color? color;
   
   /// Whether to show a drag handle overlay

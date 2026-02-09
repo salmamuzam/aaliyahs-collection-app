@@ -22,7 +22,7 @@ class GlobalErrorWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Iconic M3 Crash Illustration
+
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -62,9 +62,9 @@ class GlobalErrorWidget extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    // Modern restart approach
+       
                     HapticFeedback.mediumImpact();
-                    SystemNavigator.pop(); // Close app on fatal error
+                    SystemNavigator.pop(); 
                   },
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Restart Application'),

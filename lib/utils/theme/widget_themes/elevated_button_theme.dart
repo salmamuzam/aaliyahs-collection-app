@@ -12,12 +12,12 @@ class AaliyahElevatedButtonTheme {
     style: ElevatedButton.styleFrom(
       elevation: 1,
       foregroundColor: Colors.white,
-      backgroundColor: aaliyahPrimaryColor, // High contrast against light surface
+      backgroundColor: aaliyahPrimaryColor, 
       disabledForegroundColor: Colors.grey,
       disabledBackgroundColor: Colors.grey,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-      shape: const StadiumBorder(), // M3 Pill Shape
+      shape: const StadiumBorder(), 
     ),
   );
 
@@ -30,7 +30,7 @@ class AaliyahElevatedButtonTheme {
       disabledBackgroundColor: Colors.grey,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: aaliyahDarkColor),
-      shape: const StadiumBorder(), // M3 Pill Shape
+      shape: const StadiumBorder(),
     ),
   );
 }

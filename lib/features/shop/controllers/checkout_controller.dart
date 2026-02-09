@@ -6,15 +6,7 @@ import 'package:aaliyahs_collection_estore/data/repositories/order_repository.da
 import 'package:aaliyahs_collection_estore/data/services/notification_service.dart';
 import 'dart:async';
 
-// ============================================================================
-// CHECKOUT CONTROLLER - Manages the Multi-Step Checkout Process
-// ============================================================================
-// This controller cleans up the UI by handling:
-// 1. Step transitions (Shipping -> Payment -> Review)
-// 2. Form state (Address, Payment selection)
-// 3. Complex logic (Stripe Integration, Firestore Order Storage)
-// 4. Geolocation interaction
-// ============================================================================
+
 
 class CheckoutController extends ChangeNotifier {
   // --- STATE ---
@@ -23,7 +15,7 @@ class CheckoutController extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLocating = false;
   
-  // Form Controllers (Exposed to UI but managed here)
+  // Form Controllers 
   final TextEditingController streetController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController provinceController = TextEditingController();
@@ -196,7 +188,7 @@ class CheckoutController extends ChangeNotifier {
          
          await OrderRepository().processStripePayment(
            amount: totalAmount, 
-           currency: 'LKR', // Or dynamic currency
+           currency: 'LKR', 
            onSuccess: () {
              paymentSuccess = true;
              completer.complete();
@@ -222,7 +214,7 @@ class CheckoutController extends ChangeNotifier {
          orderData['payment_id'] = 'STRIPE_${DateTime.now().millisecondsSinceEpoch}';
       }
 
-      // 3. Store in Firestore (Only reached if Cash on Delivery OR Stripe Success)
+      // 3. Store in Firestore 
       final orderId = await OrderRepository().storeOrderInFirestore(orderData: orderData);
       
       if (orderId != null) {

@@ -71,7 +71,7 @@ class CartBottomSection extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => const CheckoutScreen()),
               );
-            } : null, // Disable when offline
+            } : null, 
             child: Text(
               isOnline ? 'Checkout' : 'Checkout Unavailable (Offline)',
               style: const TextStyle(

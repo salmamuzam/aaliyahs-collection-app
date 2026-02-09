@@ -2,8 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-// Sometimes, I will remove this file
-// If I forgot to, please ignore this file, sir
+
 
 class ErrorInfo extends StatelessWidget {
   const ErrorInfo({

@@ -10,20 +10,18 @@ class AaliyahSnackBarTheme {
       actionTextColor: colorScheme.inversePrimary,
       contentTextStyle: TextStyle(
         color: colorScheme.onInverseSurface,
-        fontSize: 14, // M3 Body Medium - like
+        fontSize: 14, 
         fontWeight: FontWeight.normal,
       ),
-      elevation: 6, // M3 Elevation Level 3 for SnackBar? Or 6dp?
-      // M3: "Usually appear at the bottom... Can disappear...".
-      // Elevation: Level 3 (6dp) is standard for floating components in M3? 
-      // Actually standard standard is 6dp.
+      elevation: 6, 
+    
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusSmall), // 4dp usually for snackbar
+        borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusSmall), 
       ),
       closeIconColor: colorScheme.onInverseSurface,
-      // M3 Spec: Floating behavior to avoid obscuring navigation
+
       behavior: SnackBarBehavior.floating,
-      insetPadding: const EdgeInsets.all(16), // 16dp margins from screen edges
+      insetPadding: const EdgeInsets.all(16), 
     );
   }
 }

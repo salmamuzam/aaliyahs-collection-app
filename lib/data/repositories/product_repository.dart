@@ -72,7 +72,7 @@ class ProductRepository {
       }
       throw Exception('Laravel API failed');
     } catch (e) {
-      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Home');
+      debugPrint('LOCAL FALLBACK: Loading assets/data/shop/products.json for Home');
       final categories = await loadLocalCategories();
       final products = await loadLocalProducts();
       return ApiResponse(data: {
@@ -96,7 +96,7 @@ class ProductRepository {
       }
       throw Exception('Laravel API failed');
     } catch (e) {
-      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Best Sellers');
+      debugPrint(' LOCAL FALLBACK: Loading assets/data/shop/products.json for Best Sellers');
       final products = await loadLocalProducts();
       return ApiResponse(data: {
         'data': products.take(6).map((e) => e.toJson()).toList()
@@ -116,7 +116,7 @@ class ProductRepository {
       }
       throw Exception('Laravel API failed');
     } catch (e) {
-      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/category.json');
+      debugPrint('LOCAL FALLBACK: Loading assets/data/shop/category.json');
       final categories = await loadLocalCategories();
       return ApiResponse(data: {
         'data': categories.map((e) => e.toJson()).toList()
@@ -151,7 +151,7 @@ class ProductRepository {
         fromJson: (json) => ListResponse<ProductModel>.fromMap(json, (pJson) => ProductModel.fromJson(pJson)),
       );
     } catch (e) {
-      debugPrint('🟠 LOCAL FALLBACK: Loading assets/data/shop/products.json for Shop Page');
+      debugPrint('LOCAL FALLBACK: Loading assets/data/shop/products.json for Shop Page');
       var products = await loadLocalProducts();
       if (categoryIds != null && categoryIds.isNotEmpty) {
         products = products.where((p) => p.categoryId != null && categoryIds.contains(p.categoryId!)).toList();
@@ -206,7 +206,7 @@ class ProductRepository {
         }
       }
     } catch (e) { 
-      debugPrint('🔴 DETAIL FETCH ERROR: Falling back to local for ID $id'); 
+      debugPrint('DETAIL FETCH ERROR: Falling back to local for ID $id'); 
     }
     
     final localProducts = await loadLocalProducts();

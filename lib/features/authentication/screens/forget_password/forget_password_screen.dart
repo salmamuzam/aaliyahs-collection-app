@@ -46,7 +46,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       child: IntrinsicHeight(
                         child: Column(
                           children: [
-                            const SizedBox(height: 150), // Increased top margin before heading
+                            const SizedBox(height: 150), 
                             
                             // Group 01: Header
                             Column(
@@ -60,7 +60,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                           ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 20), // Padding after title
+                                const SizedBox(height: 20), 
                                 Text(
                                   aaliyahForgetPasswordSubTitle,
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -69,7 +69,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               ],
                             ),
                             
-                            const SizedBox(height: 35), // Padding after header group
+                            const SizedBox(height: 35), 
                             
                             // Group 02: Form
                             Form(
@@ -93,7 +93,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                       return null;
                                     },
                                   ),
-                                  const SizedBox(height: 25), // Padding after email field
+                                  const SizedBox(height: 25), 
                                   SizedBox(
                                     width: double.infinity,
                                     child: FilledButton(
@@ -115,7 +115,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               ),
                             ),
                             
-                            const SizedBox(height: 35), // Padding after continue button
+                            const SizedBox(height: 35), 
                             
                             // Group 03: Footer
                             const Column(
@@ -124,8 +124,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   "Don't Remember Your Email?",
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(height: 10), // Padding after footer label
-                                // Signup Link removed from here because it's dynamic
+                                SizedBox(height: 10), 
+                             
                               ],
                             ),
                             TextButton(
@@ -148,7 +148,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 ),
                 // Back Button
                 Positioned(
-                  top: 10, // Added padding before arrow
+                  top: 10, 
                   left: 10,
                   child: IconButton(
                     onPressed: () => Navigator.pushReplacement(

@@ -56,7 +56,6 @@ class AaliyahValidator {
       }
     } 
     // Otherwise, treat as username. 
-    // We can add simple constraints here if needed, e.g., min length
     else if (value.length < 3) {
       return 'Username must be at least 3 characters!';
     }

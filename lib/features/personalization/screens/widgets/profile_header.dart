@@ -64,7 +64,7 @@ class ProfileHeader extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Layer 1: Background "Shadow" shape (2.5D Effect)
+
           Container(
             width: 124,
             height: 124,
@@ -74,12 +74,12 @@ class ProfileHeader extends StatelessWidget {
                 topLeft: Radius.circular(52),
                 topRight: Radius.circular(52),
                 bottomLeft: Radius.circular(52),
-                bottomRight: Radius.circular(20), // Tension corner
+                bottomRight: Radius.circular(20), 
               ),
             ),
           ),
           
-          // Layer 2: Main Avatar Container with Shape Morphing hint
+     
           Container(
             width: 120,
             height: 120,
@@ -123,7 +123,7 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
           
-          // Edit Badge (M3 Style)
+ 
           Positioned(
             bottom: 4,
             right: 4,
@@ -132,7 +132,7 @@ class ProfileHeader extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), // Matching the tension corner style
+                borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), 
                 boxShadow: [
                   BoxShadow(
                     color: colorScheme.shadow.withValues(alpha: 0.2),

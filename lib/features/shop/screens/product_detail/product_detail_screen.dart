@@ -11,7 +11,7 @@ import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/theme.dart';
 import 'package:flutter/services.dart';
 
-// Product Detail Feature Widgets
+
 import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/widgets/product_image_carousel.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/widgets/product_info_section.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/product_detail/widgets/product_detail_bottom_action.dart';
@@ -32,7 +32,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller and handle side effects (Recently Viewed)
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productController = context.read<ProductController>();
       context.read<ProductDetailController>().initialize(
@@ -46,7 +46,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProductDetailController>(
       builder: (context, controller, child) {
-        // Show Shimmer only if we have NO product data at all (rare, as we pass it in)
+      
         if (controller.product == null) {
           return const ProductDetailShimmer();
         }
@@ -55,9 +55,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         final isCompact = DeviceUtils.isCompact;
         final brightness = Theme.of(context).brightness;
 
-        // M3 Content-based Dynamic Color: Trigger generation ONCE when product loads
+   
         if (controller.contentColorScheme == null && !controller.isLoading) {
-          // Defer to next frame to avoid build-phase updates
+         
           WidgetsBinding.instance.addPostFrameCallback((_) {
             controller.updateContentTheme(productToDisplay, brightness);
           });
@@ -92,7 +92,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Left Pane: Image Gallery (50%)
+                         
                                   Expanded(
                                     child: SingleChildScrollView(
                                       child: Center(
@@ -114,7 +114,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     ),
                                   ),
                                   
-                                  // Divider
+                              
                                   ExcludeSemantics(
                                     child: VerticalDivider(
                                       width: DeviceUtils.paneSpacer, 
@@ -123,7 +123,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     ),
                                   ),
                                   
-                                  // Right Pane: Product Info (50%)
+                                  
                                   Expanded(
                                     child: SingleChildScrollView(
                                       padding: EdgeInsets.symmetric(horizontal: DeviceUtils.m3Margin),
@@ -141,7 +141,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         );
 
-        // Apply Content Theme if available
+   
         if (controller.contentColorScheme != null) {
           return Theme(
             data: AaliyahAppTheme.createTheme(
@@ -245,11 +245,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         child: Semantics(
           label: 'Back',
           button: true,
-          child: IconButton.filledTonal( // M3 Standard: Filled Tonal for overlay actions
+          child: IconButton.filledTonal( 
             onPressed: () => Navigator.pop(context),
             icon: Icon(backIcon),
             style: IconButton.styleFrom(
-               backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.9), // Glass-like effect
+               backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.9), 
             ),
             tooltip: 'Back',
           ),

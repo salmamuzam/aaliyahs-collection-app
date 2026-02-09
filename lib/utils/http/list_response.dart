@@ -14,7 +14,7 @@ class ListResponse<T> {
     if (rawData is List) {
        items = rawData;
     } else if (rawData is Map) {
-       // Handle cases where data is keyed
+
        if (rawData['data'] is List) {
          items = rawData['data'];
        } else {

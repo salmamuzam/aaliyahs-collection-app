@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 
-/// Service for reading/writing to the local file system (Requirement 3: Local Data Source).
+/// Service for reading/writing to the local file system 
 class DataRepository {
   
   Future<String> get _localPath async {
@@ -48,7 +48,7 @@ class DataRepository {
     }
   }
 
-  /// Requirement 3: Write data to Local Data Source
+  /// Write data to Local Data Source
   Future<void> saveProductNote(int productId, String note) async {
     try {
       final file = await _notesFile;
@@ -63,7 +63,7 @@ class DataRepository {
     }
   }
 
-  /// Requirement 3: Read data from Local Data Source
+  /// Read data from Local Data Source
   Future<String> getProductNote(int productId) async {
     try {
       final file = await _notesFile;
@@ -74,7 +74,7 @@ class DataRepository {
     } catch (_) {}
     return '';
   }
-  /// Requirement 3: Clear data from Local Data Source
+  /// Clear data from Local Data Source
   Future<void> clearRecentlyViewed() async {
     try {
       final file = await _recentlyViewedFile;

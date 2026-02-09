@@ -4,7 +4,7 @@ class NavigationController extends ChangeNotifier {
   int _selectedIndex = 0;
   int get selectedIndex => _selectedIndex;
 
-  // Signal for re-selection (used for Scroll-to-Top behavior)
+
   int _reselectedIndex = -1;
   int get reselectedIndex => _reselectedIndex;
 
@@ -14,7 +14,7 @@ class NavigationController extends ChangeNotifier {
       _reselectedIndex = index;
       notifyListeners();
       
-      // Reset reselection index immediately so it doesn't trigger again on next rebuild
+      // Reset reselection index 
       _reselectedIndex = -1;
     } else {
       _selectedIndex = index;

@@ -29,7 +29,7 @@ class UserModel {
   String get profilePicture => profilePhotoUrl;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Extensive fallback for profile image fields
+   
     String photoUrl = json['profile_photo_url'] ?? 
                       json['profile_photo_path'] ?? 
                       json['profile_picture'] ?? 
@@ -58,7 +58,7 @@ class UserModel {
     final lastName = names.length > 1 ? names.sublist(1).join(' ') : 'User';
 
     return UserModel(
-      id: user.uid.hashCode, // Use hash of UID as an integer ID
+      id: user.uid.hashCode, 
       firstName: firstName,
       lastName: lastName,
       username: user.email?.split('@').first ?? 'google_user',
@@ -71,12 +71,11 @@ class UserModel {
   static String _processImageUrl(String url) {
     if (url.isEmpty) return '';
     
-    // 1. Handle Local Assets (Requirement 3)
+    // Handle Local Assets 
     if (url.startsWith('assets/')) {
         return url;
     }
 
-    // 2. Handle complete URLs pointing to localhost/emulator IPs
     if (url.startsWith('http')) {
         if (url.contains('localhost') || url.contains('127.0.0.1') || url.contains('10.0.2.2')) {
            final Uri uri = Uri.parse(url);
@@ -85,11 +84,10 @@ class UserModel {
         return url;
     }
 
-    // 3. Handle relative paths (e.g. /storage/... or storage/...)
     if (url.startsWith('/')) {
         return '$rootBaseURL$url';
     } else {
-        // Prepend splash if missing
+  
         return '$rootBaseURL/$url';
     }
   }

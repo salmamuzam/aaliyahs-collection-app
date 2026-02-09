@@ -11,11 +11,10 @@ class AaliyahTextFormFieldTheme {
         if (states.contains(WidgetState.focused)) return Colors.transparent;
         if (states.contains(WidgetState.disabled)) return colorScheme.onSurface.withValues(alpha: 0.04);
         if (states.contains(WidgetState.hovered)) return colorScheme.onSurface.withValues(alpha: 0.08);
-        // M3 Filled Default: SurfaceContainerHighest
+        
         return colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
       }),
-      // Visual density and constraints handled by widget
-      // M3 Spec: 56dp height (16 padding top/bottom + 24 line height)
+      
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       
       // Borders
@@ -49,7 +48,7 @@ class AaliyahTextFormFieldTheme {
     );
   }
 
-  // Deprecated static themes kept for compatibility if needed, but should move to dynamic
+
   static InputDecorationTheme lightInputDecorationTheme = const InputDecorationTheme(border: OutlineInputBorder());
   static InputDecorationTheme darkInputDecorationTheme = const InputDecorationTheme(border: OutlineInputBorder());
 }

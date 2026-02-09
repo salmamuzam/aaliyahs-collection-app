@@ -2,9 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-/// Performance Monitor
-/// Tracks app performance metrics and provides insights
-/// Use in development to identify performance bottlenecks
+
 class PerformanceMonitor {
   static final PerformanceMonitor _instance = PerformanceMonitor._internal();
   factory PerformanceMonitor() => _instance;
@@ -16,17 +14,17 @@ class PerformanceMonitor {
   int _droppedFrames = 0;
   DateTime? _sessionStart;
 
-  /// Initialize performance monitoring
+
   void initialize() {
     _sessionStart = DateTime.now();
     
     if (kDebugMode) {
       SchedulerBinding.instance.addTimingsCallback(_onFrameTiming);
-      debugPrint('📊 PerformanceMonitor: Initialized');
+      debugPrint('PerformanceMonitor: Initialized');
     }
   }
 
-  /// Frame timing callback
+
   void _onFrameTiming(List<FrameTiming> timings) {
     for (final timing in timings) {
       _totalFrames++;
@@ -37,26 +35,25 @@ class PerformanceMonitor {
       
       _frameDurations.add(totalDuration);
       
-      // Keep only last 100 frames
+
       if (_frameDurations.length > 100) {
         _frameDurations.removeAt(0);
       }
-      
-      // Check if frame was dropped (>16.67ms for 60fps)
+
       if (totalDuration.inMicroseconds > 16670) {
         _droppedFrames++;
       }
     }
   }
 
-  /// Track widget rebuild
+  
   void trackRebuild(String widgetName) {
     if (!kDebugMode) return;
     
     _widgetRebuildCounts[widgetName] = (_widgetRebuildCounts[widgetName] ?? 0) + 1;
   }
 
-  /// Get performance metrics
+
   Map<String, dynamic> getMetrics() {
     if (_frameDurations.isEmpty) {
       return {
@@ -86,7 +83,7 @@ class PerformanceMonitor {
     };
   }
 
-  /// Get widgets with most rebuilds
+
   Map<String, int> _getTopRebuildWidgets() {
     final sorted = _widgetRebuildCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -94,12 +91,12 @@ class PerformanceMonitor {
     return Map.fromEntries(sorted.take(10));
   }
 
-  /// Print performance report
+
   void printReport() {
     if (!kDebugMode) return;
     
     final metrics = getMetrics();
-    debugPrint('\n📊 ===== PERFORMANCE REPORT =====');
+    debugPrint('\n ===== PERFORMANCE REPORT =====');
     debugPrint('Average FPS: ${metrics['averageFPS']}');
     debugPrint('Average Frame Time: ${metrics['averageFrameTime']}');
     debugPrint('Total Frames: ${metrics['totalFrames']}');
@@ -118,27 +115,26 @@ class PerformanceMonitor {
     debugPrint('================================\n');
   }
 
-  /// Reset metrics
+
   void reset() {
     _frameDurations.clear();
     _widgetRebuildCounts.clear();
     _totalFrames = 0;
     _droppedFrames = 0;
     _sessionStart = DateTime.now();
-    debugPrint('📊 PerformanceMonitor: Metrics reset');
+    debugPrint('PerformanceMonitor: Metrics reset');
   }
 
-  /// Stop monitoring
+
   void dispose() {
     if (kDebugMode) {
       SchedulerBinding.instance.removeTimingsCallback(_onFrameTiming);
-      debugPrint('📊 PerformanceMonitor: Disposed');
+      debugPrint(' PerformanceMonitor: Disposed');
     }
   }
 }
 
-/// Widget Rebuild Tracker
-/// Wraps a widget to track its rebuild count
+
 class RebuildTracker extends StatelessWidget {
   final Widget child;
   final String name;
@@ -158,8 +154,7 @@ class RebuildTracker extends StatelessWidget {
   }
 }
 
-/// Performance Overlay Widget
-/// Shows real-time performance metrics on screen
+
 class PerformanceOverlay extends StatefulWidget {
   final Widget child;
 
@@ -257,43 +252,3 @@ class _PerformanceOverlayState extends State<PerformanceOverlay> {
   }
 }
 
-/// Example usage:
-/// 
-/// // In main.dart
-/// void main() {
-///   WidgetsFlutterBinding.ensureInitialized();
-///   
-///   if (kDebugMode) {
-///     PerformanceMonitor().initialize();
-///   }
-///   
-///   runApp(const MyApp());
-/// }
-/// 
-/// // Wrap your app with performance overlay
-/// class MyApp extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return PerformanceOverlay(
-///       child: MaterialApp(
-///         home: HomePage(),
-///       ),
-///     );
-///   }
-/// }
-/// 
-/// // Track widget rebuilds
-/// class MyWidget extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return RebuildTracker(
-///       name: 'MyWidget',
-///       child: Container(
-///         child: Text('Hello'),
-///       ),
-///     );
-///   }
-/// }
-/// 
-/// // Print performance report
-/// PerformanceMonitor().printReport();

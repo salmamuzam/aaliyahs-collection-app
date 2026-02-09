@@ -2,22 +2,16 @@ import 'package:aaliyahs_collection_estore/data/repositories/auth_repository.dar
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// ============================================================================
-// AUTH CONTROLLER - Manages All Authentication Operations
-// ============================================================================
 // This controller handles user authentication using Provider pattern
 // Supports multiple authentication methods:
 // 1. Email/Username + Password (Laravel API)
 // 2. Google Sign-In (Firebase)
 // 3. Two-Factor Authentication (2FA)
-// 4. Anonymous/Guest mode
-//
-// It separates UI logic from business logic for clean architecture
-// ============================================================================
+
 
 class AuthController extends ChangeNotifier {
-  final AuthRepository _authRepository = AuthRepository();  // Handles actual API calls
-  bool _isLoading = false;  // Tracks if an auth operation is in progress
+  final AuthRepository _authRepository = AuthRepository();  
+  bool _isLoading = false;  
 
   // Get current logged-in user from Firebase
   User? get currentUser => FirebaseAuth.instance.currentUser;
@@ -25,14 +19,14 @@ class AuthController extends ChangeNotifier {
   // Stream that notifies when user logs in/out
   Stream<User?> get authStateChanges => FirebaseAuth.instance.authStateChanges();
   
-  // Public getters
+
   bool get isLoading => _isLoading;
   bool get isAuthenticated => currentUser != null;  // True if user is logged in
 
   // Update loading state and notify UI
   void setLoading(bool value) {
     _isLoading = value;
-    notifyListeners();  // Tell UI to show/hide loading indicator
+    notifyListeners();  
   }
 
   // ============================================================================
@@ -60,7 +54,7 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       setLoading(false);
-      // Return error if something went wrong (network error, etc.)
+      // Return error if something went wrong 
       return <String, dynamic>{'status': 'error', 'message': e.toString()};
     }
   }
@@ -93,7 +87,7 @@ class AuthController extends ChangeNotifier {
       if (response.success) {
         return {'status': 'success', 'message': response.data?['message'] ?? 'Account created'};
       } else {
-        // Registration failed (email already exists, weak password, etc.)
+        // Registration failed 
         return {'status': 'error', 'message': response.statusMessage};
       }
     } catch (e) {

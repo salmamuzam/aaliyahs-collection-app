@@ -6,39 +6,27 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/cart_contro
 import 'package:aaliyahs_collection_estore/common/widgets/images/smart_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
-import 'package:aaliyahs_collection_estore/utils/constants/image_cache_sizes.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/accessibility_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:aaliyahs_collection_estore/utils/theme/widget_themes/text_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 
-// ============================================================================
-// PRODUCT CARD VERTICAL - Displays a Product in a Card Layout
-// ============================================================================
-// This is a reusable card that shows product information:
-// - Product image
-// - Product name
-// - Price
-// - Favorite button (heart icon)
-// - Add to cart button (cart icon)
-//
-// Used in: Home screen, Shop screen, Search results
-// ============================================================================
+
+
 
 class ProductCardVertical extends StatefulWidget {
   final ProductModel product;         // The product data to display
   final VoidCallback onPress;         // What happens when card is tapped
   final VoidCallback? onLongPress;    // What happens when card is long pressed
   final Function(GlobalKey)? onAddToCart;  // Callback for add-to-cart animation
-  final String? heroPrefix;           // Optional prefix for Hero tags to avoid collisions
-  final bool isWishlist;              // True if showing on wishlist screen (shows delete icon)
-  final bool isSelected;              // True if the card is currently selected
+  final String? heroPrefix;          
+  final bool isWishlist;             
+  final bool isSelected;             
 
   const ProductCardVertical({
     super.key,
@@ -62,7 +50,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
   @override
   void initState() {
     super.initState();
-    // Color extraction moved to didChangeDependencies to safely access Theme.of(context)
+
   }
 
   @override
@@ -103,11 +91,10 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
         imageProvider = AssetImage(widget.product.image);
       }
 
-      // Optimization: Extract from a tiny version to save memory/time
-      // and prevent 'Stream has been disposed' errors on large/slow images
+
       imageProvider = ResizeImage(imageProvider, width: 100);
 
-      // Add a hard timeout to prevent hanging extractions
+
       final scheme = await ColorScheme.fromImageProvider(
         provider: imageProvider,
         brightness: brightness,
@@ -117,11 +104,11 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
         setState(() => _contentScheme = scheme);
       }
     } on TimeoutException {
-      // debugPrint('Color extraction timed out for ${widget.product.name}');
+      return;
     } catch (e) {
-      // Catch all to prevent 'Bad state' crashes from unhandled image stream errors
+
       if (e.toString().contains('Stream has been disposed')) {
-         // Silently ignore this specific framework quirk
+
       } else {
          debugPrint('Error extracting color for product card: $e');
       }
@@ -134,10 +121,10 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
-    // M3 Advanced: Use content-based scheme if available
+   
     final effectiveScheme = _contentScheme ?? colorScheme;
     
-    // Create a stable key for this widget (used for add-to-cart animation)
+    
     final GlobalKey widgetKey = GlobalObjectKey("${widget.heroPrefix ?? ''}_${widget.product.id}");
 
     return Consumer<AccessibilityController>(
@@ -160,7 +147,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
               : colorScheme.surfaceContainerLow,
           child: Stack(
             children: [
-              // 1. Primary Interaction Layer (Card Content)
+    
               InkWell(
                 onTap: widget.onPress,
                 onLongPress: widget.onLongPress,
@@ -187,7 +174,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                       ExcludeSemantics(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min, // Ensure it only takes needed space
+                          mainAxisSize: MainAxisSize.min, 
                           children: [
                             AutoSizeText(
                               widget.product.displayName.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' '),
@@ -195,7 +182,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
                                 color: effectiveScheme.onSurface,
                                 height: 1.2,
                               ),
-                              maxLines: 2, // Reduce max lines to preventative overflow with taller image
+                              maxLines: 2, 
                               minFontSize: 8,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -308,7 +295,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
 
   Widget _buildProductImage() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), // M3 Optical Roundness: 20(Card) - 8(Padding) = 12
+      borderRadius: BorderRadius.circular(TUIConstants.shapeRadiusMedium), 
       child: widget.product.image.isEmpty
           ? Container(
               color: Colors.grey.shade100,
@@ -318,8 +305,7 @@ class _ProductCardVerticalState extends State<ProductCardVertical> {
               imageUrl: widget.product.image,
               width: double.infinity,
               alignment: Alignment.topCenter,
-              fit: BoxFit.cover, // Ensures image covers area without distortion
-              // cacheWidth/Height removed to allow full resolution / SmartImage optimal calc
+     
               placeholder: Shimmer.fromColors(
                 baseColor: const Color(0xffe6e6e6),
                 highlightColor: const Color(0xfff9f9f9),

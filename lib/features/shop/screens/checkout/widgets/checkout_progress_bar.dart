@@ -93,7 +93,7 @@ class CheckoutProgressBar extends StatelessWidget {
                 titles[stepIndex],
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500, // Fixed: FontWeight.medium -> FontWeight.w500
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w500, 
                   color: isActive
                       ? colorScheme.primary
                       : colorScheme.onSurfaceVariant,

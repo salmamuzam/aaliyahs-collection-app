@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 /// Central database helper managing Cart, Wishlist, and Addresses.
-/// Refined with Batch Operations, Indexing, and robust Error Handling.
+
 class DBHelper {
   static final DBHelper _instance = DBHelper._internal();
   static Database? _database;
@@ -35,7 +35,7 @@ class DBHelper {
   }
 
   Future<void> _createDB(Database db, int version) async {
-    // Optimization: Using Transactions for table creation
+
     await db.transaction((txn) async {
       // 1. Cart Table
       await txn.execute('''
@@ -79,7 +79,7 @@ class DBHelper {
         )
       ''');
 
-      // Optimization: Add Indices for frequently searched columns (if not already unique)
+
       await txn.execute('CREATE INDEX idx_cart_ProductModel_id ON cart(productId)');
       await txn.execute('CREATE INDEX idx_fav_ProductModel_id ON favorites(id)');
     });
@@ -87,7 +87,7 @@ class DBHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // Handle missing columns in favorites table from version 1
+
       final List<Map<String, dynamic>> columns = await db.rawQuery('PRAGMA table_info(favorites)');
       final bool hasCategoryName = columns.any((column) => column['name'] == 'CategoryModel_name');
       final bool hasCategoryId = columns.any((column) => column['name'] == 'CategoryModel_id');
@@ -150,7 +150,7 @@ class DBHelper {
     }
   }
 
-  /// Optimization: Using Batch for clearing large datasets if needed
+
   Future<void> clearCart() async {
     try {
       final Database db = await database;
@@ -282,7 +282,7 @@ class DBHelper {
     }
   }
 
-  /// Explicitly Close Database to free up local resources.
+  /// Close Database 
   Future<void> dispose() async {
     if (_database != null) {
       await _database!.close();

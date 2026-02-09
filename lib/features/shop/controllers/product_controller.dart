@@ -8,50 +8,11 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-// ============================================================================
-// PRODUCT CONTROLLER - Advanced Product Management System
-// ============================================================================
+
 // This is the MOST COMPLEX controller in the app
 // It manages all product-related operations with multiple data sources
-//
-// KEY FEATURES:
-// 1. **Multi-Source Data Fetching**:
-//    - Laravel API (primary source)
-//    - Firebase Firestore (best sellers)
-//    - Local JSON files (offline fallback)
-//
-// 2. **Offline Mode Support**:
-//    - Automatically detects no internet connection
-//    - Loads local JSON data when offline
-//    - Shows offline indicator to user
-//
-// 3. **Product Categories**:
-//    - Latest products
-//    - Featured products
-//    - Best selling products
-//    - Shop products (all products)
-//    - Recently viewed products
-//
-// 4. **Advanced Features**:
-//    - Search functionality
-//    - Sorting (Newest, Price Low-High, Price High-Low)
-//    - Category filtering
-//    - Pagination (infinite scroll)
-//    - Recently viewed tracking
-//
-// 5. **Performance Optimizations**:
-//    - Parallel API requests (Future.wait)
-//    - Background processing (compute isolate)
-//    - Pagination to avoid loading all products at once
-//    - Caching recently viewed products
-//
-// Used throughout the app in:
-// - Home screen
-// - Shop screen
-// - Search screen
-// - Category screens
-// - Product detail screen
-// ============================================================================
+
+
 
 class ProductController extends ChangeNotifier {
   final ProductRepository _productRepository = ProductRepository();
@@ -87,7 +48,7 @@ class ProductController extends ChangeNotifier {
   static const int maxDisplayProductModels = 4;     // Max products to show on home screen
   static const String defaultSort = 'Newest';
 
-  // PUBLIC GETTERS - Other parts of app can read these
+
   List<ProductModel> get bestSellingProductModels => _bestSellingProducts;
   List<ProductModel> get latestProductModels => _latestProducts;
   List<ProductModel> get featuredProductModels => _featuredProducts;
@@ -188,24 +149,24 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> fetchHomeData({String? token}) async {
-    // 🛡️ Robustness: Prevent concurrent home data fetches
+    // Prevent concurrent home data fetches
     if (_isLoading) return;
 
     _setLoading(true);
     _errorMessage = '';
     _isUsingLocalData = false; 
     
-    // Proactive check (Requirement 3: Data Source Switching)
+
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-       debugPrint('🔌 [OFFLINE DETECTED] No internet connection. Switching to local assets.');
+       debugPrint('[OFFLINE DETECTED] No internet connection. Switching to local assets.');
        await _loadLocalDataAsFallback();
        _setLoading(false);
        return;
     }
     
     try {
-      debugPrint('🌐 [ONLINE] Fetching Home Data from Laravel API...');
+      debugPrint('[ONLINE] Fetching Home Data from Laravel API...');
       await _fetchBestSellersFromFirebase();
       
       final results = await Future.wait([
@@ -256,7 +217,7 @@ class ProductController extends ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       debugPrint('Error in fetchHomeData: $e');
-      // CRITICAL: Load from Local JSON if API fails (Requirement 3: Local Data Source)
+      // Load from Local JSON if API fails
       await _loadLocalDataAsFallback();
     } finally {
       _setLoading(false);
@@ -264,7 +225,7 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> _loadLocalDataAsFallback() async {
-    debugPrint('📂 [OFFLINE] Loading local fallback data...');
+    debugPrint('[OFFLINE] Loading local fallback data...');
     _isUsingLocalData = true; // Mark as offline fallback active
     
     // Reset pagination to prevent infinite scroll attempts on local data
@@ -275,7 +236,7 @@ class ProductController extends ChangeNotifier {
     final localCategories = await _productRepository.loadLocalCategories();
     
     if (localProductModels.isNotEmpty) {
-      // Home Screen Sections: Use different slices of data to avoid visually repeating products
+
       _latestProducts = localProductModels.take(4).toList();
       _featuredProducts = localProductModels.length > 4 
           ? localProductModels.skip(4).take(4).toList() 
@@ -284,7 +245,7 @@ class ProductController extends ChangeNotifier {
           ? localProductModels.skip(8).take(4).toList() 
           : localProductModels.reversed.take(4).toList();
       
-      // Shop Page Data (respect Category Filter)
+      // Shop Page Data 
       if (_selectedCategoryIds.isNotEmpty) {
         _shopProducts = localProductModels.where((p) => _selectedCategoryIds.contains(p.categoryId)).toList();
         debugPrint('🎯 [OFFLINE] Filtered ${localProductModels.length} products to ${_shopProducts.length} for Category IDs: $_selectedCategoryIds');
@@ -304,7 +265,7 @@ class ProductController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Tracking recently viewed ProductModels (Requirement 3: Writing to Local File)
+  /// Tracking recently viewed ProductModels 
   Future<void> addToRecentlyViewed(ProductModel productModel) async {
     if (productModel.id == null) return;
     
@@ -331,7 +292,7 @@ class ProductController extends ChangeNotifier {
      final ids = await _dataRepository.getRecentlyViewed();
      if (ids.isEmpty) return;
      
-     // Enrichment logic omitted for brevity, but IDs are loaded from Local File
+  
   }
 
   Future<void> fetchShopProducts({List<int>? categoryIds, bool refresh = false}) async {
@@ -356,7 +317,7 @@ class ProductController extends ChangeNotifier {
     
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-       debugPrint('🔌 [OFFLINE DETECTED] No internet connection. Switching Shop to local assets.');
+       debugPrint(' [OFFLINE DETECTED] No internet connection. Switching Shop to local assets.');
        await _loadLocalDataAsFallback();
        _setLoading(false);
        return;
@@ -364,7 +325,7 @@ class ProductController extends ChangeNotifier {
 
     try {
       if (_selectedCategoryIds.isNotEmpty) {
-        debugPrint('🌐 [ONLINE] Fetching Shop Products for categories ${_selectedCategoryIds.toList()} from Laravel API...');
+        debugPrint(' [ONLINE] Fetching Shop Products for categories ${_selectedCategoryIds.toList()} from Laravel API...');
         final response = await _productRepository.getShopProducts(
           categoryIds: _selectedCategoryIds.toList(), 
           page: 1,
@@ -376,7 +337,7 @@ class ProductController extends ChangeNotifier {
           _updatePagination(response.data!);
         }
       } else {
-        debugPrint('🌐 [ONLINE] Fetching all Shop Products (Page 1) from Laravel API...');
+        debugPrint('[ONLINE] Fetching all Shop Products (Page 1) from Laravel API...');
         final response = await _productRepository.getShopProducts(
           page: 1,
           sort: _sortOption
@@ -391,7 +352,7 @@ class ProductController extends ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       debugPrint('Exception in fetchShopProducts: $e');
-      // Requirement 3: Local Fallback for Shop Page
+      //Local Fallback for Shop Page
       await _loadLocalDataAsFallback();
     } finally {
       _setLoading(false);
@@ -411,7 +372,7 @@ class ProductController extends ChangeNotifier {
 
   void _applyClientSideSort() {
     if (_sortOption == 'Newest' || _sortOption == 'latest') {
-       // Assuming ID correlates with newness if date not available, or just keep order
+
        _shopProducts.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
     } else if (_sortOption == 'Price: Low to High') {
        _shopProducts.sort((a, b) => a.priceDouble.compareTo(b.priceDouble));
@@ -432,7 +393,7 @@ class ProductController extends ChangeNotifier {
       if (response.success && response.data != null) {
         _shopProducts = await compute(_extractProductModelsSync, response.data!['data']);
       } else {
-        // Fallback if API fails (500 error seen in logs)
+        // Fallback if API fails 
         await _fetchBestSellingFallback();
         // If fallback populates _bestSellingProducts, use that
          if (_bestSellingProducts.isNotEmpty) {
@@ -450,10 +411,8 @@ class ProductController extends ChangeNotifier {
     }
   }
 
-  // Load More is now redundant for Shop with recursive fetch, 
-  // but kept for compatibility or safe-guard.
   Future<void> loadMoreShopProducts() async {
-    // Modified: Allow loading more even if categories are empty (for 'All' pagination)
+    // Allow loading more even if categories are empty 
     if (_isFetchingMore || !_hasMore) return;
     
     _setFetchingMore(true);
@@ -532,9 +491,9 @@ class ProductController extends ChangeNotifier {
       }
     } catch (e) {
       if (e is FirebaseException && e.code == 'permission-denied') {
-        debugPrint('⚠️ Firestore Best Sellers: Permission denied. Using API fallback.');
+        debugPrint('Firestore Best Sellers: Permission denied. Using API fallback.');
       } else {
-        debugPrint('⚠️ Firestore Best Sellers Error: $e');
+        debugPrint(' Firestore Best Sellers Error: $e');
       }
     }
   }
@@ -559,7 +518,7 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> _enrichBestSellersDetails() async {
-    // 1. Enrich from loaded latest/featured (Fast)
+
     if (_bestSellingProducts.isNotEmpty && (_latestProducts.isNotEmpty || _featuredProducts.isNotEmpty)) {
       final Map<int, ProductModel> fullProductModelMap = {};
       for (var productModel in _latestProducts) {
@@ -577,7 +536,7 @@ class ProductController extends ChangeNotifier {
       }
     }
 
-    // 2. Fetch missing details from API (Slower but necessary)
+    // 2. Fetch missing details from API 
     List<Future<void>> futures = [];
     for (int i = 0; i < _bestSellingProducts.length; i++) {
        final p = _bestSellingProducts[i];

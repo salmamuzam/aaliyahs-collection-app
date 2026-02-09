@@ -28,7 +28,7 @@ class EditProfileImagePicker extends StatelessWidget {
         return Stack(
           children: [
             CircularProfileAvatar(
-              '', // DO NOT pass assets here, it triggers network loading errors
+              '', 
               radius: 60,
               backgroundColor: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
               borderWidth: 2,

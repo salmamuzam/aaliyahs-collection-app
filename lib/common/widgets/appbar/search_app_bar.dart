@@ -6,21 +6,10 @@ import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart
 import 'package:aaliyahs_collection_estore/utils/constants/ui_constants.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-// ============================================================================
-// AALIYAH SEARCH APP BAR - M3 Expressive (May 2025)
-// ============================================================================
-// This is a reusable search AppBar that can be used on any screen
-// M3 Expressive Features:
-// - Height: 72dp (search app bar standard)
-// - Supports icons inside and outside the search bar
-// - Can have centered text option
-// - Opens search view component when selected
-// - Visual feedback when listening to voice
-// - Dynamic shape morphing during voice input
-// ============================================================================
+
 
 class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
-  // Properties that can be customized when using this widget
+
   final TextEditingController controller;  // Controls the text in the search field
   final String hintText;                   // Placeholder text (e.g., "Search products...")
   final VoidCallback? onBackPress;         // What happens when back button is pressed
@@ -47,30 +36,30 @@ class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget
     final bool reduceMotion = access.reduceMotion;
 
     return AppBar(
-      toolbarHeight: 72,  // Make AppBar taller to fit the search bar nicely
-      automaticallyImplyLeading: false,  // Don't show default back button (I'll add my own)
-      titleSpacing: 8, // Give a small bit of breathing room
+      toolbarHeight: 72,  
+      automaticallyImplyLeading: false, 
+      titleSpacing: 8, 
       centerTitle: false,
       elevation: 0,
       backgroundColor: colorScheme.surface,
       
-      // The search bar container with M3 Shape Morphing
+
       title: AnimatedContainer(
         duration: AMotion.durationStationaryEmphasized,
         curve: AMotion.easingEmphasized,
         height: 50,
         
-        // M3 Expressive: Dynamic shape to indicate listening state
+    
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainer,
           borderRadius: isListening 
               ? const BorderRadius.only(
                   topLeft: Radius.circular(TUIConstants.shapeRadiusXL), // 28
-                  topRight: Radius.circular(TUIConstants.shapeRadiusSmall), // 8 (Tension)
+                  topRight: Radius.circular(TUIConstants.shapeRadiusSmall), 
                   bottomLeft: Radius.circular(TUIConstants.shapeRadiusSmall), 
                   bottomRight: Radius.circular(TUIConstants.shapeRadiusXL),
                 )
-              : BorderRadius.circular(25), // Standard pill
+              : BorderRadius.circular(25), 
           
           border: Border.all(
             color: isListening 
@@ -98,7 +87,7 @@ class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget
               tooltip: 'Back',
             ),
             
-            // Search text field (takes up remaining space)
+            // Search text field 
             Expanded(
               child: TextField(
                 controller: controller,  // Connect to the text controller
@@ -108,7 +97,7 @@ class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget
                   // Change hint text when listening to voice
                   hintText: isListening ? 'Listening...' : hintText,
                   
-                  // Remove all borders (we already have border on container)
+                  // Remove all borders 
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -120,7 +109,7 @@ class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget
               ),
             ),
             
-            // Microphone button on the right (only show if onMicPress is provided)
+            // Microphone button on the right 
             if (onMicPress != null)
               Semantics(
                 label: isListening ? 'Stop voice search' : 'Start voice search',
@@ -150,12 +139,12 @@ class AaliyahSearchAppBar extends StatelessWidget implements PreferredSizeWidget
           curve: AMotion.easingEmphasizedDecelerate,
         ),
       
-      // Additional action buttons on the right (if provided)
+
       actions: actions,
     );
   }
 
-  // Required by PreferredSizeWidget - tells Flutter how tall this AppBar should be
+ 
   @override
   Size get preferredSize => const Size.fromHeight(72);
 }

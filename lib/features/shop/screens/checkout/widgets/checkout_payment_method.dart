@@ -1,8 +1,7 @@
 import 'package:aaliyahs_collection_estore/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-// Only cash on delivery option for now because card payment is out of the scope of my assignment
-// Plans to implement card payment using Stripe in MAD 2 Assignment
+
 
 
 
@@ -11,7 +10,7 @@ class PaymentMethodSection extends StatelessWidget {
   final CheckoutColors colors;
   final Function(bool?) onChanged;
 
-  // Controllers removed as per request
+
 
   const PaymentMethodSection({
     super.key,
@@ -61,7 +60,7 @@ class PaymentMethodSection extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        IgnorePointer( // Radio replaced with Icon for custom control without deprecation warnings
+                        IgnorePointer( 
                           child: Icon(
                             !cashOnDelivery ? Icons.radio_button_checked : Icons.radio_button_unchecked,
                             color: !cashOnDelivery ? aaliyahPrimaryColor : Colors.grey,
@@ -78,7 +77,7 @@ class PaymentMethodSection extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            // COD Option (Using Paypal design slot)
+
             Expanded(
               child: Semantics(
                 label: 'Cash On Delivery',

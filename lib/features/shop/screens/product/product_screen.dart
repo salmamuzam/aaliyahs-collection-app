@@ -52,7 +52,7 @@ class _ProductScreenState extends State<ProductScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
       
-      // M3 Behavior: Scroll to top upon re-selection
+  
       _navigationController = Provider.of<NavigationController>(context, listen: false);
       _navigationController.addListener(_handleNavSelection);
     });
@@ -70,7 +70,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   void dispose() {
-    // Correctly cleanup listeners before disposing controller
+  
     try {
       _navigationController.removeListener(_handleNavSelection);
     } catch (_) {}
@@ -97,14 +97,14 @@ class _ProductScreenState extends State<ProductScreen> {
     if (widget.isBestSelling) {
       await provider.fetchAllBestSellingProducts();
     } else if (widget.initialCategoryId != null) {
-      // Explicitly requested category
+
       await provider.fetchShopProducts(categoryIds: [widget.initialCategoryId!]);
     } else if (provider.selectedCategoryIds.isEmpty && provider.shopProductModels.isEmpty) {
       // Only fetch default "All" if no filters exist and no cache
       await provider.fetchShopProducts();
     }
 
-    // M3 Feature: UX improvement for offline fallback
+  
     if (mounted && provider.isUsingLocalData) {
       QuickAlert.show(
         context: context,
@@ -166,7 +166,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   resizableDividers: true,
                   maxWidth: DeviceUtils.maxContentWidth,
                   panes: [
-                    // PANE 1: Filter/Category Side Pane (Fixed, Resizable)
+                   
                     AdaptivePaneItem(
                       id: 'filter_pane',
                       config: PaneConfig(
@@ -182,7 +182,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       child: _buildSidePane(context),
                     ),
                     
-                    // PANE 2: Product Grid (Flexible)
+              
                     AdaptivePaneItem(
                       id: 'grid_pane',
                       config: const PaneConfig(
@@ -218,8 +218,7 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget _buildMobileBody() {
     return Column(
       children: [
-        // M3 Official SearchBar
-        // M3 Official SearchBar (Now in AppBar - adding subtle spacing instead)
+
         SizedBox(height: DeviceUtils.m3Padding(5)),
         
         const Padding(
@@ -237,10 +236,10 @@ class _ProductScreenState extends State<ProductScreen> {
               if (Provider.of<AccessibilityController>(context).reduceMotion) {
                 return FadeTransition(opacity: animation, child: child);
               }
-              // M3 Lateral: Pure slide without fade (better relationship/swipe hint)
+
               return SlideTransition(
                 position: animation.drive(Tween<Offset>(
-                  begin: const Offset(0.08, 0), // Standard lateral slide
+                  begin: const Offset(0.08, 0), 
                   end: Offset.zero,
                 ).chain(CurveTween(curve: AMotion.easingStandard))),
                 child: child,
@@ -264,8 +263,8 @@ class _ProductScreenState extends State<ProductScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: DeviceUtils.m3Padding(4), // 16dp
-        vertical: DeviceUtils.m3Padding(6),    // 24dp
+        horizontal: DeviceUtils.m3Padding(4), 
+        vertical: DeviceUtils.m3Padding(6),   
       ),
       color: colorScheme.surfaceContainerLow,
       child: Column(
@@ -279,16 +278,16 @@ class _ProductScreenState extends State<ProductScreen> {
                   color: colorScheme.primary,
                 ),
           ),
-          SizedBox(height: DeviceUtils.m3Padding(6)), // 24dp
+          SizedBox(height: DeviceUtils.m3Padding(6)), 
           const SortDropdownWrapper(),
-          SizedBox(height: DeviceUtils.m3Padding(6)), // 24dp
+          SizedBox(height: DeviceUtils.m3Padding(6)), 
           Text(
             'Categories',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          SizedBox(height: DeviceUtils.m3Padding(3)), // 12dp
+          SizedBox(height: DeviceUtils.m3Padding(3)), 
           const Expanded(
             child: VerticalCategoryList(),
           ),

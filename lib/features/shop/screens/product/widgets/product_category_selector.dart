@@ -11,7 +11,7 @@ class ProductCategorySelector extends StatelessWidget {
     return Selector<ProductController, _CategorySelectionState>(
       selector: (context, provider) => _CategorySelectionState(
         provider.categories,
-        Set<int>.from(provider.selectedCategoryIds), // Copy to ensure Selector detects changes
+        Set<int>.from(provider.selectedCategoryIds), 
       ),
       builder: (context, state, child) {
         final categories = state.categories;
@@ -22,7 +22,7 @@ class ProductCategorySelector extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              // All Collections (No specific category filter)
+              // All Collections 
               Padding(
                 padding: const EdgeInsets.only(right: 12.0),
                 child: Semantics(
@@ -70,9 +70,7 @@ class ProductCategorySelector extends StatelessWidget {
   }
 }
 
-/// Private helper class to represent the state needed for the Category Selector.
-/// Using a separate class with an ']==' operator allows Selector to efficiently 
-/// check if the UI actually needs to rebuild.
+
 class _CategorySelectionState {
   final List<dynamic> categories;
   final Set<int> selectedIds;

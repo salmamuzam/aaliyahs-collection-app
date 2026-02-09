@@ -10,11 +10,9 @@ import 'package:aaliyahs_collection_estore/features/shop/controllers/checkout_co
 import 'package:aaliyahs_collection_estore/features/personalization/controllers/user_controller.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/order_success_screen.dart';
 import 'package:aaliyahs_collection_estore/utils/device/device_utility.dart';
-import 'package:aaliyahs_collection_estore/utils/validators/validator.dart';
-import 'package:aaliyahs_collection_estore/utils/constants/text_strings.dart';
 import 'package:aaliyahs_collection_estore/common/widgets/appbar/flexible_app_bars.dart';
 
-// Checkout Feature Widgets
+
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/widgets/checkout_progress_bar.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/widgets/checkout_address_step.dart';
 import 'package:aaliyahs_collection_estore/features/shop/screens/checkout/widgets/checkout_payment_step.dart';
@@ -34,7 +32,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Ensure controller is reset when entering the screen
+   
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CheckoutController>().reset();
     });
@@ -70,7 +68,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Primary Pane: Checkout Steps (Flexible)
+            
                   Expanded(
                     child: Column(
                       children: [
@@ -95,7 +93,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                   
-                  // Supporting Pane: Order Summary (Fixed 360dp for expanded)
+       
                   Container(
                     width: DeviceUtils.paneStandardWidth, 
                     padding: EdgeInsets.all(DeviceUtils.m3Margin),
@@ -195,10 +193,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void _validateAndProceed(CheckoutController checkout) {
     checkout.resetErrors();
 
-    // 1. Text Fields Validation (Handled by Form)
+    // 1. Text Fields Validation
     final isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid) {
-      // Form fields will show their own error messages
+    
       return; 
     }
 

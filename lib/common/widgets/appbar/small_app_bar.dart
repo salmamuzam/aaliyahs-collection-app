@@ -4,9 +4,7 @@ import 'package:aaliyahs_collection_estore/features/personalization/controllers/
 import 'package:aaliyahs_collection_estore/utils/constants/motion_constants.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-/// Small App Bar with M3 Expressive Updates
-/// Height: 64dp (updated from 56dp)
-/// Features: Subtitle support, center-aligned text option, flexible elements
+
 class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
@@ -38,8 +36,8 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
     final bool reduceMotion = access.reduceMotion;
 
     return AppBar(
-      toolbarHeight: 64.0, // M3 Expressive: Small app bar height
-      scrolledUnderElevation: 0, // M3 Expressive: No shadow
+      toolbarHeight: 64.0, 
+      scrolledUnderElevation: 0, 
       backgroundColor: backgroundColor ?? colorScheme.surface,
       centerTitle: centerTitle,
       leading: leading,
@@ -59,7 +57,7 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 24.0, // M3 Expressive: Larger title
+                        fontSize: 24.0, 
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                         height: 1.2,
@@ -91,7 +89,7 @@ class AaliyahSmallAppBar extends StatelessWidget implements PreferredSizeWidget 
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 24.0, // M3 Expressive: Larger title
+                    fontSize: 24.0, 
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
                     height: 1.2,

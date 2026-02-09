@@ -61,10 +61,10 @@ class ProductGrid extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           controller: scrollController,
           padding: EdgeInsets.all(DeviceUtils.m3Margin),
-          cacheExtent: 1500, // Optimization #3: Pre-render items outside viewport for smooth scrolling
+          cacheExtent: 1500, 
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: Responsive.getGridColumnCount(context),
-            mainAxisExtent: DeviceUtils.getVerticalSize(288), // Optimized height for balanced view
+            mainAxisExtent: DeviceUtils.getVerticalSize(288), 
             mainAxisSpacing: DeviceUtils.m3Padding(4),
             crossAxisSpacing: DeviceUtils.m3HSpace(4),
           ),
@@ -77,8 +77,8 @@ class ProductGrid extends StatelessWidget {
             }
             
             final product = products[index];
-            return RepaintBoundary( // Optimization: Prevents grid items from triggering full repaints
-              key: ValueKey(product.id), // Key helps Flutter identify items during UI updates
+            return RepaintBoundary( 
+              key: ValueKey(product.id), 
               child: ProductCardVertical(
                 product: product,
                 heroPrefix: 'shop_',
@@ -106,7 +106,7 @@ class ProductGrid extends StatelessWidget {
         padding: EdgeInsets.all(DeviceUtils.m3Margin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: Responsive.getGridColumnCount(context),
-          mainAxisExtent: DeviceUtils.getVerticalSize(288), // Match main grid height
+          mainAxisExtent: DeviceUtils.getVerticalSize(288), 
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
@@ -137,7 +137,7 @@ class ProductGrid extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon/Illustration Container with glassmorphism effect
+        
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -183,14 +183,14 @@ class ProductGrid extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // Action Button - Reset Filters / Explore
+              // Action Button 
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.tonal(
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     final provider = Provider.of<ProductController>(context, listen: false);
-                    provider.clearAllFilters(); // Assuming this method exists or similar logic to reset
+                    provider.clearAllFilters(); 
                     provider.fetchShopProducts(); // Fetch all products
                   },
                   style: FilledButton.styleFrom(

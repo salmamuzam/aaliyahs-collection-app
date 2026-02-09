@@ -161,7 +161,6 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                                         decoration: BoxDecoration(
                                           border: Border.all(
                                             color: (Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300),
-                                            width: 1,
                                           ),
                                           borderRadius: BorderRadius.circular(12),
                                           color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,

@@ -53,13 +53,13 @@ class AuthRepository {
         final token = body['token'];
         await _storage.write(key: 'token', value: token);
         
-        // 🔐 SECURE STORAGE: Save credentials for biometrics immediately after register
+        // Save credentials for biometrics immediately after register
         try {
           await _storage.write(key: 'bio_email', value: email);
           await _storage.write(key: 'bio_password', value: password);
-          debugPrint('🔐 [AUTH REPO]: Biometric credentials saved after registration');
+          debugPrint(' [AUTH REPO]: Biometric credentials saved after registration');
         } catch (e) {
-          debugPrint('🔐 [AUTH REPO]: Error saving bio credentials: $e');
+          debugPrint(' [AUTH REPO]: Error saving bio credentials: $e');
         }
         
         _apiClient.setToken(token);
@@ -95,10 +95,10 @@ class AuthRepository {
         final token = responseData['data']['token'];
         await _storage.write(key: 'token', value: token);
         
-        // 🔐 SECURE STORAGE: Save credentials for biometrics
+        // Save credentials for biometrics
         try {
-          debugPrint('🔐 [AUTH REPO]: Saving biometric credentials...');
-          debugPrint('🔐 [AUTH REPO]: Email to save: $login');
+          debugPrint(' [AUTH REPO]: Saving biometric credentials...');
+          debugPrint(' [AUTH REPO]: Email to save: $login');
           
           await _storage.write(key: 'bio_email', value: login);
           await _storage.write(key: 'bio_password', value: password);
@@ -108,14 +108,14 @@ class AuthRepository {
           final verifyPassword = await _storage.read(key: 'bio_password');
           
           if (verifyEmail == login && verifyPassword == password) {
-            debugPrint('🔐 [AUTH REPO]: ✅ Biometric credentials saved and verified successfully!');
-            debugPrint('🔐 [AUTH REPO]: Stored email: $verifyEmail');
+            debugPrint(' [AUTH REPO]: Biometric credentials saved and verified successfully!');
+            debugPrint(' [AUTH REPO]: Stored email: $verifyEmail');
           } else {
-            debugPrint('🔐 [AUTH REPO]: ⚠️ Warning: Credential verification failed!');
-            debugPrint('🔐 [AUTH REPO]: Expected email: $login, Got: $verifyEmail');
+            debugPrint(' [AUTH REPO]:  Warning: Credential verification failed!');
+            debugPrint(' [AUTH REPO]: Expected email: $login, Got: $verifyEmail');
           }
         } catch (e) {
-          debugPrint('🔐 [AUTH REPO]: ❌ Error saving biometric credentials: $e');
+          debugPrint(' [AUTH REPO]:  Error saving biometric credentials: $e');
         }
         
         _apiClient.setToken(token);
@@ -130,8 +130,6 @@ class AuthRepository {
 
   // --- GOOGLE AUTH (FIREBASE) ---
 
-  /// Sign in with Google as recommended for mobile devices.
-  /// Best practice: Centralize federated identity logic in the service layer.
   Future<Map<String, dynamic>> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -147,7 +145,6 @@ class AuthRepository {
       final User? user = userCredential.user;
 
       if (user != null) {
-        // BEST PRACTICE: Securely Manage User Data
         // Sync user profile to Realtime Database for easier access/association
         await _syncUserProfileToDatabase(user);
 
@@ -167,7 +164,6 @@ class AuthRepository {
   }
 
   /// Syncs the authenticated user's profile to the Realtime Database.
-  /// Follows the best practice of centralizing user metadata.
   Future<void> _syncUserProfileToDatabase(User user) async {
     try {
       final dbUrl = dotenv.env['FIREBASE_DB_URL'];
@@ -185,7 +181,7 @@ class AuthRepository {
 
       // PATCH used to update existing or create new without overwriting other fields
       await _apiClient.request(
-        path: url, // Dio handles absolute URLs if provided in path
+        path: url, 
         method: MethodType.patch,
         payload: data,
       );
@@ -204,7 +200,6 @@ class AuthRepository {
         await _apiClient.request(path: ApiEndpoints.logout, method: MethodType.get);
       }
       
-      // Federated Sign-Out Best Practice
       if (_googleSignIn.currentUser != null) await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
       
@@ -215,8 +210,7 @@ class AuthRepository {
     }
   }
 
-  /// Map Firebase and API error codes to User-Friendly messages.
-  /// Best Practice from "From Zero to Hero" guide.
+  /// Map Firebase and API error codes 
   String getErrorMessage(String errorCode) {
     switch (errorCode) {
       case 'auth/user-not-found':

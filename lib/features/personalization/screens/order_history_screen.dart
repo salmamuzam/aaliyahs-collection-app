@@ -72,10 +72,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             );
           }
 
-          // Tablet/Desktop: List-Detail Pattern
+        
           return Row(
             children: [
-              // Left Pane: Order List (Fixed)
+           
               Container(
                 width: DeviceUtils.recommendedFixedPaneWidth,
                 decoration: BoxDecoration(
@@ -159,7 +159,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 ),
               ),
               
-              // Right Pane: Order Details (Flexible)
+    
               Expanded(
                 child: provider.selectedOrderId == null
                     ? Center(
@@ -220,9 +220,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Icon/Illustration Container with glassmorphism effect
+          
               Container(
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(

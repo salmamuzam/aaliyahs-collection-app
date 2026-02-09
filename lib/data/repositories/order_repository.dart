@@ -6,23 +6,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Service managing Order placement via Stripe and Cloud Firestore.
-/// Migrated from Realtime Database to Firestore for superior querying and structure.
-/// 
-/// ⚠️ SECURITY WARNING ⚠️
-/// This implementation creates Payment Intents directly from the app using STRIPE_SECRET_KEY.
-/// This is ONLY acceptable for demo/development purposes.
-/// 
-/// 🚨 FOR PRODUCTION:
-/// - NEVER include STRIPE_SECRET_KEY in mobile apps
-/// - Create Payment Intents on your BACKEND server
-/// - Only use STRIPE_PUBLISHABLE_KEY in Flutter
-/// - Call your backend API to create payment intents
-/// 
-/// Example production flow:
-/// 1. Flutter calls YOUR_BACKEND/create-payment-intent
-/// 2. Backend (with secret key) calls Stripe API
-/// 3. Backend returns client_secret to Flutter
-/// 4. Flutter uses client_secret with Stripe SDK
+
 class OrderRepository {
   final Dio _dio = Dio();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -90,7 +74,6 @@ class OrderRepository {
   }
 
   /// Store Order in Cloud Firestore.
-  /// Previously stored in Realtime Database.
   Future<String?> storeOrderInFirestore({
     required Map<String, dynamic> orderData,
   }) async {
@@ -139,7 +122,6 @@ class OrderRepository {
     } catch (e) {
       debugPrint('Error fetching orders from Firestore: $e');
       // If index is missing, firestore will throw an error with a link to create it.
-      // Fallback to client-side filtering if absolutely necessary, but preferred to fix index.
       return _getOrdersFallback(cleanEmail);
     }
   }
