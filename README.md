@@ -84,3 +84,35 @@ This app showcases advanced hardware integration required for Level 5 developmen
    ```bash
    git clone [https://github.com/salmamuzam/aaliyahs-collection-app.git](https://github.com/salmamuzam/aaliyahs-collection-app.git)
    Install dependencies:
+   ## Install dependencies:
+```bash
+flutter pub get
+```
+
+## Setup Environment Variables:
+Create an `assets/.env` file and add your API credentials:
+
+```env
+STRIPE_PUBLISHABLE_KEY=your_key_here
+API_BASE_URL=your_laravel_api_url
+```
+
+## Run the application:
+```bash
+flutter run
+```
+
+---
+
+## 📂 Folder Structure
+```text
+lib/
+├── common/              # Reusable UI widgets, loaders, and navigation menu
+├── data/                # Repositories handling API vs Local logic
+├── features/            # Feature-First Business Domains
+│   ├── authentication/  # Login, Signup, Onboarding, 2FA
+│   ├── personalization/ # Profile, User Settings, Sensor logic
+│   └── shop/            # Catalog, Home, Cart, Checkout, Orders
+├── routes/              # Centralized route management
+└── utils/               # Handlers for Device, Theme, Formatting & Dio
+```
