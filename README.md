@@ -1,4 +1,3 @@
-````markdown
 # Aaliyah's Collection – Modest Fashion E-Store
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.8.1+-02569B?logo=flutter)](https://flutter.dev)
@@ -114,5 +113,6 @@ lib/
 ├── routes/              # Centralized route management
 └── utils/               # Handlers for Device, Theme, Formatting & Dio
 ```
-````
 
+
+Enjoy Coding ❤
