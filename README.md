@@ -18,7 +18,6 @@ This project was developed for the **COMP50011: Mobile App Development II** modu
 - [Tech Stack](#-tech-stack)
 - [Installation & Setup](#-installation--setup)
 - [Folder Structure](#-folder-structure)
-- [License](#-license)
 
 ---
 
@@ -116,3 +115,4 @@ lib/
 ├── routes/              # Centralized route management
 └── utils/               # Handlers for Device, Theme, Formatting & Dio
 ```
+
