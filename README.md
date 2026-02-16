@@ -83,9 +83,7 @@ This app showcases advanced hardware integration required for Level 5 developmen
    ```bash
    git clone [https://github.com/salmamuzam/aaliyahs-collection-app.git](https://github.com/salmamuzam/aaliyahs-collection-app.git)
    Install dependencies:
-   ## Install dependencies:
-```bash
-flutter pub get
+   ## Install dependencies: flutter pub get
 ```
 
 ## Setup Environment Variables:
@@ -115,4 +113,5 @@ lib/
 ├── routes/              # Centralized route management
 └── utils/               # Handlers for Device, Theme, Formatting & Dio
 ```
+
 
