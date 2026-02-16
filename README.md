@@ -113,6 +113,3 @@ lib/
 ├── routes/              # Centralized route management
 └── utils/               # Handlers for Device, Theme, Formatting & Dio
 ```
-
-
-Enjoy Coding ❤
